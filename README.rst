@@ -7,7 +7,7 @@ python-bsonjs
 About
 =====
 
-A library for converting between BSON and JSON.
+A fast BSON to MongoDB Extended JSON converter for Python.
 
 Installation
 ============
