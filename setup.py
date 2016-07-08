@@ -28,7 +28,7 @@ with open("README.rst") as f:
     except Exception:
         description = ""
 
-tests_require = ['pymongo']
+tests_require = ["pymongo"]
 if sys.version_info[:2] == (2, 6):
     tests_require.append("unittest2 >= 0.5.1")
     test_suite = "unittest2.collector"
@@ -36,29 +36,33 @@ else:
     test_suite = "test"
 
 
-def pkgconfig(lib, flags):
+def pkgconfig(lib, flag):
+    command = ["pkg-config", lib, flag]
+    if sys.platform == "win32":
+        command.append("--msvc-syntax")
+
     try:
-        proc = subprocess.Popen(['pkg-config'] + flags + [lib],
+        proc = subprocess.Popen(command,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT,
                                 universal_newlines=True)
     except OSError as exc:
-        exit('pkg-config failed: {0},'
-             'is pkg-config installed?'.format(exc.strerror))
+        exit("pkg-config failed: {0}\n"
+             "Is pkg-config installed?".format(exc.strerror))
 
-    out, err = proc.communicate()
+    out, _ = proc.communicate()
     if proc.returncode != 0:
-        exit('Failed to determine compile flags for libbson: {0}'.format(err))
+        exit("Failed to determine compile flags for libbson: {0}".format(out))
 
     return out.strip().split()
 
 
 def compile_args(lib):
-    return pkgconfig(lib, ['--cflags'])
+    return pkgconfig(lib, "--cflags")
 
 
 def link_args(lib):
-    return pkgconfig(lib, ['--libs'])
+    return pkgconfig(lib, "--libs")
 
 
 setup(
@@ -88,8 +92,8 @@ setup(
     ext_modules=[
         Extension(
             "bsonjs",
-            extra_compile_args=compile_args('libbson-1.0'),
-            extra_link_args=link_args('libbson-1.0'),
+            extra_compile_args=compile_args("libbson-1.0"),
+            extra_link_args=link_args("libbson-1.0"),
             sources=["src/bsonjs.c"]
         )
     ]

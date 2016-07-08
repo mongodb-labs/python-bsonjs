@@ -9,22 +9,79 @@ About
 
 A fast BSON to MongoDB Extended JSON converter for Python.
 
-Installation
-============
-
-python-bsonjs can be installed with `pip <http://pypi.python.org/pypi/pip>`_.
-Download the project source and run::
-
-  $ cd python-bsonjs
-  $ python -m pip install .
-
 Dependencies
 ============
 
 python-bsonjs supports CPython 2.6, 2.7, and 3.3+.
 
+libbson
+```````
 
-`libbson-1.0 <https://github.com/mongodb/libbson>`_
+To install libbson follow the installation `instructions for your system
+<https://api.mongodb.com/libbson/current/installing.html>`_.
+
+On Windows, you must add ``libbson\bin`` to your PATH environment variable.
+
+pkg-config
+``````````
+
+pkg-config is used to find the appropriate options to build against libbson.
+
+On RedHat/Fedora::
+
+    $ sudo yum install pkg-config
+
+On Debian/Ubuntu::
+
+    $ sudo apt install pkg-config
+
+On FreeBSD::
+
+    $ su -c 'pkg install pkgconf'
+
+On OS X::
+
+    $ brew install pkg-config
+
+On Windows:
+
+pkg-config comes bundled with GTK+ for Windows. Download
+`gtk+-bundle_2.22.0-20101016_win64.zip
+<http://ftp.gnome.org/mirror/gnome.org/binaries/win64/gtk+/2.22/>`_,
+extract, and add the ``gtk+-bundle_2.22.0-20101016_win64\bin`` folder to your
+PATH environment variable.
+
+Compiler
+````````
+
+You must build python-bsonjs separately for each version of Python. On
+Windows this means you must use the same C compiler your Python version was
+built with.
+
+- Python 2.6 and 2.7 require Microsoft Visual C++ Compiler for Python 2.7
+- Python 3.3 and 3.4 require Microsoft Visual Studio 2010
+- Python 3.5 and up requires Microsoft Visual Studio 2015
+
+Bringing it all Together
+````````````````````````
+
+Download the source and install::
+
+    $ git clone git@github.com:mongodb-labs/python-bsonjs.git
+    $ cd python-bsonjs
+    $ python setup.py install
+
+Common Errors on Windows
+````````````````````````
+
+.. code-block:: python
+
+    >>> import bsonjs
+    Traceback (most recent call last):
+      File "<stdin>", line 1 in <module>
+    ImportError: DLL load failed: The specified module could not be found.
+
+Add the libbson bin folder to your PATH environment variable.
 
 Tests
 =====
