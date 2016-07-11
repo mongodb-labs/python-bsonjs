@@ -39,9 +39,9 @@ bson_str_to_json(const char *bson, size_t bson_len, size_t *json_len)
         return NULL;
     }
 
-    bson_reader_destroy(reader);
-
     json = bson_as_json(b, json_len);
+
+    bson_reader_destroy(reader);
 
     if (!json) {
         PyErr_SetString(PyExc_ValueError, "invalid BSON document");
