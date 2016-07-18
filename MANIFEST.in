@@ -1,0 +1,6 @@
+include README.rst
+include LICENSE
+include ez_setup.py
+recursive-include libbson *.h
+recursive-include src *.h
+recursive-include test *.py
