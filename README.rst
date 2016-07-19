@@ -9,48 +9,12 @@ About
 
 A fast BSON to MongoDB Extended JSON converter for Python.
 
-Dependencies
+Installation
 ============
 
-python-bsonjs supports CPython 2.6, 2.7, and 3.3+.
+python-bsonjs can be installed with `pip <http://pypi.python.org/pypi/pip>`_::
 
-Compiler
-````````
-
-You must build python-bsonjs separately for each version of Python. On
-Windows this means you must use the same C compiler your Python version was
-built with.
-
-- Python 2.6 and 2.7 require `Microsoft Visual C++ Compiler for Python 2.7
-  <https://www.microsoft.com/en-us/download/details.aspx?id=44266>`_
-- Python 3.3 and 3.4 require Microsoft Visual Studio 2010 Professional
-- Python 3.5 and up requires Microsoft Visual Studio 2015
-
-Installing From Source
-======================
-
-Note that this repository contains a `git submodule
-<https://git-scm.com/book/en/v2/Git-Tools-Submodules>`_. You must initialize
-the submodule by using::
-
-    $ git clone --recursive https://github.com/mongodb-labs/python-bsonjs.git
-
-Or, if your version of git does not have ``clone --recursive``::
-
-    $ git clone https://github.com/mongodb-labs/python-bsonjs.git
-    $ cd python-bsonjs
-    $ git submodule update --init --recursive
-
-Once you have the source properly downloaded, install the package::
-
-    $ python setup.py install
-
-Tests
-=====
-
-To run the test suite::
-
-    $ python setup.py test
+  $ python -m pip install python-bsonjs
 
 Examples
 ========
@@ -103,3 +67,50 @@ JSON and encoding JSON to BSON. See `benchmark.py`::
     Timing: bson.BSON().encode(json_util.loads(j))
     10000 loops, best of 3: 0.683200120926
     bsonjs is 11.72x faster than json_util
+
+Installing From Source
+======================
+
+python-bsonjs supports CPython 2.6, 2.7, and 3.3+.
+
+Compiler
+````````
+
+You must build python-bsonjs separately for each version of Python. On
+Windows this means you must use the same C compiler your Python version was
+built with.
+
+- Python 2.6 and 2.7 require `Microsoft Visual C++ Compiler for Python 2.7
+  <https://www.microsoft.com/en-us/download/details.aspx?id=44266>`_
+- Python 3.3 and 3.4 require Microsoft Visual Studio 2010 Professional
+- Python 3.5 and up requires Microsoft Visual Studio 2015
+
+Source
+``````
+
+Note that this repository contains a `git submodule
+<https://git-scm.com/book/en/v2/Git-Tools-Submodules>`_. You must initialize
+the submodule by using::
+
+    $ git clone --recursive https://github.com/mongodb-labs/python-bsonjs.git
+
+Or, if your version of git does not have ``clone --recursive``::
+
+    $ git clone https://github.com/mongodb-labs/python-bsonjs.git
+    $ cd python-bsonjs
+    $ git submodule update --init --recursive
+
+Install
+```````
+
+Once you have the source properly downloaded, build and install the package::
+
+    $ python setup.py install
+
+Test
+````
+
+To run the test suite::
+
+    $ python setup.py test
+
