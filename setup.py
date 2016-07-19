@@ -28,7 +28,7 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, Extension
 
-BSONJS_VERSION = "0.1.0.dev0"
+BSONJS_VERSION = "0.1.0"
 
 with open("README.rst") as f:
     try:
