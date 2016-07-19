@@ -28,6 +28,8 @@ except ImportError:
     use_setuptools()
     from setuptools import setup, Extension
 
+BSONJS_VERSION = "0.1.0.dev0"
+
 with open("README.rst") as f:
     try:
         description = f.read()
@@ -43,7 +45,7 @@ else:
 
 setup(
     name="python-bsonjs",
-    version="0.1.0.dev0",
+    version=BSONJS_VERSION,
     description="A library for converting between BSON and JSON.",
     long_description=description,
     author="Shane Harvey",
@@ -74,7 +76,8 @@ setup(
                           "libbson/src",
                           "libbson/src/yajl",
                           "libbson/src/bson"],
-            define_macros=[("BSON_COMPILATION", 1)],
+            define_macros=[("BSONJS_VERSION", '"' + BSONJS_VERSION + '"'),
+                           ("BSON_COMPILATION", 1)],
             libraries=["ws2_32"] if sys.platform == "win32" else []
         )
     ]
