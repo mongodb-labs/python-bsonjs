@@ -55,6 +55,7 @@ Speed
 
 bsonjs is roughly 10-15x faster than PyMongo's json_util at decoding BSON to
 JSON and encoding JSON to BSON. See `benchmark.py`::
+
     $ python benchmark.py
     Timing: bsonjs.dumps(b)
     10000 loops, best of 3: 0.110911846161
