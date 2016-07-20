@@ -255,7 +255,7 @@ initbsonjs(VOID)
 
     if (PyModule_AddObject(module,
                            "__version__",
-                           PyString_FromString("0.1.0"))) {
+                           PyString_FromString("0.1.1"))) {
         Py_DECREF(module);
         INITERROR;
     }

@@ -43,7 +43,7 @@ else:
 
 setup(
     name="python-bsonjs",
-    version="0.1.0",
+    version="0.1.1",
     description="A library for converting between BSON and JSON.",
     long_description=description,
     author="Shane Harvey",
