@@ -78,7 +78,7 @@ class TestBsonjs(unittest.TestCase):
 
     def round_trip(self, doc):
         bson_bytes = to_bson(doc)
-        self.assertEqual(doc, self.round_tripped(doc))
+        self.assertEqual(bson_bytes, bsonjs.loads(bsonjs.dumps(bson_bytes)))
         # Check compatibility between bsonjs and json_util
         self.assertEqual(doc, json_util.loads(bsonjs.dumps(bson_bytes)))
         self.assertEqual(bson_bytes, bsonjs.loads(json_util.dumps(doc)))
@@ -99,7 +99,6 @@ class TestBsonjs(unittest.TestCase):
             '{ "ref" : { "$ref" : "collection", "$id" : 1, "$db" : "db" } }',
             bsonjs_dumps({"ref": DBRef("collection", 1, "db")}))
 
-    @unittest.skip("CDRIVER-1339")
     def test_datetime(self):
         # only millis, not micros
         self.round_trip({"date": datetime.datetime(2009, 12, 9, 15,
@@ -109,9 +108,9 @@ class TestBsonjs(unittest.TestCase):
         self.assertEqual(EPOCH_AWARE, bsonjs_loads(jsn)["dt"])
         jsn = '{"dt": { "$date" : "1970-01-01T00:00:00.000Z"}}'
         self.assertEqual(EPOCH_AWARE, bsonjs_loads(jsn)["dt"])
-        # No explicit offset
+        # No explicit offset or timezone is not supported by libbson
         jsn = '{"dt": { "$date" : "1970-01-01T00:00:00.000"}}'
-        self.assertEqual(EPOCH_AWARE, bsonjs_loads(jsn)["dt"])
+        self.assertRaises(ValueError, bsonjs_loads, jsn)
         # Localtime behind UTC
         jsn = '{"dt": { "$date" : "1969-12-31T16:00:00.000-0800"}}'
         self.assertEqual(EPOCH_AWARE, bsonjs_loads(jsn)["dt"])
@@ -179,7 +178,6 @@ class TestBsonjs(unittest.TestCase):
         self.round_trip({"uuid":
                          uuid.UUID("f47ac10b-58cc-4372-a567-0e02b2c3d479")})
 
-    @unittest.skip("CDRIVER-1340,CDRIVER-1351")
     def test_binary(self):
         bin_type_dict = {"bin": Binary(b"\x00\x01\x02\x03\x04")}
         md5_type_dict = {
