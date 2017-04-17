@@ -34,7 +34,7 @@ with open("README.rst") as f:
     except Exception:
         description = ""
 
-tests_require = ["pymongo"]
+tests_require = ["pymongo>=3.4.0"]
 if sys.version_info[:2] == (2, 6):
     tests_require.append("unittest2 >= 0.5.1")
     test_suite = "unittest2.collector"
@@ -75,7 +75,7 @@ setup(
             include_dirs=["src",
                           "src/bson",
                           "libbson/src",
-                          "libbson/src/yajl",
+                          "libbson/src/jsonsl",
                           "libbson/src/bson"],
             define_macros=[("BSON_COMPILATION", 1)],
             libraries=["ws2_32"] if sys.platform == "win32" else []

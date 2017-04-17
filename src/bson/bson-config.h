@@ -157,13 +157,4 @@
 # undef BSON_HAVE_DECIMAL128
 #endif
 
-
-/*
- * Define to 1 to support experimental future BSON or MongoDB features.
- */
-#define BSON_EXPERIMENTAL_FEATURES 1
-#if BSON_EXPERIMENTAL_FEATURES != 1
-# undef BSON_EXPERIMENTAL_FEATURES
-#endif
-
 #endif /* BSON_CONFIG_H */

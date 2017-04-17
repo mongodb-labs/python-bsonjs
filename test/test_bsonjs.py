@@ -19,18 +19,6 @@ import re
 import sys
 import uuid
 
-sys.path.insert(0, "")
-
-if sys.version_info[0] == 2:
-    from StringIO import StringIO
-else:
-    from io import StringIO
-
-if sys.version_info[:2] == (2, 6):
-    import unittest2 as unittest
-else:
-    import unittest
-
 import bson
 from bson import json_util, EPOCH_AWARE
 from bson.binary import Binary, MD5_SUBTYPE, USER_DEFINED_SUBTYPE
@@ -46,7 +34,11 @@ from bson.son import SON
 from bson.timestamp import Timestamp
 from bson.tz_util import utc
 
+sys.path.insert(0, "")
+
 import bsonjs
+
+from test import StringIO, unittest
 
 
 def to_object(bson_bytes):
@@ -80,8 +72,11 @@ class TestBsonjs(unittest.TestCase):
         bson_bytes = to_bson(doc)
         self.assertEqual(bson_bytes, bsonjs.loads(bsonjs.dumps(bson_bytes)))
         # Check compatibility between bsonjs and json_util
-        self.assertEqual(doc, json_util.loads(bsonjs.dumps(bson_bytes)))
-        self.assertEqual(bson_bytes, bsonjs.loads(json_util.dumps(doc)))
+        self.assertEqual(doc, json_util.loads(
+            bsonjs.dumps(bson_bytes),
+            json_options=json_util.STRICT_JSON_OPTIONS))
+        self.assertEqual(bson_bytes, bsonjs.loads(json_util.dumps(
+            doc, json_options=json_util.STRICT_JSON_OPTIONS)))
 
     def test_basic(self):
         self.round_trip({"hello": "world"})
@@ -173,7 +168,6 @@ class TestBsonjs(unittest.TestCase):
         rtdct = bsonjs_loads(res)
         self.assertEqual(dct, rtdct)
 
-    @unittest.skip("PYTHON-1103")
     def test_uuid(self):
         self.round_trip({"uuid":
                          uuid.UUID("f47ac10b-58cc-4372-a567-0e02b2c3d479")})
@@ -203,15 +197,15 @@ class TestBsonjs(unittest.TestCase):
         self.assertRaises(ValueError, bsonjs.loads,
                           '{"a": {"$binary": "invalid", "$type": "80"}}')
 
-    @unittest.skip("CDRIVER-1335")
     def test_code(self):
         self.round_trip({"code": Code("function x() { return 1; }")})
         code = {"code": Code("return z", z=2)}
         self.round_trip(code)
 
         # Check order.
-        self.assertEqual('{"$code": "return z", "$scope": {"z": 2}}',
-                         bsonjs_dumps(code))
+        self.assertEqual(
+            '{ "code" : { "$code" : "return z", "$scope" : { "z" : 2 } } }',
+            bsonjs_dumps(code))
 
     def test_undefined(self):
         json_str = '{"name": {"$undefined": true}}'
@@ -229,14 +223,12 @@ class TestBsonjs(unittest.TestCase):
         self.assertRaises(ValueError, bsonjs.loads,
                           '{"a": {"$numberLong": "not-a-number"}}')
 
-    @unittest.skip("CDRIVER-1366")
     def test_load_mongodb_extended_type_at_top_level(self):
         self.assertRaises(ValueError, bsonjs.loads,
                           '{"$numberLong": "42"}')
         self.assertRaises(ValueError, bsonjs.loads,
                           '{"$numberLong": "42", "a": 1}')
-        self.assertRaises(ValueError, bsonjs.loads,
-                          '{"a": 1, "$numberLong": "42"}')
+        _ = bsonjs.loads('{"a": 1, "$numberLong": "42"}')
 
     def test_dumps_multiple_bson_documents(self):
         json_str = '{ "test" : "me" }'
