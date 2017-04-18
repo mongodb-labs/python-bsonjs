@@ -50,7 +50,7 @@ elif sys.platform != "darwin":
 
 setup(
     name="python-bsonjs",
-    version="0.2.0.dev0",
+    version="0.2.0",
     description="A library for converting between BSON and JSON.",
     long_description=description,
     author="Shane Harvey",
