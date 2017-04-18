@@ -24,6 +24,7 @@ from bson import json_util, EPOCH_AWARE
 from bson.binary import Binary, MD5_SUBTYPE, USER_DEFINED_SUBTYPE
 from bson.code import Code
 from bson.codec_options import CodecOptions
+from bson.decimal128 import Decimal128
 from bson.dbref import DBRef
 from bson.int64 import Int64
 from bson.max_key import MaxKey
@@ -83,6 +84,13 @@ class TestBsonjs(unittest.TestCase):
 
     def test_objectid(self):
         self.round_trip({"id": ObjectId()})
+
+    def test_decimal128(self):
+        decimal_doc = {"d": Decimal128("12123.000000000003")}
+        self.round_trip(decimal_doc)
+        self.assertEqual(
+            '{ "d" : { "$numberDecimal" : "12123.000000000003" } }',
+            bsonjs_dumps(decimal_doc))
 
     def test_dbref(self):
         self.round_trip({"ref": DBRef("foo", 5)})
