@@ -7,6 +7,7 @@ Changelog
 Version 0.2.0 updates python-bsonjs's vendored copy of libbson to 1.6.5
 http://mongoc.org/libbson/1.6.2/.
 Updating libbson provides a number of improvements and features including:
+
 - Use jsonsl instead of libyajl as our JSON parsing library, parse JSON more
   strictly, fix minor parsing bugs.
 - Extended JSON documents like '{"$code": "...", "$scope": {}}' are now parsed
