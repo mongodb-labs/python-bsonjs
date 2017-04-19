@@ -25,10 +25,10 @@ matrix:
       python: 3.6
       before_install:
         - if ! command -v python3; then
-            brew update
-            brew install python3
-            virtualenv env -p python3
-            source env/bin/activate
+            brew update;
+            brew install python3;
+            virtualenv env -p python3;
+            source env/bin/activate;
           fi
     # Test manylinux1 64 and 32 bit wheels.
     - sudo: required
@@ -47,12 +47,12 @@ matrix:
 
 install:
   - if [ -n "$DOCKER_IMAGE" ]; then
-      docker pull "$DOCKER_IMAGE"
+      docker pull "$DOCKER_IMAGE";
     fi
 
 script:
   - if [ -n "$DOCKER_IMAGE" ]; then
-      docker run --rm -v "$(pwd)":/io "$DOCKER_IMAGE" "$PRE_CMD" /io/build-wheels.sh /io
+      docker run --rm -v "$(pwd)":/io "$DOCKER_IMAGE" "$PRE_CMD" /io/build-wheels.sh /io;
     else
-      python setup.py test
+      python setup.py test;
     fi
