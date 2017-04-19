@@ -32,8 +32,8 @@ error::
 
 Version 0.1.1 fixes a Windows build error.
 
-First release 0.1.0
-```````````````````
+0.1.0
+`````
 
 Version 0.1.0 is the first release of python-bsonjs!
 This release uses libbson 1.3.5 http://mongoc.org/libbson/1.3.5/.
