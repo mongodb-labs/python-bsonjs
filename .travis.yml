@@ -30,6 +30,29 @@ matrix:
             virtualenv env -p python3
             source env/bin/activate
           fi
+    # Test manylinux1 64 and 32 bit wheels.
+    - sudo: required
+      os: linux
+      language: generic
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+    - sudo: required
+      os: linux
+      language: generic
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+           PRE_CMD=linux32
+
+install:
+  - if [ -n "$DOCKER_IMAGE" ]; then
+      docker pull "$DOCKER_IMAGE"
+    fi
 
 script:
-  - python setup.py test
+  - if [ -n "$DOCKER_IMAGE" ]; then
+      docker run --rm -v "$(pwd)":/io "$DOCKER_IMAGE" "$PRE_CMD" /io/build-wheels.sh /io
+    else
+      python setup.py test
+    fi
