@@ -5,9 +5,9 @@ Changelog
 `````
 
 Version 0.2.0 updates python-bsonjs's vendored copy of libbson to 1.6.5
-http://mongoc.org/libbson/1.6.2/.
+http://mongoc.org/libbson/1.6.2/ and fixes an error in our Linux builds.
 
-This update adds support for the BSON decimal128 type encoded to json as
+This update also adds support for the BSON decimal128 type encoded to json as
 '{ "$numberDecimal" : "1.62" }'.
 
 0.1.1

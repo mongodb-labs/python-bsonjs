@@ -1,6 +1,11 @@
 =============
 python-bsonjs
 =============
+
+.. image:: https://travis-ci.org/mongodb-labs/python-bsonjs.svg?branch=master
+   :alt: View build status
+   :target: https://travis-ci.org/mongodb-labs/python-bsonjs
+
 :Info: See `github <http://github.com/mongodb-labs/python-bsonjs>`_ for the latest source.
 :Author: Shane Harvey <shane.harvey@mongodb.com>
 
