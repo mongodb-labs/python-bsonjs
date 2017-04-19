@@ -19,7 +19,7 @@ for PYBIN in /opt/python/*/bin; do
     # https://github.com/pypa/manylinux/issues/49
     rm -rf build
 done
- 
+
 # Audit wheels and write multilinux1 tag
 for whl in dist/*.whl; do
     auditwheel repair "$whl" -w dist

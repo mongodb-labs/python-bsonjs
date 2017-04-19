@@ -7,5 +7,11 @@ fi
 
 set -e -x
 
-docker run --rm -v `pwd`:/io quay.io/pypa/manylinux1_x86_64 /io/build-wheels.sh /io
-docker run --rm -v `pwd`:/io quay.io/pypa/manylinux1_i686 linux32 /io/build-wheels.sh /io
+
+DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+docker pull "$DOCKER_IMAGE"
+docker run --rm -v `pwd`:/io "$DOCKER_IMAGE" /io/build-wheels.sh /io
+
+DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+docker pull "$DOCKER_IMAGE"
+docker run --rm -v `pwd`:/io "$DOCKER_IMAGE" linux32 /io/build-wheels.sh /io
