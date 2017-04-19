@@ -41,6 +41,13 @@ if sys.version_info[:2] == (2, 6):
 else:
     test_suite = "test"
 
+libraries = []
+if sys.platform == "win32":
+    libraries.append("ws2_32")
+elif sys.platform != "darwin":
+    # librt may be needed for clock_gettime()
+    libraries.append("rt")
+
 setup(
     name="python-bsonjs",
     version="0.2.0.dev0",
@@ -79,7 +86,7 @@ setup(
                           "libbson/src/jsonsl",
                           "libbson/src/bson"],
             define_macros=[("BSON_COMPILATION", 1)],
-            libraries=["ws2_32"] if sys.platform == "win32" else []
+            libraries=libraries
         )
     ]
 )
