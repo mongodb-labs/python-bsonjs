@@ -144,8 +144,8 @@ class TestBsonjs(unittest.TestCase):
         self.assertEqual(unicode_options, res.flags)
 
         # Some tools may not add $options if no flags are set.
-        res = bsonjs_loads('{"r": {"$regex": "a*b"}}')['r']
-        self.assertEqual(0, res.flags)
+        self.assertRaises(ValueError, bsonjs_loads, '{"r": {"$regex": '
+                                                  '"a*b"}}')
 
         self.assertEqual(
             Regex(".*", "ilm"),
