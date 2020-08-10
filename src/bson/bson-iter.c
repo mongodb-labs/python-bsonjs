@@ -832,28 +832,6 @@ mark_invalid:
 }
 
 
-   /*
-    * Check to see if any of the field locations would overflow the
-    * current BSON buffer. If so, set the error location to the offset
-    * of where the field starts.
-    */
-   if (iter->next_off >= len) {
-      iter->err_off = o;
-      goto mark_invalid;
-   }
-
-   iter->err_off = 0;
-
-   return true;
-
-mark_invalid:
-   iter->raw = NULL;
-   iter->len = 0;
-   iter->next_off = 0;
-
-   return false;
-}
-
 
 /*
  *--------------------------------------------------------------------------
