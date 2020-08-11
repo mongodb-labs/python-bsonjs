@@ -144,6 +144,7 @@ class TestBsonjs(unittest.TestCase):
         self.assertEqual(unicode_options, res.flags)
 
         # Some tools may not add $options if no flags are set.
+        # https://jira.mongodb.org/browse/CDRIVER-3773
         self.assertRaises(ValueError, bsonjs_loads, '{"r": {"$regex": '
                                                   '"a*b"}}')
 
