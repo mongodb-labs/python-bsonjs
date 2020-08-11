@@ -57,16 +57,6 @@
 
 
 /*
- * Define to 1 if your system requires {} around PTHREAD_ONCE_INIT.
- * This is typically just Solaris 8-10.
- */
-#define BSON_PTHREAD_ONCE_INIT_NEEDS_BRACES 0
-#if BSON_PTHREAD_ONCE_INIT_NEEDS_BRACES != 1
-# undef BSON_PTHREAD_ONCE_INIT_NEEDS_BRACES
-#endif
-
-
-/*
  * Define to 1 if you have clock_gettime() available.
  */
 #ifdef HAVE_CLOCK_GETTIME
@@ -75,6 +65,14 @@
 
 #if BSON_HAVE_CLOCK_GETTIME != 1
 # undef BSON_HAVE_CLOCK_GETTIME
+#endif
+
+/*
+ * Define to 1 if you have strings.h available on your platform.
+ */
+#define BSON_HAVE_STRINGS_H 0
+#if BSON_HAVE_STRINGS_H != 1
+# undef BSON_HAVE_STRINGS_H
 #endif
 
 
@@ -98,6 +96,13 @@
 # undef BSON_HAVE_SNPRINTF
 #endif
 
+/*
+ * Define to 1 if you have gmtime_r available on your platform.
+ */
+#define BSON_HAVE_GMTIME_R 1
+#if BSON_HAVE_GMTIME_R != 1
+# undef BSON_HAVE_GMTIME_R
+#endif
 
 /*
  * Define to 1 if you have reallocf available on your platform.
@@ -155,6 +160,16 @@
 #define BSON_HAVE_DECIMAL128 0
 #if BSON_HAVE_DECIMAL128 != 1
 # undef BSON_HAVE_DECIMAL128
+#endif
+
+#define BSON_HAVE_RAND_R 1
+#if BSON_HAVE_RAND_R != 1
+# undef BSON_HAVE_RAND_R
+#endif
+
+#define BSON_HAVE_STRLCPY 1
+#if BSON_HAVE_STRLCPY != 1
+# undef BSON_HAVE_STRLCPY
 #endif
 
 #endif /* BSON_CONFIG_H */
