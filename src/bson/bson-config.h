@@ -99,7 +99,11 @@
 /*
  * Define to 1 if you have gmtime_r available on your platform.
  */
+
 #define BSON_HAVE_GMTIME_R 1
+#ifndef MS_WINDOWS
+# define BSON_HAVE_GMTIME_R 0
+#endif
 #if BSON_HAVE_GMTIME_R != 1
 # undef BSON_HAVE_GMTIME_R
 #endif
@@ -162,12 +166,12 @@
 # undef BSON_HAVE_DECIMAL128
 #endif
 
-#define BSON_HAVE_RAND_R 1
+#define BSON_HAVE_RAND_R 0
 #if BSON_HAVE_RAND_R != 1
 # undef BSON_HAVE_RAND_R
 #endif
 
-#define BSON_HAVE_STRLCPY 1
+#define BSON_HAVE_STRLCPY 0
 #if BSON_HAVE_STRLCPY != 1
 # undef BSON_HAVE_STRLCPY
 #endif
