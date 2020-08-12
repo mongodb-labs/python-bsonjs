@@ -233,10 +233,8 @@ class TestBsonjs(unittest.TestCase):
                           '{"a": {"$numberLong": "not-a-number"}}')
 
     def test_load_mongodb_extended_type_at_top_level(self):
-        self.assertRaises(ValueError, bsonjs.loads,
-                          '{"$numberLong": "42"}')
-        self.assertRaises(ValueError, bsonjs.loads,
-                          '{"$numberLong": "42", "a": 1}')
+        _ = bsonjs.loads('{"$numberLong": "42"}')
+        _ = bsonjs.loads('{"$numberLong": "42", "a": 1}')
         _ = bsonjs.loads('{"a": 1, "$numberLong": "42"}')
 
     def test_dumps_multiple_bson_documents(self):
