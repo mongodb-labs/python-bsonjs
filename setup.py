@@ -79,12 +79,11 @@ setup(
     ext_modules=[
         Extension(
             "bsonjs",
-            sources=["src/bsonjs.c"] + glob.glob("libbson/src/*/*.c"),
+            sources=["src/bsonjs.c"] + glob.glob("src/*/*.c"),
             include_dirs=["src",
                           "src/bson",
-                          "libbson/src",
-                          "libbson/src/jsonsl",
-                          "libbson/src/bson"],
+                          "src/jsonsl",
+                          "src/common"],
             define_macros=[("BSON_COMPILATION", 1)],
             libraries=libraries
         )

@@ -144,8 +144,9 @@ class TestBsonjs(unittest.TestCase):
         self.assertEqual(unicode_options, res.flags)
 
         # Some tools may not add $options if no flags are set.
-        res = bsonjs_loads('{"r": {"$regex": "a*b"}}')['r']
-        self.assertEqual(0, res.flags)
+        # https://jira.mongodb.org/browse/CDRIVER-3773
+        self.assertRaises(ValueError, bsonjs_loads, '{"r": {"$regex": '
+                                                  '"a*b"}}')
 
         self.assertEqual(
             Regex(".*", "ilm"),
@@ -232,10 +233,8 @@ class TestBsonjs(unittest.TestCase):
                           '{"a": {"$numberLong": "not-a-number"}}')
 
     def test_load_mongodb_extended_type_at_top_level(self):
-        self.assertRaises(ValueError, bsonjs.loads,
-                          '{"$numberLong": "42"}')
-        self.assertRaises(ValueError, bsonjs.loads,
-                          '{"$numberLong": "42", "a": 1}')
+        _ = bsonjs.loads('{"$numberLong": "42"}')
+        _ = bsonjs.loads('{"$numberLong": "42", "a": 1}')
         _ = bsonjs.loads('{"a": 1, "$numberLong": "42"}')
 
     def test_dumps_multiple_bson_documents(self):
