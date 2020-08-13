@@ -1,3 +1,23 @@
+/*
+ * Copyright 2020-present MongoDB, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#if !defined(BSON_INSIDE) && !defined(BSON_COMPILATION)
+#error "Only <bson/bson.h> can be included directly."
+#endif
+
 #ifndef BSON_CONFIG_H
 #define BSON_CONFIG_H
 
@@ -16,6 +36,7 @@
 #else
 # define BSON_BYTE_ORDER 1234
 #endif
+
 
 /*
  * Define to 1 if you have stdbool.h
@@ -67,6 +88,7 @@
 # undef BSON_HAVE_CLOCK_GETTIME
 #endif
 
+
 /*
  * Define to 1 if you have strings.h available on your platform.
  */
@@ -88,7 +110,9 @@
 /*
  * Define to 1 if you have snprintf available on your platform.
  */
-#ifndef MS_WINDOWS
+#ifdef MS_WINDOWS
+# define BSON_HAVE_SNPRINTF 0
+#else
 # define BSON_HAVE_SNPRINTF 1
 #endif
 
@@ -96,11 +120,10 @@
 # undef BSON_HAVE_SNPRINTF
 #endif
 
+
 /*
  * Define to 1 if you have gmtime_r available on your platform.
  */
-
-
 #ifdef MS_WINDOWS
 # define BSON_HAVE_GMTIME_R 0
 #else
@@ -111,6 +134,7 @@
 # undef BSON_HAVE_GMTIME_R
 #endif
 
+
 /*
  * Define to 1 if you have reallocf available on your platform.
  */
@@ -119,17 +143,6 @@
 # undef BSON_HAVE_REALLOCF
 #endif
 
-
-/*
- * Define to 1 if you have _set_output_format (VS2013 and older).
- */
-#if defined(_MSV_VER) && (_MSC_VER < 1900)
-# define BSON_NEEDS_SET_OUTPUT_FORMAT 1
-#endif
-
-#if BSON_NEEDS_SET_OUTPUT_FORMAT != 1
-# undef BSON_NEEDS_SET_OUTPUT_FORMAT
-#endif
 
 /*
  * Define to 1 if you have struct timespec available on your platform.
@@ -155,19 +168,11 @@
 /*
  * Define to 1 if you have SYS_gettid syscall
  */
-#define BSON_HAVE_SYSCALL_TID 0
+#define BSON_HAVE_SYSCALL_TID 1
 #if BSON_HAVE_SYSCALL_TID != 1
 # undef BSON_HAVE_SYSCALL_TID
 #endif
 
-
-/*
- * Define to 1 if _Decimal128 (BID format) is available on your platform.
- */
-#define BSON_HAVE_DECIMAL128 0
-#if BSON_HAVE_DECIMAL128 != 1
-# undef BSON_HAVE_DECIMAL128
-#endif
 
 #ifdef MS_WINDOWS
 # define BSON_HAVE_RAND_R 0
@@ -183,5 +188,6 @@
 #if BSON_HAVE_STRLCPY != 1
 # undef BSON_HAVE_STRLCPY
 #endif
+
 
 #endif /* BSON_CONFIG_H */
