@@ -34,8 +34,7 @@ with open("README.rst") as f:
     except Exception:
         description = ""
 
-# PyMongo 3.8.0 dropped support for Python 2.6.
-tests_require = ["pymongo>=3.8.0"]
+tests_require = ["pymongo>=3.4.0"]
 
 libraries = []
 if sys.platform == "win32":
@@ -70,6 +69,8 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython"],
     ext_modules=[
         Extension(
