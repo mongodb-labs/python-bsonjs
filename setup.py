@@ -35,11 +35,6 @@ with open("README.rst") as f:
         description = ""
 
 tests_require = ["pymongo>=3.4.0"]
-if sys.version_info[:2] == (2, 6):
-    tests_require.append("unittest2 >= 0.5.1")
-    test_suite = "unittest2.collector"
-else:
-    test_suite = "test"
 
 libraries = []
 if sys.platform == "win32":
@@ -57,9 +52,10 @@ setup(
     author_email="shane.harvey@mongodb.com",
     url="https://github.com/mongodb-labs/python-bsonjs",
     keywords=["BSON", "JSON", "PyMongo"],
-    test_suite=test_suite,
+    test_suite="test",
     tests_require=tests_require,
     license="Apache License, Version 2.0",
+    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -68,13 +64,13 @@ setup(
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
         "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython"],
     ext_modules=[
         Extension(
