@@ -18,7 +18,4 @@ if sys.version_info[0] == 2:
 else:
     from io import StringIO
 
-if sys.version_info[:2] == (2, 6):
-    import unittest2 as unittest
-else:
-    import unittest
+import unittest
