@@ -16,6 +16,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: install requests
+        run: |
+          python -m pip install pymongo==3.11.0	
+        if: ${{ matrix.python-version == 3.4 || matrix.python-version == 3.5}} 
       - name: Test with python
         run: |
           python -m pip install -e . -v
