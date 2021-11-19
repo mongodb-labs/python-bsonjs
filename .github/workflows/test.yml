@@ -17,6 +17,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       # have to manually install pymongo for 3.4 and 3.5 because otherwise it does not work
+      # error: Could not find suitable distribution for Requirement.parse('pymongo>=3.4.0')
       - name: install pymongo for 3.4 and 3.5
         run: |
           python -m pip install pymongo==3.11.0	
@@ -24,5 +25,4 @@ jobs:
       - name: Test with python
         run: |
           python -m pip install -e . -v
-          python setup.py install
           python setup.py test
