@@ -107,8 +107,8 @@ static void
 _bson_context_set_oid_seq32_threadsafe (bson_context_t *context, /* IN */
                                         bson_oid_t *oid)         /* OUT */
 {
-   int32_t seq = bson_atomic_int_add (&context->seq32, 1);
-
+   int32_t seq = 1 + bson_atomic_int32_fetch_add (
+                        &context->seq32, 1, bson_memory_order_seq_cst);
    seq = BSON_UINT32_TO_BE (seq);
    memcpy (&oid->bytes[9], ((uint8_t *) &seq) + 1, 3);
 }
@@ -164,7 +164,8 @@ static void
 _bson_context_set_oid_seq64_threadsafe (bson_context_t *context, /* IN */
                                         bson_oid_t *oid)         /* OUT */
 {
-   int64_t seq = bson_atomic_int64_add (&context->seq64, 1);
+   int64_t seq = 1 + bson_atomic_int64_fetch_add (
+                        &context->seq64, 1, bson_memory_order_seq_cst);
 
    seq = BSON_UINT64_TO_BE (seq);
    memcpy (&oid->bytes[4], &seq, sizeof (seq));
@@ -224,15 +225,14 @@ static int32_t
 _get_rand (unsigned int *pseed)
 {
    int32_t result = 0;
-#ifndef BSON_HAVE_RAND_R
+#ifdef BSON_HAVE_ARC4RANDOM_BUF
+   arc4random_buf (&result, sizeof (result));
+#elif defined(BSON_HAVE_RAND_R)
+   result = rand_r (pseed);
+#else
    /* ms's runtime is multithreaded by default, so no rand_r */
    /* no rand_r on android either */
    result = rand ();
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || \
-   defined(__OpenBSD__)
-   arc4random_buf (&result, sizeof (result));
-#else
-   result = rand_r (pseed);
 #endif
    return result;
 }
