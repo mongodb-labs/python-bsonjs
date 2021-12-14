@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "bson-prelude.h"
-
 
 #ifndef BSON_TIMEGM_PRIVATE_H
 #define BSON_TIMEGM_PRIVATE_H

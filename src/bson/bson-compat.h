@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#include "bson-prelude.h"
-
 
 #ifndef BSON_COMPAT_H
 #define BSON_COMPAT_H
+
+
+#if !defined(BSON_INSIDE) && !defined(BSON_COMPILATION)
+#error "Only <bson.h> can be included directly."
+#endif
 
 
 #if defined(__MINGW32__)
@@ -77,15 +80,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdint.h>
 
 
 BSON_BEGIN_DECLS
 
-#if !defined(_MSC_VER) || (_MSC_VER >= 1800)
-#include <inttypes.h>
-#endif
+
 #ifdef _MSC_VER
+#include <time.h>
+#include "bson-stdint-win32.h"
 #ifndef __cplusplus
 /* benign redefinition of type */
 #pragma warning(disable : 4142)
@@ -110,24 +112,15 @@ typedef SSIZE_T ssize_t;
 #endif
 #pragma warning(default : 4142)
 #endif
-#ifndef PRIi32
 #define PRIi32 "d"
-#endif
-#ifndef PRId32
 #define PRId32 "d"
-#endif
-#ifndef PRIu32
 #define PRIu32 "u"
-#endif
-#ifndef PRIi64
 #define PRIi64 "I64i"
-#endif
-#ifndef PRId64
 #define PRId64 "I64i"
-#endif
-#ifndef PRIu64
 #define PRIu64 "I64u"
-#endif
+#else
+#include "bson-stdint.h"
+#include <inttypes.h>
 #endif
 
 #if defined(__MINGW32__) && !defined(INIT_ONCE_STATIC_INIT)
@@ -168,31 +161,6 @@ typedef signed char bool;
 
 #if !defined(va_copy)
 #define va_copy(dst, src) ((dst) = (src))
-#endif
-
-
-#ifdef _MSC_VER
-/** Expands the arguments if compiling with MSVC, otherwise empty */
-#define BSON_IF_MSVC(...) __VA_ARGS__
-/** Expands the arguments if compiling with GCC or Clang, otherwise empty */
-#define BSON_IF_GNU_LIKE(...)
-#elif defined(__GNUC__) || defined(__clang__)
-/** Expands the arguments if compiling with MSVC, otherwise empty */
-#define BSON_IF_MSVC(...)
-/** Expands the arguments if compiling with GCC or Clang, otherwise empty */
-#define BSON_IF_GNU_LIKE(...) __VA_ARGS__
-#endif
-
-#ifdef BSON_OS_WIN32
-/** Expands the arguments if compiling for Windows, otherwise empty */
-#define BSON_IF_WINDOWS(...) __VA_ARGS__
-/** Expands the arguments if compiling for POSIX, otherwise empty */
-#define BSON_IF_POSIX(...)
-#elif defined(BSON_OS_UNIX)
-/** Expands the arguments if compiling for Windows, otherwise empty */
-#define BSON_IF_WINDOWS(...)
-/** Expands the arguments if compiling for POSIX, otherwise empty */
-#define BSON_IF_POSIX(...) __VA_ARGS__
 #endif
 
 

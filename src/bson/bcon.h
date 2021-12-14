@@ -3,8 +3,6 @@
  * @brief BCON (BSON C Object Notation) Declarations
  */
 
-#include "bson-prelude.h"
-
 /*    Copyright 2009-2013 MongoDB, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -284,9 +282,9 @@ bcon_new (void *unused, ...) BSON_GNUC_NULL_TERMINATED;
 #define BCON_NEW(...) bcon_new (NULL, __VA_ARGS__, (void *) NULL)
 
 BSON_EXPORT (const char *)
-bson_bcon_magic (void) BSON_GNUC_PURE;
+bson_bcon_magic (void) BSON_GNUC_CONST;
 BSON_EXPORT (const char *)
-bson_bcone_magic (void) BSON_GNUC_PURE;
+bson_bcone_magic (void) BSON_GNUC_CONST;
 
 
 BSON_END_DECLS

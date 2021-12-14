@@ -212,81 +212,80 @@ _bcon_append_single (bson_t *bson,
 {
    switch ((int) type) {
    case BCON_TYPE_UTF8:
-      BSON_ASSERT (bson_append_utf8 (bson, key, -1, val->UTF8, -1));
+      bson_append_utf8 (bson, key, -1, val->UTF8, -1);
       break;
    case BCON_TYPE_DOUBLE:
-      BSON_ASSERT (bson_append_double (bson, key, -1, val->DOUBLE));
+      bson_append_double (bson, key, -1, val->DOUBLE);
       break;
    case BCON_TYPE_BIN: {
-      BSON_ASSERT (bson_append_binary (
-         bson, key, -1, val->BIN.subtype, val->BIN.binary, val->BIN.length));
+      bson_append_binary (
+         bson, key, -1, val->BIN.subtype, val->BIN.binary, val->BIN.length);
       break;
    }
    case BCON_TYPE_UNDEFINED:
-      BSON_ASSERT (bson_append_undefined (bson, key, -1));
+      bson_append_undefined (bson, key, -1);
       break;
    case BCON_TYPE_OID:
-      BSON_ASSERT (bson_append_oid (bson, key, -1, val->OID));
+      bson_append_oid (bson, key, -1, val->OID);
       break;
    case BCON_TYPE_BOOL:
-      BSON_ASSERT (bson_append_bool (bson, key, -1, (bool) val->BOOL));
+      bson_append_bool (bson, key, -1, (bool) val->BOOL);
       break;
    case BCON_TYPE_DATE_TIME:
-      BSON_ASSERT (bson_append_date_time (bson, key, -1, val->DATE_TIME));
+      bson_append_date_time (bson, key, -1, val->DATE_TIME);
       break;
    case BCON_TYPE_NULL:
-      BSON_ASSERT (bson_append_null (bson, key, -1));
+      bson_append_null (bson, key, -1);
       break;
    case BCON_TYPE_REGEX: {
-      BSON_ASSERT (
-         bson_append_regex (bson, key, -1, val->REGEX.regex, val->REGEX.flags));
+      bson_append_regex (bson, key, -1, val->REGEX.regex, val->REGEX.flags);
       break;
    }
    case BCON_TYPE_DBPOINTER: {
-      BSON_ASSERT (bson_append_dbpointer (
-         bson, key, -1, val->DBPOINTER.collection, val->DBPOINTER.oid));
+      bson_append_dbpointer (
+         bson, key, -1, val->DBPOINTER.collection, val->DBPOINTER.oid);
       break;
    }
    case BCON_TYPE_CODE:
-      BSON_ASSERT (bson_append_code (bson, key, -1, val->CODE));
+      bson_append_code (bson, key, -1, val->CODE);
       break;
    case BCON_TYPE_SYMBOL:
-      BSON_ASSERT (bson_append_symbol (bson, key, -1, val->SYMBOL, -1));
+      bson_append_symbol (bson, key, -1, val->SYMBOL, -1);
       break;
    case BCON_TYPE_CODEWSCOPE:
-      BSON_ASSERT (bson_append_code_with_scope (
-         bson, key, -1, val->CODEWSCOPE.js, val->CODEWSCOPE.scope));
+      bson_append_code_with_scope (
+         bson, key, -1, val->CODEWSCOPE.js, val->CODEWSCOPE.scope);
       break;
    case BCON_TYPE_INT32:
-      BSON_ASSERT (bson_append_int32 (bson, key, -1, val->INT32));
+      bson_append_int32 (bson, key, -1, val->INT32);
       break;
    case BCON_TYPE_TIMESTAMP: {
-      BSON_ASSERT (bson_append_timestamp (
-         bson, key, -1, val->TIMESTAMP.timestamp, val->TIMESTAMP.increment));
+      bson_append_timestamp (
+         bson, key, -1, val->TIMESTAMP.timestamp, val->TIMESTAMP.increment);
       break;
    }
    case BCON_TYPE_INT64:
-      BSON_ASSERT (bson_append_int64 (bson, key, -1, val->INT64));
+      bson_append_int64 (bson, key, -1, val->INT64);
       break;
    case BCON_TYPE_DECIMAL128:
-      BSON_ASSERT (bson_append_decimal128 (bson, key, -1, val->DECIMAL128));
+      bson_append_decimal128 (bson, key, -1, val->DECIMAL128);
       break;
    case BCON_TYPE_MAXKEY:
-      BSON_ASSERT (bson_append_maxkey (bson, key, -1));
+      bson_append_maxkey (bson, key, -1);
       break;
    case BCON_TYPE_MINKEY:
-      BSON_ASSERT (bson_append_minkey (bson, key, -1));
+      bson_append_minkey (bson, key, -1);
       break;
    case BCON_TYPE_ARRAY: {
-      BSON_ASSERT (bson_append_array (bson, key, -1, val->ARRAY));
+      bson_append_array (bson, key, -1, val->ARRAY);
       break;
    }
    case BCON_TYPE_DOCUMENT: {
-      BSON_ASSERT (bson_append_document (bson, key, -1, val->DOCUMENT));
+      bson_append_document (bson, key, -1, val->DOCUMENT);
       break;
    }
    case BCON_TYPE_ITER:
-      BSON_ASSERT (bson_append_iter (bson, key, -1, val->ITER));
+      bson_append_iter (bson, key, -1, val->ITER);
       break;
    default:
       BSON_ASSERT (0);
@@ -377,7 +376,7 @@ _bcon_extract_single (const bson_iter_t *iter,
 
       *val->CODEWSCOPE.js = bson_iter_codewscope (iter, NULL, &len, &buf);
 
-      BSON_ASSERT (bson_init_static (val->CODEWSCOPE.scope, buf, len));
+      bson_init_static (val->CODEWSCOPE.scope, buf, len);
       break;
    }
    case BCON_TYPE_INT32:
@@ -395,7 +394,7 @@ _bcon_extract_single (const bson_iter_t *iter,
       break;
    case BCON_TYPE_DECIMAL128:
       CHECK_TYPE (BSON_TYPE_DECIMAL128);
-      BSON_ASSERT (bson_iter_decimal128 (iter, val->DECIMAL128));
+      bson_iter_decimal128 (iter, val->DECIMAL128);
       break;
    case BCON_TYPE_MAXKEY:
       CHECK_TYPE (BSON_TYPE_MAXKEY);
@@ -411,7 +410,7 @@ _bcon_extract_single (const bson_iter_t *iter,
 
       bson_iter_array (iter, &len, &buf);
 
-      BSON_ASSERT (bson_init_static (val->ARRAY, buf, len));
+      bson_init_static (val->ARRAY, buf, len);
       break;
    }
    case BCON_TYPE_DOCUMENT: {
@@ -422,7 +421,7 @@ _bcon_extract_single (const bson_iter_t *iter,
 
       bson_iter_document (iter, &len, &buf);
 
-      BSON_ASSERT (bson_init_static (val->DOCUMENT, buf, len));
+      bson_init_static (val->DOCUMENT, buf, len);
       break;
    }
    case BCON_TYPE_SKIP:
@@ -728,7 +727,7 @@ _bson_concat_array (bson_t *dest, const bson_t *src, bcon_append_ctx_t *ctx)
       bson_uint32_to_string (STACK_I, &key, i_str, sizeof i_str);
       STACK_I++;
 
-      BSON_ASSERT (bson_append_iter (dest, key, -1, &iter));
+      bson_append_iter (dest, key, -1, &iter);
    }
 }
 
@@ -748,7 +747,7 @@ _bson_concat_array (bson_t *dest, const bson_t *src, bcon_append_ctx_t *ctx)
  * var_args stuff is already incredibly fragile to mistakes, and we have no way
  * of introspecting, so just don't screw it up).
  *
- * There are also a few STACK_* macros in here which manipulate ctx that are
+ * There are also a few STACK_* macros in here which manimpulate ctx that are
  * defined up top.
  * */
 void
@@ -836,7 +835,7 @@ bcon_append_ctx_va (bson_t *bson, bcon_append_ctx_t *ctx, va_list *ap)
  * var_args stuff is already incredibly fragile to mistakes, and we have no way
  * of introspecting, so just don't screw it up).
  *
- * There are also a few STACK_* macros in here which manipulate ctx that are
+ * There are also a few STACK_* macros in here which manimpulate ctx that are
  * defined up top.
  *
  * The function returns true if all tokens could be successfully matched, false
@@ -853,7 +852,7 @@ bcon_extract_ctx_va (bson_t *bson, bcon_extract_ctx_t *ctx, va_list *ap)
 
    bcon_extract_t u = {0};
 
-   BSON_ASSERT (bson_iter_init (&root_iter, bson));
+   bson_iter_init (&root_iter, bson);
 
    while (1) {
       if (STACK_IS_ARRAY) {

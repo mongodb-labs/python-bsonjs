@@ -205,7 +205,7 @@ bson_decimal128_to_string (const bson_decimal128_t *dec, /* IN  */
       is_zero = true;
    } else if (significand128.parts[0] >= (1 << 17)) {
       /* The significand is non-canonical or zero.
-       * In order to preserve compatibility with the densely packed decimal
+       * In order to preserve compatability with the densely packed decimal
        * format, the maximum value for the significand of decimal128 is
        * 1e34 - 1.  If the value is greater than 1e34 - 1, the IEEE 754
        * standard dictates that the significand is interpreted as zero.
@@ -264,7 +264,7 @@ bson_decimal128_to_string (const bson_decimal128_t *dec, /* IN  */
          *(str_out++) = '.';
       }
 
-      for (i = 0; i < significand_digits && (str_out - str) < 36; i++) {
+      for (i = 0; i < significand_digits; i++) {
          *(str_out++) = *(significand_read++) + '0';
       }
       /* Exponent */
@@ -273,7 +273,7 @@ bson_decimal128_to_string (const bson_decimal128_t *dec, /* IN  */
    } else {
       /* Regular format with no decimal place */
       if (exponent >= 0) {
-         for (i = 0; i < significand_digits && (str_out - str) < 36; i++) {
+         for (i = 0; i < significand_digits; i++) {
             *(str_out++) = *(significand_read++) + '0';
          }
          *str_out = '\0';
@@ -281,9 +281,7 @@ bson_decimal128_to_string (const bson_decimal128_t *dec, /* IN  */
          int32_t radix_position = significand_digits + exponent;
 
          if (radix_position > 0) { /* non-zero digits before radix */
-            for (i = 0;
-                 i < radix_position && (str_out - str) < BSON_DECIMAL128_STRING;
-                 i++) {
+            for (i = 0; i < radix_position; i++) {
                *(str_out++) = *(significand_read++) + '0';
             }
          } else { /* leading zero before radix point */
@@ -295,9 +293,7 @@ bson_decimal128_to_string (const bson_decimal128_t *dec, /* IN  */
             *(str_out++) = '0';
          }
 
-         for (i = 0;
-              (i < significand_digits - BSON_MAX (radix_position - 1, 0)) &&
-              (str_out - str) < BSON_DECIMAL128_STRING;
+         for (i = 0; i < significand_digits - BSON_MAX (radix_position - 1, 0);
               i++) {
             *(str_out++) = *(significand_read++) + '0';
          }
@@ -442,40 +438,6 @@ bool
 bson_decimal128_from_string (const char *string,     /* IN */
                              bson_decimal128_t *dec) /* OUT */
 {
-   return bson_decimal128_from_string_w_len (string, -1, dec);
-}
-
-
-/**
- *------------------------------------------------------------------------------
- *
- * bson_decimal128_from_string_w_len --
- *
- *    This function converts @string in the format [+-]ddd[.]ddd[E][+-]dddd to
- *    decimal128.  Out of range values are converted to +/-Infinity.  Invalid
- *    strings are converted to NaN. @len is the length of the string, or -1
- *    meaning the string is null-terminated.
- *
- *    If more digits are provided than the available precision allows,
- *    round to the nearest expressable decimal128 with ties going to even will
- *    occur.
- *
- *    Note: @string must be ASCII only!
- *
- * Returns:
- *    true on success, or false on failure. @dec will be NaN if @str was invalid
- *    The &bson_decimal128_t converted from @string at @dec.
- *
- * Side effects:
- *    None.
- *
- *------------------------------------------------------------------------------
- */
-bool
-bson_decimal128_from_string_w_len (const char *string,     /* IN */
-                                   int len,                /* IN */
-                                   bson_decimal128_t *dec) /* OUT */
-{
    _bson_uint128_6464_t significand = {0};
 
    const char *str_read = string; /* Read pointer for consuming str. */
@@ -529,8 +491,7 @@ bson_decimal128_from_string_w_len (const char *string,     /* IN */
    }
 
    /* Read digits */
-   while (((isdigit (*str_read) || *str_read == '.')) &&
-          (len == -1 || str_read < string + len)) {
+   while (isdigit (*str_read) || *str_read == '.') {
       if (*str_read == '.') {
          if (saw_radix) {
             BSON_DECIMAL128_SET_NAN (*dec);
@@ -590,7 +551,7 @@ bson_decimal128_from_string_w_len (const char *string,     /* IN */
 #undef SSCANF
    }
 
-   if ((len == -1 || str_read < string + len) && *str_read) {
+   if (*str_read) {
       BSON_DECIMAL128_SET_NAN (*dec);
       return false;
    }
@@ -709,6 +670,8 @@ bson_decimal128_from_string_w_len (const char *string,     /* IN */
    }
 
    /* Encode significand */
+   significand_high = 0,   /* The high 17 digits of the significand */
+      significand_low = 0; /* The low 17 digits of the significand */
 
    if (significant_digits == 0) { /* read a zero */
       significand_high = 0;

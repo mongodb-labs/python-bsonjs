@@ -19,12 +19,11 @@
 #include <stdarg.h>
 
 #include "bson-compat.h"
-#include "bson-config.h"
 #include "bson-string.h"
 #include "bson-memory.h"
 #include "bson-utf8.h"
 
-#ifdef BSON_HAVE_STRINGS_H
+#ifdef HAVE_STRINGS_H
 #include <strings.h>
 #else
 #include <string.h>
@@ -83,6 +82,27 @@ bson_string_new (const char *str) /* IN */
 
    return ret;
 }
+
+
+/*
+ *--------------------------------------------------------------------------
+ *
+ * bson_string_free --
+ *
+ *       Free the bson_string_t @string and related allocations.
+ *
+ *       If @free_segment is false, then the strings buffer will be
+ *       returned and is not freed. Otherwise, NULL is returned.
+ *
+ * Returns:
+ *       The string->str if free_segment is false.
+ *       Otherwise NULL.
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
 
 char *
 bson_string_free (bson_string_t *string, /* IN */
@@ -542,16 +562,8 @@ bson_strncpy (char *dst,       /* IN */
               const char *src, /* IN */
               size_t size)     /* IN */
 {
-   if (size == 0) {
-      return;
-   }
-
-/* Prefer strncpy_s for MSVC, or strlcpy, which has additional checks and only
- * adds one trailing \0 */
 #ifdef _MSC_VER
    strncpy_s (dst, size, src, _TRUNCATE);
-#elif defined(BSON_HAVE_STRLCPY)
-   strlcpy (dst, src, size);
 #else
    strncpy (dst, src, size);
    dst[size - 1] = '\0';
@@ -592,11 +604,10 @@ bson_vsnprintf (char *str,          /* IN */
 
    BSON_ASSERT (str);
 
-   if (size == 0) {
-      return 0;
+   if (size != 0) {
+      r = _vsnprintf_s (str, size, _TRUNCATE, format, ap);
    }
 
-   r = _vsnprintf_s (str, size, _TRUNCATE, format, ap);
    if (r == -1) {
       r = _vscprintf (format, ap);
    }
@@ -606,12 +617,6 @@ bson_vsnprintf (char *str,          /* IN */
    return r;
 #else
    int r;
-
-   BSON_ASSERT (str);
-
-   if (size == 0) {
-      return 0;
-   }
 
    r = vsnprintf (str, size, format, ap);
    str[size - 1] = '\0';
@@ -712,7 +717,7 @@ bson_ascii_strtoll (const char *s, char **e, int base)
 
    c = *tok;
 
-   while (bson_isspace (c)) {
+   while (isspace (c)) {
       c = *++tok;
    }
 
@@ -810,11 +815,4 @@ bson_strcasecmp (const char *s1, const char *s2)
 #else
    return strcasecmp (s1, s2);
 #endif
-}
-
-
-bool
-bson_isspace (int c)
-{
-   return c >= -1 && c <= 255 && isspace (c);
 }

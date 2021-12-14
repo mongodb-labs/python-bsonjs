@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "bson-prelude.h"
-
 
 #ifndef BSON_WRITER_H
 #define BSON_WRITER_H

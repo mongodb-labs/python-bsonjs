@@ -644,9 +644,7 @@ _bson_reader_data_tell (bson_reader_data_t *reader) /* IN */
 void
 bson_reader_destroy (bson_reader_t *reader) /* IN */
 {
-   if (!reader) {
-      return;
-   }
+   BSON_ASSERT (reader);
 
    switch (reader->type) {
    case 0:
