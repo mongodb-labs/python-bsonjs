@@ -4,7 +4,7 @@
  */
 
 #include "jsonsl.h"
-#include "bson-memory.h"
+#include "bson/bson-memory.h"
 
 #include <limits.h>
 #include <ctype.h>
@@ -284,13 +284,15 @@ jsonsl_feed(jsonsl_t jsn, const jsonsl_char_t *bytes, size_t nbytes)
         INVOKE_ERROR(HKEY_EXPECTED); \
     }
 
-#define VERIFY_SPECIAL(lit) \
-        if (CUR_CHAR != (lit)[jsn->pos - state->pos_begin]) { \
+#define VERIFY_SPECIAL(lit, lit_len) \
+        if ((jsn->pos - state->pos_begin) > lit_len \
+                || CUR_CHAR != (lit)[jsn->pos - state->pos_begin]) { \
             INVOKE_ERROR(SPECIAL_EXPECTED); \
         }
 
-#define VERIFY_SPECIAL_CI(lit) \
-        if (tolower(CUR_CHAR) != (lit)[jsn->pos - state->pos_begin]) { \
+#define VERIFY_SPECIAL_CI(lit, lit_len) \
+        if ((jsn->pos - state->pos_begin) > lit_len \
+                || tolower(CUR_CHAR) != (lit)[jsn->pos - state->pos_begin]) { \
             INVOKE_ERROR(SPECIAL_EXPECTED); \
         }
 
@@ -440,18 +442,18 @@ jsonsl_feed(jsonsl_t jsn, const jsonsl_char_t *bytes, size_t nbytes)
 
                 /* Verify TRUE, FALSE, NULL */
                 if (state->special_flags == JSONSL_SPECIALf_TRUE) {
-                    VERIFY_SPECIAL("true");
+                    VERIFY_SPECIAL("true", 4 /* strlen("true") */);
                 } else if (state->special_flags == JSONSL_SPECIALf_FALSE) {
-                    VERIFY_SPECIAL("false");
+                    VERIFY_SPECIAL("false", 5 /* strlen("false") */);
                 } else if (state->special_flags == JSONSL_SPECIALf_NULL) {
-                    VERIFY_SPECIAL("null");
+                    VERIFY_SPECIAL("null", 4 /* strlen("null") */);
 #ifdef JSONSL_PARSE_NAN
                 } else if (state->special_flags == JSONSL_SPECIALf_POS_INF) {
-                    VERIFY_SPECIAL_CI("infinity");
+                    VERIFY_SPECIAL_CI("infinity", 8 /* strlen("infinity") */);
                 } else if (state->special_flags == JSONSL_SPECIALf_NEG_INF) {
-                    VERIFY_SPECIAL_CI("-infinity");
+                    VERIFY_SPECIAL_CI("-infinity", 9 /* strlen("-infinity") */);
                 } else if (state->special_flags == JSONSL_SPECIALf_NAN) {
-                    VERIFY_SPECIAL_CI("nan");
+                    VERIFY_SPECIAL_CI("nan", 3 /* strlen("nan") */);
                 } else if (state->special_flags & JSONSL_SPECIALf_NULL ||
                            state->special_flags & JSONSL_SPECIALf_NAN) {
                    /* previous char was "n", are we parsing null or nan? */
@@ -924,7 +926,7 @@ jsonsl_jpr_new(const char *path, jsonsl_error_t *errp)
         char *cur = my_copy;
         int pathret = JSONSL_PATH_STRING;
         curidx = 1;
-        while (pathret > 0 && curidx < count) {
+        while (curidx < count) {
             pathret = populate_component(cur, components + curidx, &cur, errp);
             if (pathret > 0) {
                 curidx++;
@@ -1165,7 +1167,7 @@ void jsonsl_jpr_match_state_cleanup(jsonsl_t jsn)
 /**
  * This function should be called exactly once on each element...
  * This should also be called in recursive order, since we rely
- * on the parent having been initalized for a match.
+ * on the parent having been initialized for a match.
  *
  * Since the parent is checked for a match as well, we maintain a 'serial' counter.
  * Whenever we traverse an element, we expect the serial to be the same as a global
@@ -1361,8 +1363,7 @@ size_t jsonsl_util_unescape_ex(const char *in,
                 c[1] != '\\' && c[1] != '"')) {
             /* if we don't want to unescape this string, write the escape sequence to the output */
             *out++ = *c++;
-            if (--len == 0)
-                break;
+            --len;
             goto GT_ASSIGN;
         }
 
@@ -1414,6 +1415,7 @@ size_t jsonsl_util_unescape_ex(const char *in,
         } else if (uescval < 0xD800 || uescval > 0xDFFF) {
             *oflags |= JSONSL_SPECIALf_NONASCII;
             out = jsonsl__writeutf8(uescval, out) - 1;
+
         } else if (uescval < 0xDC00) {
             *oflags |= JSONSL_SPECIALf_NONASCII;
             last_codepoint = (uint16_t)uescval;

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "bson-prelude.h"
+
 
 #ifndef BSON_ISO8601_PRIVATE_H
 #define BSON_ISO8601_PRIVATE_H

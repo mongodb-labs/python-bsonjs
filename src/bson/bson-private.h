@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "bson-prelude.h"
+
 
 #ifndef BSON_PRIVATE_H
 #define BSON_PRIVATE_H
@@ -54,22 +56,34 @@ typedef enum {
 } bson_flags_t;
 
 
+#ifdef BSON_MEMCHECK
+#define BSON_INLINE_DATA_SIZE (120 - sizeof (char *))
+#else
 #define BSON_INLINE_DATA_SIZE 120
+#endif
+
 
 BSON_ALIGNED_BEGIN (128)
 typedef struct {
    bson_flags_t flags;
    uint32_t len;
+#ifdef BSON_MEMCHECK
+   char *canary;
+#endif
    uint8_t data[BSON_INLINE_DATA_SIZE];
 } bson_impl_inline_t BSON_ALIGNED_END (128);
 
 
-BSON_STATIC_ASSERT (sizeof (bson_impl_inline_t) == 128);
+BSON_STATIC_ASSERT2 (impl_inline_t, sizeof (bson_impl_inline_t) == 128);
 
 
 BSON_ALIGNED_BEGIN (128)
 typedef struct {
-   bson_flags_t flags;        /* flags describing the bson_t */
+   bson_flags_t flags; /* flags describing the bson_t */
+   /* len is part of the public bson_t declaration. It is not
+    * exposed through an accessor function. Plus, it's redundant since
+    * BSON self describes the length in the first four bytes of the
+    * buffer. */
    uint32_t len;              /* length of bson document in bytes */
    bson_t *parent;            /* parent bson if a child */
    uint32_t depth;            /* Subdocument depth. */
@@ -83,7 +97,7 @@ typedef struct {
 } bson_impl_alloc_t BSON_ALIGNED_END (128);
 
 
-BSON_STATIC_ASSERT (sizeof (bson_impl_alloc_t) <= 128);
+BSON_STATIC_ASSERT2 (impl_alloc_t, sizeof (bson_impl_alloc_t) <= 128);
 
 
 #define BSON_REGEX_OPTIONS_SORTED "ilmsux"

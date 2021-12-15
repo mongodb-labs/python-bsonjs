@@ -354,6 +354,12 @@ bson_copy_to_excluding_noinit (const bson_t *src,
                                const char *first_exclude,
                                ...) BSON_GNUC_NULL_TERMINATED;
 
+BSON_EXPORT (void)
+bson_copy_to_excluding_noinit_va (const bson_t *src,
+                                  bson_t *dst,
+                                  const char *first_exclude,
+                                  va_list args);
+
 /**
  * bson_destroy:
  * @bson: A bson_t.
@@ -444,7 +450,7 @@ BSON_EXPORT (int)
 bson_compare (const bson_t *bson, const bson_t *other);
 
 /*
- * bson_compare:
+ * bson_equal:
  * @bson: A bson_t.
  * @other: A bson_t.
  *
@@ -484,6 +490,31 @@ BSON_EXPORT (bool)
 bson_validate_with_error (const bson_t *bson,
                           bson_validate_flags_t flags,
                           bson_error_t *error);
+
+
+/**
+ * bson_as_json_with_opts:
+ * @bson: A bson_t.
+ * @length: A location for the string length, or NULL.
+ * @opts: A bson_t_json_opts_t defining options for the conversion
+ *
+ * Creates a new string containing @bson in the selected JSON format,
+ * conforming to the MongoDB Extended JSON Spec:
+ *
+ * github.com/mongodb/specifications/blob/master/source/extended-json.rst
+ *
+ * The caller is responsible for freeing the resulting string. If @length is
+ * non-NULL, then the length of the resulting string will be placed in @length.
+ *
+ * See http://docs.mongodb.org/manual/reference/mongodb-extended-json/ for
+ * more information on extended JSON.
+ *
+ * Returns: A newly allocated string that should be freed with bson_free().
+ */
+BSON_EXPORT (char *)
+bson_as_json_with_opts (const bson_t *bson,
+                        size_t *length,
+                        const bson_json_opts_t *opts);
 
 
 /**
@@ -936,7 +967,7 @@ bson_append_oid (bson_t *bson,
  *   's' for dotall mode ('.' matches everything)
  *   'u' to make \w and \W match unicode.
  *
- * For more information on what comprimises a BSON regex, see bsonspec.org.
+ * For more detailed information about BSON regex elements, see bsonspec.org.
  *
  * Returns: true if successful; false if append would overflow max size.
  */
@@ -946,6 +977,40 @@ bson_append_regex (bson_t *bson,
                    int key_length,
                    const char *regex,
                    const char *options);
+
+
+/**
+ * bson_append_regex:
+ * @bson: A bson_t.
+ * @key: The key of the field.
+ * @key_length: The length of the key string.
+ * @regex: The regex to append to the bson.
+ * @regex_length: The length of the regex string.
+ * @options: Options for @regex.
+ *
+ * Appends a new field to @bson of type BSON_TYPE_REGEX. @regex should
+ * be the regex string. @options should contain the options for the regex.
+ *
+ * Valid options for @options are:
+ *
+ *   'i' for case-insensitive.
+ *   'm' for multiple matching.
+ *   'x' for verbose mode.
+ *   'l' to make \w and \W locale dependent.
+ *   's' for dotall mode ('.' matches everything)
+ *   'u' to make \w and \W match unicode.
+ *
+ * For more detailed information about BSON regex elements, see bsonspec.org.
+ *
+ * Returns: true if successful; false if append would overflow max size.
+ */
+BSON_EXPORT (bool)
+bson_append_regex_w_len (bson_t *bson,
+                         const char *key,
+                         int key_length,
+                         const char *regex,
+                         int regex_length,
+                         const char *options);
 
 
 /**
@@ -1038,7 +1103,7 @@ bson_append_timeval (bson_t *bson,
  *
  * Appends a new field to @bson of type BSON_TYPE_DATE_TIME.
  *
- * Returns: true if sucessful; otherwise false.
+ * Returns: true if successful; otherwise false.
  */
 BSON_EXPORT (bool)
 bson_append_date_time (bson_t *bson,
