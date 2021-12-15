@@ -66,6 +66,12 @@ def bsonjs_loads(json_str):
     return to_object(bsonjs.loads(json_str))
 
 
+BSONJS_JSON_OPTIONS = json_util.JSONOptions(
+                                  json_mode=json_util.JSONMode.CANONICAL,
+                                  uuid_representation=UuidRepresentation.PYTHON_LEGACY,
+                                  tz_aware=True)
+
+
 class TestBsonjs(unittest.TestCase):
 
     @staticmethod
@@ -78,11 +84,9 @@ class TestBsonjs(unittest.TestCase):
         # Check compatibility between bsonjs and json_util
         self.assertEqual(doc, json_util.loads(
             bsonjs.dumps(bson_bytes),
-            json_options=json_util.CANONICAL_JSON_OPTIONS.with_options(
-                uuid_representation=UuidRepresentation.PYTHON_LEGACY)))
+            json_options=BSONJS_JSON_OPTIONS))
         self.assertEqual(bson_bytes, bsonjs.loads(json_util.dumps(
-            doc, json_options=json_util.CANONICAL_JSON_OPTIONS.with_options(
-                uuid_representation=UuidRepresentation.PYTHON_LEGACY))))
+            doc, json_options=BSONJS_JSON_OPTIONS)))
 
     def test_basic(self):
         self.round_trip({"hello": "world"})
@@ -110,7 +114,7 @@ class TestBsonjs(unittest.TestCase):
     def test_datetime(self):
         # only millis, not micros
         self.round_trip({"date": datetime.datetime(2009, 12, 9, 15,
-                                                   49, 45, 191000)})
+                                                   49, 45, 191000, utc)})
 
         jsn = '{"dt": { "$date" : "1970-01-01T00:00:00.000+0000"}}'
         self.assertEqual(EPOCH_AWARE, bsonjs_loads(jsn)["dt"])
