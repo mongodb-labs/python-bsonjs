@@ -21,7 +21,8 @@ import uuid
 
 import bson
 from bson import json_util, EPOCH_AWARE
-from bson.binary import Binary, MD5_SUBTYPE, USER_DEFINED_SUBTYPE
+from bson.binary import (Binary, MD5_SUBTYPE, USER_DEFINED_SUBTYPE,
+                         UuidRepresentation)
 from bson.code import Code
 from bson.codec_options import CodecOptions
 from bson.decimal128 import Decimal128
@@ -45,12 +46,14 @@ from test import StringIO, unittest
 def to_object(bson_bytes):
     """Return deserialized object from BSON bytes"""
     return bson.BSON(bson_bytes).decode(CodecOptions(document_class=SON,
-                                                     tz_aware=True))
+                                                     tz_aware=True,
+                                                     uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
 def to_bson(obj):
     """Return serialized BSON string from object"""
-    return bson.BSON.encode(obj)
+    return bson.BSON.encode(obj, codec_options=CodecOptions(
+        uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
 def bsonjs_dumps(doc):
@@ -75,9 +78,11 @@ class TestBsonjs(unittest.TestCase):
         # Check compatibility between bsonjs and json_util
         self.assertEqual(doc, json_util.loads(
             bsonjs.dumps(bson_bytes),
-            json_options=json_util.STRICT_JSON_OPTIONS))
+            json_options=json_util.CANONICAL_JSON_OPTIONS.with_options(
+                uuid_representation=UuidRepresentation.PYTHON_LEGACY)))
         self.assertEqual(bson_bytes, bsonjs.loads(json_util.dumps(
-            doc, json_options=json_util.STRICT_JSON_OPTIONS)))
+            doc, json_options=json_util.CANONICAL_JSON_OPTIONS.with_options(
+                uuid_representation=UuidRepresentation.PYTHON_LEGACY))))
 
     def test_basic(self):
         self.round_trip({"hello": "world"})
@@ -105,7 +110,7 @@ class TestBsonjs(unittest.TestCase):
     def test_datetime(self):
         # only millis, not micros
         self.round_trip({"date": datetime.datetime(2009, 12, 9, 15,
-                                                   49, 45, 191000, utc)})
+                                                   49, 45, 191000)})
 
         jsn = '{"dt": { "$date" : "1970-01-01T00:00:00.000+0000"}}'
         self.assertEqual(EPOCH_AWARE, bsonjs_loads(jsn)["dt"])
@@ -142,11 +147,6 @@ class TestBsonjs(unittest.TestCase):
         regex = re.compile("a*b", unicode_options)
         res = self.round_tripped({"r": regex})["r"]
         self.assertEqual(unicode_options, res.flags)
-
-        # Some tools may not add $options if no flags are set.
-        # https://jira.mongodb.org/browse/CDRIVER-3773
-        self.assertRaises(ValueError, bsonjs_loads, '{"r": {"$regex": '
-                                                  '"a*b"}}')
 
         self.assertEqual(
             Regex(".*", "ilm"),
