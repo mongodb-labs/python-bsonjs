@@ -67,9 +67,9 @@ def bsonjs_loads(json_str):
 
 
 BSONJS_JSON_OPTIONS = json_util.JSONOptions(
-                                  json_mode=json_util.JSONMode.CANONICAL,
-                                  uuid_representation=UuidRepresentation.PYTHON_LEGACY,
-                                  tz_aware=True)
+    json_mode=json_util.JSONMode.CANONICAL,
+    uuid_representation=UuidRepresentation.PYTHON_LEGACY,
+    tz_aware=True)
 
 
 class TestBsonjs(unittest.TestCase):
@@ -151,6 +151,10 @@ class TestBsonjs(unittest.TestCase):
         regex = re.compile("a*b", unicode_options)
         res = self.round_tripped({"r": regex})["r"]
         self.assertEqual(unicode_options, res.flags)
+
+        # Now that https://jira.mongodb.org/browse/CDRIVER-3773 is fixed
+        # this should no longer cause an error
+        bsonjs_loads('{"r": {"$regex": "a*b"}}')
 
         self.assertEqual(
             Regex(".*", "ilm"),
