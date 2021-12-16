@@ -309,6 +309,5 @@ class TestBsonjs(unittest.TestCase):
                                        extended="canonical"))
 
 
-
 if __name__ == "__main__":
     unittest.main()
