@@ -129,4 +129,4 @@ ENV/
 *.su
 
 # .idea
-.idea/
+.idea/**
