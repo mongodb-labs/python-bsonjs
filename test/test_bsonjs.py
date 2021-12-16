@@ -52,9 +52,8 @@ def to_object(bson_bytes):
 
 def to_bson(obj):
     """Return serialized BSON string from object"""
-    ret = bson.BSON.encode(obj, codec_options=CodecOptions(
+    return bson.BSON.encode(obj, codec_options=CodecOptions(
         uuid_representation=UuidRepresentation.PYTHON_LEGACY))
-    return ret
 
 
 def bsonjs_dumps(doc, extended="legacy"):
