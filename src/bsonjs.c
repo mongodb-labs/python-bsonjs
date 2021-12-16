@@ -28,7 +28,8 @@ PyDoc_STRVAR(bsonjs_documentation,
 "native libbson functions. https://github.com/mongodb/libbson");
 
 char *
-bson_str_to_json(const char *bson, size_t bson_len, size_t *json_len)
+bson_str_to_json(const char *bson, size_t bson_len, size_t *json_len, const
+char * extended_str)
 {
     char *json;
     const bson_t *b;
@@ -42,8 +43,20 @@ bson_str_to_json(const char *bson, size_t bson_len, size_t *json_len)
         bson_reader_destroy(reader);
         return NULL;
     }
-
-    json = bson_as_json(b, json_len);
+    if(strcmp(extended_str, "relaxed") == 0){
+        json = bson_as_relaxed_extended_json(b, json_len);
+    }
+    else if(strcmp(extended_str, "canonical") == 0){
+        json = bson_as_canonical_extended_json(b, json_len);
+    }
+    else if(strcmp(extended_str, "legacy") == 0){
+        json = bson_as_json(b, json_len);
+    }
+    else{
+        PyErr_SetString(PyExc_ValueError, "The value of extended must be one\n"
+                                          "of: relaxed, legacy, canonical");
+        return NULL;
+    }
 
     bson_reader_destroy(reader);
 
@@ -56,17 +69,17 @@ bson_str_to_json(const char *bson, size_t bson_len, size_t *json_len)
 }
 
 static PyObject *
-_dumps(PyObject *bson)
+_dumps(PyObject *bson, char *extended)
 {
     PyObject *rv;
-    char *bson_str, *json;
+    char *bson_str, *json, *extended_str;
     Py_ssize_t bson_len;
     size_t json_len;
 
     bson_str = PyBytes_AS_STRING(bson);
     bson_len = PyBytes_GET_SIZE(bson);
 
-    json = bson_str_to_json(bson_str, (size_t)bson_len, &json_len);
+    json = bson_str_to_json(bson_str, (size_t)bson_len, &json_len, extended);
     if (!json) {
         // error is already set
         return NULL;
@@ -85,15 +98,18 @@ PyDoc_STRVAR(dump__doc__,
 "This function wraps `bson_as_json` from libbson.");
 
 static PyObject *
-dump(PyObject *self, PyObject *args)
+dump(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *bson, *file, *json;
-
-    if (!PyArg_ParseTuple(args, "SO", &bson, &file)) {
+    static char *kwlist[] = {"bson", "file", "extended", NULL};
+    char * extended = "relaxed";
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "SO|s", kwlist, &bson,
+    &file,
+    &extended)) {
         return NULL;
     }
 
-    json = _dumps(bson);
+    json = _dumps(bson, extended);
     if (!json) {
         return NULL;
     }
@@ -114,15 +130,16 @@ PyDoc_STRVAR(dumps__doc__,
 "This function wraps `bson_as_json` from libbson.");
 
 static PyObject *
-dumps(PyObject *self, PyObject *args)
+dumps(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *bson;
-
-    if (!PyArg_ParseTuple(args, "S", &bson)) {
+    char * extended = "relaxed";
+    static char *kwlist[] = {"bson", "extended", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "S|s", kwlist, &bson,
+    &extended)) {
         return NULL;
     }
-
-    return _dumps(bson);
+    return _dumps(bson, extended);
 }
 
 static PyObject *
@@ -211,8 +228,8 @@ loads(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef BsonjsClientMethods[] = {
-    {"dump", dump, METH_VARARGS, dump__doc__},
-    {"dumps", dumps, METH_VARARGS, dumps__doc__},
+    {"dump", dump, METH_VARARGS | METH_KEYWORDS, dump__doc__},
+    {"dumps", dumps, METH_VARARGS | METH_KEYWORDS, dumps__doc__},
     {"load", load, METH_VARARGS, load__doc__},
     {"loads", loads, METH_VARARGS, loads__doc__},
     {NULL, NULL, 0, NULL}
