@@ -178,9 +178,6 @@
 # undef BSON_HAVE_STRLCPY
 #endif
 
-#endif /* BSON_CONFIG_H */
-
-
 
 /*
  * Define to 1 if you have rand_r available on your platform.
