@@ -18,13 +18,14 @@
 #include <Python.h>
 
 static PyObject *
-dump(PyObject *self, PyObject *args);
+dump(PyObject *self, PyObject *args, PyObject *kwargs);
 
 static PyObject *
-dumps(PyObject *self, PyObject *args);
+dumps(PyObject *self, PyObject *args, PyObject *kwargs);
 
 static PyObject *
 load(PyObject *self, PyObject *args);
 
 static PyObject *
 loads(PyObject *self, PyObject *args);
+

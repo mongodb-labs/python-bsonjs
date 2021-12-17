@@ -56,9 +56,9 @@ def to_bson(obj):
         uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
-def bsonjs_dumps(doc):
+def bsonjs_dumps(doc, extended="legacy"):
     """Provide same API as json_util.dumps"""
-    return bsonjs.dumps(to_bson(doc))
+    return bsonjs.dumps(to_bson(doc), extended=extended)
 
 
 def bsonjs_loads(json_str):
@@ -291,6 +291,25 @@ class TestBsonjs(unittest.TestCase):
         not_file = {}
         self.assertRaises(AttributeError, bsonjs.load, not_file)
 
+    def test_extended(self):
+        json_str = '{ "test" : "me" }'
+        bson_bytes = bsonjs.loads(json_str)
+        self.assertRaises(ValueError, bsonjs.dumps, bson_bytes, extended="not")
+
+        self.assertEqual(
+            '{ "regex" : { "$regex" : ".*", "$options" : "mx" } }',
+            bsonjs_dumps({"regex": Regex(".*", re.M | re.X)},
+                         extended="legacy"))
+        self.assertEqual(
+            '{ "regex" : { "$regularExpression" : { "pattern" : ".*", "options" : "mx" } } }',
+            bsonjs_dumps({"regex": Regex(".*", re.M | re.X)},
+                         extended="relaxed"))
+        self.assertEqual('{ "date" : { "$date" : "2020-12-16T00:00:00Z" } }',
+                        bsonjs_dumps({"date": datetime.datetime(2020, 12, 16)},
+                                     extended="relaxed"))
+        self.assertEqual('{ "date" : { "$date" : { "$numberLong" : "1608076800000" } } }',
+                         bsonjs_dumps({"date": datetime.datetime(2020, 12, 16)},
+                                       extended="canonical"))
 
 if __name__ == "__main__":
     unittest.main()
