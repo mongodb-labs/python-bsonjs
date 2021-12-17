@@ -87,10 +87,7 @@ You must build python-bsonjs separately for each version of Python. On
 Windows this means you must use the same C compiler your Python version was
 built with.
 
-- Python 2.7 requires `Microsoft Visual C++ Compiler for Python 2.7
-  <https://www.microsoft.com/en-us/download/details.aspx?id=44266>`_
-- Python 3.4 requires Microsoft Visual Studio 2010 Professional
-- Python 3.5 and up requires Microsoft Visual Studio 2015
+- Python 3.6 and up requires Microsoft Visual Studio 2015
 
 Source
 ``````
