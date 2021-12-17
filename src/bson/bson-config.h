@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2018-present MongoDB, Inc.
  *
@@ -29,6 +28,7 @@
  */
 #include <Python.h>
 
+
 /*
  * Define to 1234 for Little Endian, 4321 for Big Endian.
  */
@@ -56,7 +56,6 @@
 #else
 # define BSON_OS 1
 #endif
-
 
 
 /*
@@ -117,7 +116,6 @@
 #endif
 
 
-
 /*
  * Define to 1 if you have struct timespec available on your platform.
  */
@@ -148,18 +146,6 @@
 #endif
 
 
-/*
- * Define to 1 if you have arc4random_buf available on your platform.
- */
-#define BSON_HAVE_ARC4RANDOM_BUF 0
-#if BSON_HAVE_ARC4RANDOM_BUF != 1
-# undef BSON_HAVE_ARC4RANDOM_BUF
-#endif
-
-
-/*
- * Define to 1 if you have rand_r available on your platform.
- */
 #ifdef MS_WINDOWS
 # define BSON_HAVE_RAND_R 0
 #else
@@ -170,31 +156,6 @@
 #endif
 
 
-/*
- * Define to 1 if you have strlcpy available on your platform.
- */
-#define BSON_HAVE_STRLCPY 0
-#if BSON_HAVE_STRLCPY != 1
-# undef BSON_HAVE_STRLCPY
-#endif
-
-
-/*
- * Define to 1 if you have rand_r available on your platform.
- */
-#ifdef MS_WINDOWS
-# define BSON_HAVE_RAND_R 0
-#else
-# define BSON_HAVE_RAND_R 1
-#endif
-#if BSON_HAVE_RAND_R != 1
-# undef BSON_HAVE_RAND_R
-#endif
-
-
-/*
- * Define to 1 if you have strlcpy available on your platform.
- */
 #define BSON_HAVE_STRLCPY 0
 #if BSON_HAVE_STRLCPY != 1
 # undef BSON_HAVE_STRLCPY
