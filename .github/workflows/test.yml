@@ -17,6 +17,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: "Install Visual C++ for Python 2.7"
+        if: {{  matrix.python-version == "3.4"  }}
+        run: |
+          pip install pymongo==3.11
       # use pip rather than easy_install to install pymongo
       - name: install pymongo
         run: |
