@@ -13,6 +13,7 @@ rm -r python-bsonjs/src/jsonsl
 rm -r python-bsonjs/src/common
 rsync -r mongo-c-driver/src/libbson/src/bson/*.[hc] python-bsonjs/src/bson/
 rsync -r mongo-c-driver/src/libbson/src/jsonsl/*.[hc] python-bsonjs/src/jsonsl/
+rsync -r mongo-c-driver/src/libbson/src/jsonsl/LICENSE python-bsonjs/src/jsonsl/
 
 rsync -r mongo-c-driver/src/common/*.[hc] python-bsonjs/src/common/
 rsync -r mongo-c-driver/cmake-build/src/common/*.[hc] python-bsonjs/src/common/
