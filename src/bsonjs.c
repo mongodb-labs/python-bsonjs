@@ -281,4 +281,3 @@ initbsonjs(VOID)
     return module;
 #endif
 }
-
