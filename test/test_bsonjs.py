@@ -21,7 +21,8 @@ import uuid
 
 import bson
 from bson import json_util, EPOCH_AWARE
-from bson.binary import Binary, MD5_SUBTYPE, USER_DEFINED_SUBTYPE
+from bson.binary import (Binary, MD5_SUBTYPE, USER_DEFINED_SUBTYPE,
+                         UuidRepresentation)
 from bson.code import Code
 from bson.codec_options import CodecOptions
 from bson.decimal128 import Decimal128
@@ -45,12 +46,14 @@ from test import StringIO, unittest
 def to_object(bson_bytes):
     """Return deserialized object from BSON bytes"""
     return bson.BSON(bson_bytes).decode(CodecOptions(document_class=SON,
-                                                     tz_aware=True))
+                                                     tz_aware=True,
+                                                     uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
 def to_bson(obj):
     """Return serialized BSON string from object"""
-    return bson.BSON.encode(obj)
+    return bson.BSON.encode(obj, codec_options=CodecOptions(
+        uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
 def bsonjs_dumps(doc):
@@ -61,6 +64,12 @@ def bsonjs_dumps(doc):
 def bsonjs_loads(json_str):
     """Provide same API as json_util.loads"""
     return to_object(bsonjs.loads(json_str))
+
+
+BSONJS_JSON_OPTIONS = json_util.JSONOptions(
+    json_mode=json_util.JSONMode.CANONICAL,
+    uuid_representation=UuidRepresentation.PYTHON_LEGACY,
+    tz_aware=True)
 
 
 class TestBsonjs(unittest.TestCase):
@@ -75,9 +84,9 @@ class TestBsonjs(unittest.TestCase):
         # Check compatibility between bsonjs and json_util
         self.assertEqual(doc, json_util.loads(
             bsonjs.dumps(bson_bytes),
-            json_options=json_util.STRICT_JSON_OPTIONS))
+            json_options=BSONJS_JSON_OPTIONS))
         self.assertEqual(bson_bytes, bsonjs.loads(json_util.dumps(
-            doc, json_options=json_util.STRICT_JSON_OPTIONS)))
+            doc, json_options=BSONJS_JSON_OPTIONS)))
 
     def test_basic(self):
         self.round_trip({"hello": "world"})
@@ -143,10 +152,9 @@ class TestBsonjs(unittest.TestCase):
         res = self.round_tripped({"r": regex})["r"]
         self.assertEqual(unicode_options, res.flags)
 
-        # Some tools may not add $options if no flags are set.
-        # https://jira.mongodb.org/browse/CDRIVER-3773
-        self.assertRaises(ValueError, bsonjs_loads, '{"r": {"$regex": '
-                                                  '"a*b"}}')
+        # Now that https://jira.mongodb.org/browse/CDRIVER-3773 is fixed
+        # this should no longer cause an error
+        bsonjs_loads('{"r": {"$regex": "a*b"}}')
 
         self.assertEqual(
             Regex(".*", "ilm"),
@@ -282,6 +290,7 @@ class TestBsonjs(unittest.TestCase):
     def test_load_throws_no_read_attribute(self):
         not_file = {}
         self.assertRaises(AttributeError, bsonjs.load, not_file)
+
 
 if __name__ == "__main__":
     unittest.main()
