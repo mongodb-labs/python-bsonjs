@@ -16,8 +16,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      # have to manually install pymongo for 3.4 and 3.5 because otherwise it does not work
-      # error: Could not find suitable distribution for Requirement.parse('pymongo>=3.4.0')
+      # use pip rather than easy_install to install pymongo
       - name: install pymongo
         run: |
           python -m pip install pymongo
