@@ -78,7 +78,7 @@ JSON and encoding JSON to BSON. See `benchmark.py`::
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 2.7, and 3.4+.
+python-bsonjs supports CPython 3.6+.
 
 Compiler
 ````````
