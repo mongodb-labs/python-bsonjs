@@ -1,3 +1,4 @@
+#!/bin/bash -ex
 cd ..
 git clone git@github.com:mongodb/mongo-c-driver.git
 cd mongo-c-driver
