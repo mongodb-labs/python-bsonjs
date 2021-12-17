@@ -101,7 +101,7 @@ static PyObject *
 dump(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *bson, *file, *json;
-    static char *kwlist[] = {"bson", "file", "extended", NULL};
+    static char *kwlist[] = {"", "", "extended", NULL};
     char * extended = "relaxed";
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "SO|s", kwlist, &bson,
     &file,
@@ -134,7 +134,7 @@ dumps(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *bson;
     char * extended = "relaxed";
-    static char *kwlist[] = {"bson", "extended", NULL};
+    static char *kwlist[] = {"", "extended", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "S|s", kwlist, &bson,
     &extended)) {
         return NULL;
