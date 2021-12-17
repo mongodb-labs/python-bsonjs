@@ -77,13 +77,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-// Added to support VS2008 for Python 2.7 on Windows.
-#ifdef _MSC_VER
-# include "bson-stdint-win32.h"
-#else
-# include <stdint.h>
-#endif
-
+#include <stdint.h>
 
 
 BSON_BEGIN_DECLS
