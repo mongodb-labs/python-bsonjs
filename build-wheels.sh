@@ -27,6 +27,9 @@ done
 
 # Install packages and test
 for PYBIN in /opt/python/*/bin; do
+    if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
+        continue
+    fi
     "${PYBIN}/pip" install python-bsonjs --no-index -f dist
     # The tests require PyMongo.
     "${PYBIN}/pip" install 'pymongo>=3.4' unittest2

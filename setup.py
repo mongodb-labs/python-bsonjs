@@ -15,18 +15,11 @@
 import glob
 import sys
 
-# work-around for https://bugs.python.org/issue15881
-try:
-    import multiprocessing
-except ImportError:
-    pass
+# Removed workaround because we dropped support for Python 2.7
+import multiprocessing
 
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, Extension
+
+from setuptools import setup, Extension
 
 with open("README.rst") as f:
     try:
@@ -55,7 +48,7 @@ setup(
     test_suite="test",
     tests_require=tests_require,
     license="Apache License, Version 2.0",
-    python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
+    python_requires=">=3.6",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -63,11 +56,6 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

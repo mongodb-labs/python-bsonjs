@@ -17,9 +17,7 @@
 #include "bsonjs.h"
 #include <bson.h>
 
-#if PY_MAJOR_VERSION >= 3
 #define PyString_FromString PyUnicode_FromString
-#endif
 
 PyDoc_STRVAR(bsonjs_documentation,
 "A library for converting between BSON and MongoDB Extended JSON.\n"
@@ -218,7 +216,7 @@ static PyMethodDef BsonjsClientMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION >= 3
+
 #define INITERROR return NULL
 
 static struct PyModuleDef moduledef = {
@@ -241,14 +239,7 @@ PyMODINIT_FUNC
 initbsonjs(VOID)
 #endif
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject* module = PyModule_Create(&moduledef);
-#else
-    PyObject* module = Py_InitModule3(
-        "bsonjs",
-        BsonjsClientMethods,
-        bsonjs_documentation);
-#endif
     if (module == NULL) {
         INITERROR;
     }
@@ -259,8 +250,5 @@ initbsonjs(VOID)
         Py_DECREF(module);
         INITERROR;
     }
-
-#if PY_MAJOR_VERSION >= 3
     return module;
-#endif
 }
