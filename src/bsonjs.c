@@ -45,16 +45,14 @@ int mode)
     }
     if(mode == 1){
         json = bson_as_relaxed_extended_json(b, json_len);
-    }
-    else if(mode == 2){
+    }else if(mode == 2){
         json = bson_as_canonical_extended_json(b, json_len);
-    }
-    else if(mode == 0){
+    }else if(mode == 0){
         json = bson_as_json(b, json_len);
     }else{
         PyErr_SetString(PyExc_ValueError, "The value of extended must be one "
                                           "of: bsonjs.RELAXED, bsonjs.LEGACY, "
-                                          "or bsonjs.CANONICAL.);
+                                          "or bsonjs.CANONICAL.");
         return NULL;
     }
 
@@ -98,8 +96,8 @@ PyDoc_STRVAR(dump__doc__,
 "\n"
 "Accepts a keyword argument `mode` which can be one of `bsonjs.RELAXED`\n"
 "`bsonjs.CANONICAL`, or `bsonjs.LEGACY`. Where `RELAXED` and `CANONICAL` \n"
-"correspond to the MongoDB Extended JSON 2.0 modes and `LEGACY` uses libbson's\n""
-"legacy JSON format"););
+"correspond to the MongoDB Extended JSON 2.0 modes and `LEGACY` uses libbson's\n"
+"legacy JSON format");
 
 static PyObject *
 dump(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -132,9 +130,9 @@ PyDoc_STRVAR(dumps__doc__,
 "\n"
 "Decode the BSON bytes object `bson` to MongoDB Extended JSON 2.0 relaxed\n"
 "mode. \n"
-'Accepts a keyword argument `mode` which can be one of `bsonjs.RELAXED`\n"
+"Accepts a keyword argument `mode` which can be one of `bsonjs.RELAXED`\n"
 "`bsonjs.CANONICAL`, or `bsonjs.LEGACY`. Where `RELAXED` and `CANONICAL` \n"
-"correspond to the MongoDB Extended JSON 2.0 modes and `LEGACY` uses libbson's\n""
+"correspond to the MongoDB Extended JSON 2.0 modes and `LEGACY` uses libbson's\n"
 "legacy JSON format");
 static PyObject *
 dumps(PyObject *self, PyObject *args, PyObject *kwargs)

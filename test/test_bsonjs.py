@@ -291,10 +291,15 @@ class TestBsonjs(unittest.TestCase):
         not_file = {}
         self.assertRaises(AttributeError, bsonjs.load, not_file)
 
-    def test_extended(self):
+    def test_mode(self):
         json_str = '{ "test" : "me" }'
         bson_bytes = bsonjs.loads(json_str)
         self.assertRaises(ValueError, bsonjs.dumps, bson_bytes, mode=4)
+
+        # Test support for passing mode as positional argument
+        self.assertEqual(
+            '{ "regex" : { "$regex" : ".*", "$options" : "mx" } }',
+            bsonjs_dumps({"regex": Regex(".*", re.M | re.X)}, bsonjs.LEGACY))
 
         self.assertEqual(
             '{ "regex" : { "$regex" : ".*", "$options" : "mx" } }',
