@@ -233,11 +233,6 @@ static struct PyModuleDef moduledef = {
 
 PyMODINIT_FUNC
 PyInit_bsonjs(VOID)
-#else
-#define INITERROR return
-PyMODINIT_FUNC
-initbsonjs(VOID)
-#endif
 {
     PyObject* module = PyModule_Create(&moduledef);
     if (module == NULL) {
