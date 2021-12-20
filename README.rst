@@ -103,8 +103,6 @@ like so::
     >>> wrapped["data"]
     ['a', 'b', 'c']
 
-This results in a ~10% performance decrease, but preserves the list.
-
 Installing From Source
 ======================
 
