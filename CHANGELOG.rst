@@ -10,7 +10,7 @@ https://github.com/mongodb/mongo-c-driver/blob/1.20.0/src/libbson/NEWS
 This release also provides a number of improvements and features:
 
 - Added testing for Windows
-- Added support for Python 3.10
+- Added support for Python 3.7, 3.8, 3.9, and 3.10
 - Added a new keyword argument to the `dumps` and `dump` functions: `mode`. It
   can be one of: bsonjs.LEGACY, bsonjs.CANONICAL, or bsonjs.RELAXED. Which are:
   libbson's legacy extended JSON format, MongoDB Extended JSON 2.0 canonical
