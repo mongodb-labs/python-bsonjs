@@ -17,7 +17,6 @@
 #include "bsonjs.h"
 #include <bson.h>
 
-#define PyString_FromString PyUnicode_FromString
 
 PyDoc_STRVAR(bsonjs_documentation,
 "A library for converting between BSON and MongoDB Extended JSON.\n"
@@ -241,7 +240,7 @@ PyInit_bsonjs(VOID)
 
     if (PyModule_AddObject(module,
                            "__version__",
-                           PyString_FromString("0.3.0.dev0"))) {
+                           PyUnicode_FromString("0.3.0.dev0"))) {
         Py_DECREF(module);
         INITERROR;
     }
