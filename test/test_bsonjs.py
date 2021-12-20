@@ -18,6 +18,7 @@ import datetime
 import re
 import sys
 import uuid
+import io
 
 import bson
 from bson import json_util, EPOCH_AWARE
@@ -59,6 +60,10 @@ def to_bson(obj):
 def bsonjs_dumps(doc, mode=bsonjs.LEGACY):
     """Provide same API as json_util.dumps"""
     return bsonjs.dumps(to_bson(doc), mode=mode)
+
+def bsonjs_dump(doc, file,  mode=bsonjs.LEGACY):
+    """Provide same API as json_util.dumps"""
+    return bsonjs.dump(to_bson(doc), file,  mode=mode)
 
 
 def bsonjs_loads(json_str):
@@ -288,6 +293,7 @@ class TestBsonjs(unittest.TestCase):
         self.assertRaises(AttributeError, bsonjs.load, not_file)
 
     def test_mode(self):
+
         json_str = '{ "test" : "me" }'
         bson_bytes = bsonjs.loads(json_str)
         self.assertRaises(ValueError, bsonjs.dumps, bson_bytes, mode=4)
@@ -311,6 +317,46 @@ class TestBsonjs(unittest.TestCase):
         self.assertEqual('{ "date" : { "$date" : { "$numberLong" : "1608076800000" } } }',
                          bsonjs_dumps({"date": datetime.datetime(2020, 12, 16)},
                                       mode=bsonjs.CANONICAL))
+
+        # Test dump
+        with io.StringIO() as f:
+            bson_bytes = bsonjs.loads('{ "test" : "me" }')
+            self.assertRaises(ValueError, bsonjs.dump, bson_bytes, f,  mode=4)
+            
+        with io.StringIO() as f:
+            bsonjs_dump({"regex": Regex(".*", re.M | re.X)},
+                         f, bsonjs.LEGACY)
+            self.assertEqual(
+                '{ "regex" : { "$regex" : ".*", "$options" : "mx" } }',
+                f.getvalue())
+
+        with io.StringIO() as f:
+            bsonjs_dump({"regex": Regex(".*", re.M | re.X)},
+                        f, mode=bsonjs.LEGACY)
+            self.assertEqual(
+                '{ "regex" : { "$regex" : ".*", "$options" : "mx" } }',
+                f.getvalue())
+
+        with io.StringIO() as f:
+            bsonjs_dump({"regex": Regex(".*", re.M | re.X)},
+                        f, mode=bsonjs.RELAXED)
+            self.assertEqual(
+                '{ "regex" : { "$regularExpression" : { "pattern" : ".*", "options" : "mx" } } }',
+                f.getvalue())
+
+        with io.StringIO() as f:
+            bsonjs_dump({"date": datetime.datetime(2020, 12, 16)},
+                         f, mode=bsonjs.RELAXED)
+            self.assertEqual(
+                '{ "date" : { "$date" : "2020-12-16T00:00:00Z" } }',
+                f.getvalue())
+
+        with io.StringIO() as f:
+            bsonjs_dump({"date": datetime.datetime(2020, 12, 16)},
+                         f, mode=bsonjs.CANONICAL)
+            self.assertEqual(
+                '{ "date" : { "$date" : { "$numberLong" : "1608076800000" } '
+                '} }', f.getvalue())
 
 if __name__ == "__main__":
     unittest.main()
