@@ -43,15 +43,15 @@ int mode)
         bson_reader_destroy(reader);
         return NULL;
     }
-    if(mode == 1){
+    if (mode == 1) {
         json = bson_as_relaxed_extended_json(b, json_len);
-    }else if(mode == 2){
+    } else if (mode == 2) {
         json = bson_as_canonical_extended_json(b, json_len);
-    }else if(mode == 0){
+    } else if (mode == 0) {
         json = bson_as_json(b, json_len);
-    }else{
-        PyErr_SetString(PyExc_ValueError, "The value of extended must be one "
-                                          "of: bsonjs.RELAXED, bsonjs.LEGACY, "
+    } else {
+        PyErr_SetString(PyExc_ValueError, "The value of mode must be one of: "
+                                          "bsonjs.RELAXED, bsonjs.LEGACY, "
                                           "or bsonjs.CANONICAL.");
         return NULL;
     }
