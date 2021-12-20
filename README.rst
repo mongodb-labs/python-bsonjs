@@ -75,6 +75,36 @@ JSON and encoding JSON to BSON. See `benchmark.py`::
     10000 loops, best of 3: 0.683200120926
     bsonjs is 11.72x faster than json_util
 
+Limitations
+===========
+
+Top Level Arrays
+````````````````
+Because `libbson` does not distinguish between top level arrays and top
+level documents, neither does `python-bsonjs`. This means that if you give
+`dumps` or `dump` a top level array it will give you back a dictionary.
+Below are two examples of this behavior::
+
+    >>> import bson
+    >>> from bson import json_util
+    >>> import bsonjs
+    >>> bson.decode(bsonjs.loads(json_util.dumps(["a", "b", "c"])))
+    {'0': 'a', '1': 'b', '2': 'c'}
+    >>> bson.decode(bsonjs.loads(json_util.dumps([])))
+    {}
+
+One potential solution to this problem is to wrap your list in a dictionary,
+like so::
+
+    >>> list = ["a", "b", "c"]
+    >>> dict = {"data": list}
+    >>> wrapped = bson.decode(bsonjs.loads(json_util.dumps(dict)))
+    {'data': ['a', 'b', 'c']}
+    >>> wrapped["data"]
+    ['a', 'b', 'c']
+
+This results in a ~10% performance decrease, but preserves the list.
+
 Installing From Source
 ======================
 
