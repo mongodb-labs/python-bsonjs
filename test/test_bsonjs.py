@@ -190,11 +190,7 @@ class TestBsonjs(unittest.TestCase):
                          uuid.UUID("f47ac10b-58cc-4372-a567-0e02b2c3d479")})
 
     def test_binary(self):
-        # PyMongo loads $binary subtype 0 as bytes in Python 3.
-        if sys.version_info[0] == 2:
-            bin0 = Binary(b"\x00\x01\x02\x03\x04")
-        else:
-            bin0 = b"\x00\x01\x02\x03\x04"
+        bin0 = b"\x00\x01\x02\x03\x04"
 
         bin_type_dict = {"bin": bin0}
         md5_type_dict = {
