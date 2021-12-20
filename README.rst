@@ -83,7 +83,9 @@ Top Level Arrays
 Because `libbson` does not distinguish between top level arrays and top
 level documents, neither does `python-bsonjs`. This means that if you give
 `dumps` or `dump` a top level array it will give you back a dictionary.
-Below are two examples of this behavior::
+Below are two examples of this behavior
+
+.. code-block:: python
 
     >>> import bson
     >>> from bson import json_util
@@ -94,7 +96,9 @@ Below are two examples of this behavior::
     {}
 
 One potential solution to this problem is to wrap your list in a dictionary,
-like so::
+like so
+
+.. code-block:: python
 
     >>> list = ["a", "b", "c"]
     >>> dict = {"data": list}
