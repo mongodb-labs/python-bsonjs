@@ -1,15 +1,13 @@
 name: Python Wheels
 
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   build-non-linux-wheels:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [macos-latest, windows-2019]
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
@@ -44,8 +42,7 @@ jobs:
       - name: Download a previously created wheel
         uses: actions/download-artifact@v2
         with:
-          name: python_bsonjs-${{ matrix.python-version }}-${{ matrix.os
-        }}-wheel
+          name: python_bsonjs-${{ matrix.python-version }}-${{ matrix.os }}-wheel
       - name: Test wheel
         shell: bash
         run: |
