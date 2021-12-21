@@ -20,7 +20,7 @@ jobs:
         working-directory: .
         shell: bash
         run: |
-          ./build-wheels.sh
+          ./build-wheels.sh .
       - uses: actions/upload-artifact@v2
         with:
           name: pymongoarrow-${{ matrix.python-version }}-${{ matrix.os }}-wheel
@@ -67,7 +67,7 @@ jobs:
           docker run --rm --volume `pwd`:/python --workdir /python --env
           PLAT=${{ matrix.container }} --env PYTHON_BINARY=/opt/python/${{
           matrix.python-version }}/bin/python quay.io/pypa/${{ matrix
-          .container }} ./build-wheels.sh
+          .container }} ./build-wheels.sh .
       - uses: actions/upload-artifact@v2
         with:
           name: python-bsonjs-${{ matrix.python-version }}-${{ matrix.container }}-wheel
