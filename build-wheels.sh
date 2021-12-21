@@ -20,8 +20,8 @@ if [ "Linux" = "$(uname -s)" ]
 then
   PYBIN=${PYTHON_BINARY:-"python3"}
 fi
-"{PYBIN}" -m pip install wheel
-"${PYBIN}" setup.py bdist_wheel
+$PYBIN -m pip install wheel
+$PYBIN setup.py bdist_wheel
 # https://github.com/pypa/manylinux/issues/49
 rm -rf build
 
