@@ -14,14 +14,9 @@ cd "$BSONJS_SOURCE_DIRECTORY"
 ls -la
 
 # Compile wheels
-# Platform-dependent actions:
-PYBIN=${PYTHON_BINARY:-"python"}
-if [ "Linux" = "$(uname -s)" ]
-then
-  PYBIN=${PYTHON_BINARY:-"python3"}
-fi
 $PYBIN -m pip install wheel
-$PYBIN setup.py bdist_wheel
+# Build limited abi3 wheel.
+/opt/python/cp36-cp36m/bin/python setup.py bdist_wheel
 # https://github.com/pypa/manylinux/issues/49
 rm -rf build
 
