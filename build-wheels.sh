@@ -14,7 +14,7 @@ cd "$BSONJS_SOURCE_DIRECTORY"
 ls -la
 
 # Compile wheels
-$PYBIN -m pip install wheel
+/opt/python/cp36-cp36m/bin/python -m pip install wheel
 # Build limited abi3 wheel.
 /opt/python/cp36-cp36m/bin/python setup.py bdist_wheel
 # https://github.com/pypa/manylinux/issues/49
