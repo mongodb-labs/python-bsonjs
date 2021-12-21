@@ -31,6 +31,7 @@ then
   for whl in dist/*.whl; do
       auditwheel repair "$whl" -w dist
   done
+  mkdir ./wheelhouse
   cp dist/*.whl ./wheelhouse
 fi
 ls -lah dist
