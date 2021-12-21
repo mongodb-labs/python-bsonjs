@@ -27,16 +27,17 @@ if [ "Linux" = "$(uname -s)" ]
   done
 fi
 # Install packages and test
-for PYBIN in /opt/python/*/bin; do
-    if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
-        continue
-    fi
-    "${PYBIN}/pip" install python-bsonjs --no-index -f dist
-    # The tests require PyMongo.
-    "${PYBIN}/pip" install 'pymongo>=3.4' unittest2
-    for TEST_FILE in "${BSONJS_SOURCE_DIRECTORY}"/test/test_*.py; do
-        "${PYBIN}/python" "$TEST_FILE" -v
-    done
-done
-
+if [ "Linux" = "$(uname -s)" ]
+  for PYBIN in /opt/python/*/bin; do
+      if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
+          continue
+      fi
+      "${PYBIN}/pip" install python-bsonjs --no-index -f dist
+      # The tests require PyMongo.
+      "${PYBIN}/pip" install 'pymongo>=3.4' unittest2
+      for TEST_FILE in "${BSONJS_SOURCE_DIRECTORY}"/test/test_*.py; do
+          "${PYBIN}/python" "$TEST_FILE" -v
+      done
+  done
+fi
 ls -lah dist
