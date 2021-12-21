@@ -26,6 +26,7 @@ $PYBIN setup.py bdist_wheel
 rm -rf build
 
 if [ "Linux" = "$(uname -s)" ]
+then
   # Audit wheels and write multilinux1 tag
   for whl in dist/*.whl; do
       auditwheel repair "$whl" -w dist
