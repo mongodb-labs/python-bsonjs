@@ -23,7 +23,7 @@ jobs:
           ./build-wheels.sh .
       - uses: actions/upload-artifact@v2
         with:
-          name: pymongoarrow-${{ matrix.python-version }}-${{ matrix.os }}-wheel
+          name: python_bsonjs-${{ matrix.python-version }}-${{ matrix.os }}-wheel
           path: ./dist/*.whl
           if-no-files-found: error
   test-non-linux-wheels:
