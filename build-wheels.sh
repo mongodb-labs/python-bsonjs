@@ -20,11 +20,12 @@ for PYBIN in /opt/python/*/bin; do
     rm -rf build
 done
 
-# Audit wheels and write multilinux1 tag
-for whl in dist/*.whl; do
-    auditwheel repair "$whl" -w dist
-done
-
+if [ "Linux" = "$(uname -s)" ]
+  # Audit wheels and write multilinux1 tag
+  for whl in dist/*.whl; do
+      auditwheel repair "$whl" -w dist
+  done
+fi
 # Install packages and test
 for PYBIN in /opt/python/*/bin; do
     if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
