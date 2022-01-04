@@ -21,9 +21,12 @@ $PYTHON_BINARY setup.py bdist_wheel
 rm -rf build
 
 # Audit wheels and write multilinux1 tag
-for whl in dist/*.whl; do
-    auditwheel repair "$whl" -w dist
-done
+# Only if on linux
+if [ "$(uname)" == "Linux" ]; then
+  for whl in dist/*.whl; do
+      auditwheel repair "$whl" -w dist
+  done
+fi
 
 # Install packages and test.
 for PYBIN in /opt/python/*/bin; do
