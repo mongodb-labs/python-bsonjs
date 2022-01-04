@@ -10,6 +10,9 @@ BSONJS_SOURCE_DIRECTORY="$1"
 cd "$BSONJS_SOURCE_DIRECTORY"
 
 ls -la
+if [ -z "$PYTHON_BINARY" ]; then
+  $PYTHON_BINARY="python3.6"
+fi
 $PYTHON_BINARY --version
 $PYTHON_BINARY -m pip install wheel
 # Build limited abi3 wheel.
