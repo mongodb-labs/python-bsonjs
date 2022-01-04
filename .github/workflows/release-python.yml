@@ -20,15 +20,6 @@ jobs:
         working-directory: .
         shell: bash
         run: |
-          if [ "$#" -ne 1 ]; then
-              echo "$0 requires one argument: <BSONJS_SOURCE_DIRECTORY>"
-              echo "For example: $0 /user/home/git/python-bsonjs"
-              exit 1
-          fi
-
-          BSONJS_SOURCE_DIRECTORY="$1"
-          cd "$BSONJS_SOURCE_DIRECTORY"
-
           ls -la
           python --version
           python -m pip install wheel
