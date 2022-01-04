@@ -66,7 +66,7 @@ jobs:
           docker run --rm --volume `pwd`:/python --workdir /python --env PLAT=${{ matrix.container }} --env PYTHON_BINARY=/opt/python/${{ matrix.python-version }}/bin/python quay.io/pypa/${{ matrix.container }} ./build-wheels.sh .
       - uses: actions/upload-artifact@v2
         with:
-          name: python_bsonjs-${{ matrix.python-version }}-${{ matrix.container }}-wheel
+          name: python_bsonjs-3.6-${{ matrix.container }}-wheel
           path: ./dist/*.whl
           if-no-files-found: error
   test-manylinux-wheels:
