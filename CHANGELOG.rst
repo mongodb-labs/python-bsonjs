@@ -3,18 +3,18 @@ Changelog
 0.3.0
 `````
 
-Version 0.3.0 updates python-bsonjs's vendored copy of libbson to 1.20.0
-http://mongoc.org/libbson/1.20.0/
+Version 0.3.0 updates python-bsonjs's vendored copy of libbson to 1.20.0.
+For a detailed breakdown of what changed in each version of libbson see its changelog:
 https://github.com/mongodb/mongo-c-driver/blob/1.20.0/src/libbson/NEWS
+http://mongoc.org/libbson/1.20.0/
 
 This release also provides a number of improvements and features:
 
-- Added testing and support for Windows
 - Added support for Python 3.7, 3.8, 3.9, and 3.10
 - Added a new keyword argument to the `dumps` and `dump` functions: `mode`. It
   can be one of: bsonjs.LEGACY, bsonjs.CANONICAL, or bsonjs.RELAXED. Which are:
   libbson's legacy extended JSON format, MongoDB Extended JSON 2.0 canonical
-  mode, and MongoDB Extended JSON legacy mode.
+  mode, and MongoDB Extended JSON relaxed mode.
 - Dropped support for Python 2.7, 3.4, and 3.5.
 
 
