@@ -24,7 +24,7 @@ done
 
 # Install packages and test.
 for PYBIN in /opt/python/*/bin; do
-    if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
+    if [[ ! "${PYBIN}" =~ (36|37|38|39|310) | "${PYBIN}" =~ (pypy) ]]; then
         continue
     fi
     "${PYBIN}/pip" install python-bsonjs --no-index -f dist
