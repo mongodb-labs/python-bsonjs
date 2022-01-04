@@ -11,7 +11,7 @@ cd "$BSONJS_SOURCE_DIRECTORY"
 
 ls -la
 if [ -z "$PYTHON_BINARY" ]; then
-  $PYTHON_BINARY="python3.6"
+  PYTHON_BINARY="python"
 fi
 $PYTHON_BINARY --version
 $PYTHON_BINARY -m pip install wheel
