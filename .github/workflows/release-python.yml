@@ -28,14 +28,6 @@ jobs:
           # https://github.com/pypa/manylinux/issues/49
           rm -rf build
 
-          if [ "Linux" = "$(uname -s)" ]
-          then
-            # Audit wheels and write multilinux1 tag
-            for whl in dist/*.whl; do
-                auditwheel repair "$whl" -w dist
-            done
-          fi
-
           # Install packages and test.
           for PYBIN in /opt/python/*/bin; do
               if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
