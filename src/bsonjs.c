@@ -71,9 +71,10 @@ _dumps(PyObject *bson, int mode)
     Py_ssize_t bson_len;
     size_t json_len;
 
-    bson_str = PyBytes_AS_STRING(bson);
-    bson_len = PyBytes_GET_SIZE(bson);
-
+    if (PyBytes_AsStringAndSize(bson, &bson_str, &bson_len) == -1) {
+        // error is already set
+        return NULL;
+    }
     json = bson_str_to_json(bson_str, (size_t)bson_len, &json_len, mode);
     if (!json) {
         // error is already set
