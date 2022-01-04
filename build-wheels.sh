@@ -17,7 +17,7 @@ fi
 $PYTHON_BINARY --version
 
 if [ ! "$(uname)" == "Linux" ]; then
-  $PYTHON_BINARY pip install wheel
+  $PYTHON_BINARY -m pip install wheel
 fi
 # Build limited abi3 wheel.
 $PYTHON_BINARY setup.py bdist_wheel
