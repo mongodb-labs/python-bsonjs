@@ -14,7 +14,6 @@ if [ -z "$PYTHON_BINARY" ]; then
   PYTHON_BINARY="python"
 fi
 $PYTHON_BINARY --version
-$PYTHON_BINARY -m pip install wheel
 # Build limited abi3 wheel.
 $PYTHON_BINARY setup.py bdist_wheel
 # https://github.com/pypa/manylinux/issues/49
@@ -24,7 +23,11 @@ rm -rf build
 # Only if on linux
 if [ "$(uname)" == "Linux" ]; then
   for whl in dist/*.whl; do
-      auditwheel repair "$whl" -w dist
+      # Skip already built manylinux wheels.
+      if [[ "$whl" != *"manylinux"* ]]; then
+          auditwheel repair $whl -w dist
+          rm $whl
+      fi
   done
 fi
 
