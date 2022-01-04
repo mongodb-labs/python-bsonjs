@@ -79,6 +79,8 @@ jobs:
                          'cp39-cp39', 'cp310-cp310']
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.container }}
     steps:
+      - name: Make dir
+        run: mkdir /python/
       - name: Download a previously created wheel
         uses: actions/download-artifact@v2
         with:
