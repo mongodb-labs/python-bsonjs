@@ -12,19 +12,16 @@ jobs:
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Build wheels
-        working-directory: .
-        shell: bash
-        run: |
-          ./build-wheels.sh .
+      - uses: pypa/cibuildwheel@v1.12.0
+        env:
+          CIBW_ARCHS_MACOS: x86_64 universal2
+          CIBW_TEST_SKIP: '*universal2:arm64'
+          CIBW_BUILD: "cp36-{macosx, win, manylinux}*"
+          CIBW_SKIP: "{*aarch64, *ppc64le, *s390x}"
       - uses: actions/upload-artifact@v2
         with:
-          name: python_bsonjs-${{ matrix.python-version }}-${{ matrix.os }}-wheel
-          path: ./dist/*.whl
+          name: python_bsonjs-3.6-${{ matrix.os }}-wheel
+          path: ./wheelhouse/*.whl
           if-no-files-found: error
   test-non-linux-wheels:
     needs: build-non-linux-wheels
@@ -74,8 +71,7 @@ jobs:
     needs: build-manylinux-wheels
     strategy:
       matrix:
-        container: ['manylinux2010_i686', 'manylinux2010_x86_64',
-                     'manylinux2014_i686', 'manylinux2014_x86_64']
+        container: ['manylinux2014_i686', 'manylinux2014_x86_64']
         python-version: ['cp36-cp36m', 'cp37-cp37m', 'cp38-cp38',
                          'cp39-cp39', 'cp310-cp310']
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.container }}
@@ -86,9 +82,7 @@ jobs:
           name: python_bsonjs-3.6-${{ matrix.container }}-wheel
       - name: Test wheel
         run: |
-          docker run --rm --volume `pwd`:/python quay.io/pypa/${{ matrix
-          .container }} /bin/bash -c "/opt/python/${{ matrix
-          .python-version }}/bin/python -m pip install -U pip && /opt/python/${{ matrix.python-version }}/bin/python -m pip install --find-links=/python/ python_bsonjs && /opt/python/${{ matrix.python-version }}/bin/python -c 'from bsonjs import dumps'"
+          docker run --rm --volume `pwd`:/python quay.io/pypa/${{ matrix.container }} /bin/bash -c "/opt/python/${{ matrix.python-version }}/bin/python -m pip install -U pip && /opt/python/${{ matrix.python-version }}/bin/python -m pip install --find-links=/python/ python_bsonjs && /opt/python/${{ matrix.python-version }}/bin/python -c 'from bsonjs import dumps'"
   # Collect all built wheels
   collect-wheels:
     runs-on: ubuntu-latest
