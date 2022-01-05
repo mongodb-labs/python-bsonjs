@@ -8,7 +8,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-2019]
-        python-version: [3.6]
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -16,8 +15,7 @@ jobs:
         env:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
-          CIBW_BUILD: "cp36-{macosx, win, manylinux}*"
-          CIBW_SKIP: "{*aarch64, *ppc64le, *s390x}"
+          CIBW_BUILD: "cp36-macosx_x86_64 cp38-macosx_universal2 cp36-win* cp36-manylinux_{x86_64,i686}"
       - uses: actions/upload-artifact@v2
         with:
           name: python_bsonjs-3.6-${{ matrix.os }}-wheel
