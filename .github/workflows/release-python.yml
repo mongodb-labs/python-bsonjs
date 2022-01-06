@@ -85,9 +85,8 @@ jobs:
       - name: Flatten directory
         run: |
           find . -mindepth 2 -type f -exec mv {} . \;
-          ls
           find . -type d -empty -delete
       - uses: actions/upload-artifact@v2
         with:
-          name: all-wheels
+          name: all-dist
           path: "./*"
