@@ -64,10 +64,21 @@ jobs:
       - name: Test wheel
         run: |
           docker run --rm --volume `pwd`:/python quay.io/pypa/${{ matrix.container }} /bin/bash -c "/opt/python/${{ matrix.python-version }}/bin/python -m pip install -U pip && /opt/python/${{ matrix.python-version }}/bin/python -m pip install --find-links=/python/ --no-index python_bsonjs &&  /opt/python/${{ matrix.python-version }}/bin/python -m pip list | grep python-bsonjs && /opt/python/${{ matrix.python-version }}/bin/python -c 'from bsonjs import dumps'"
-  # Collect all built wheels
+  # Taken from https://cibuildwheel.readthedocs.io/en/stable/deliver-to-pypi/
+  make_sdist:
+    name: Make SDist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build SDist
+        run: python setup.py sdist --dist-dir=dist --formats=zip
+      - uses: actions/upload-artifact@v2
+        with:
+          name: "sdist"
+          path: dist/*.zip
   collect-wheels:
     runs-on: ubuntu-latest
-    needs: [build-wheels]
+    needs: [build-wheels, make_sdist]
     name: Download Wheels
     steps:
       - name: Download all workflow run artifacts
@@ -75,4 +86,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: all-wheels
-          path: "*-wheel"
+          path: "*"
