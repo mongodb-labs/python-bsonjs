@@ -10,24 +10,35 @@ BSONJS_SOURCE_DIRECTORY="$1"
 cd "$BSONJS_SOURCE_DIRECTORY"
 
 ls -la
+if [ -z "$PYTHON_BINARY" ]; then
+  PYTHON_BINARY="python"
+fi
 
+$PYTHON_BINARY --version
+
+if [ ! "$(uname)" == "Linux" ]; then
+  $PYTHON_BINARY -m pip install wheel
+fi
 # Build limited abi3 wheel.
-/opt/python/cp36-cp36m/bin/python setup.py bdist_wheel
+$PYTHON_BINARY setup.py bdist_wheel
 # https://github.com/pypa/manylinux/issues/49
 rm -rf build
 
-# Audit wheels and write manylinux tag.
-for whl in dist/*.whl; do
-    # Skip already built manylinux wheels.
-    if [[ "$whl" != *"manylinux"* ]]; then
-        auditwheel repair $whl -w dist
-        rm $whl
-    fi
-done
+# Audit wheels and write multilinux1 tag
+# Only if on linux
+if [ "$(uname)" == "Linux" ]; then
+  for whl in dist/*.whl; do
+      # Skip already built manylinux wheels.
+      if [[ "$whl" != *"manylinux"* ]]; then
+          auditwheel repair $whl -w dist
+          rm $whl
+      fi
+  done
+fi
 
 # Install packages and test.
 for PYBIN in /opt/python/*/bin; do
-    if [[ ! "${PYBIN}" =~ (36|37|38|39|310) ]]; then
+    if [[ ! "${PYBIN}" =~ (36|37|38|39|310) || "${PYBIN}" =~ (pypy) ]]; then
         continue
     fi
     "${PYBIN}/pip" install python-bsonjs --no-index -f dist
