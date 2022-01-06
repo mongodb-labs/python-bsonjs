@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install -U pip
-          python -m pip install --find-links=. --no-index
+          python -m pip install --no-index --find-links=./ python_bsonjs
           python -m pip list | grep python-bsonjs
           python -c "from bsonjs import dumps"
   # Linux
