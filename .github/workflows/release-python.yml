@@ -43,6 +43,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install --find-links=*.whl python_bsonjs
+          python3 -m pip list | grep python-bsonjs
           python -c "from bsonjs import dumps"
   # Linux
   test-manylinux-wheels:
