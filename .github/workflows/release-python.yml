@@ -11,7 +11,7 @@ jobs:
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: pypa/cibuildwheel@v1.12.0
+      - uses: pypa/cibuildwheel@v2.3.1
         env:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
@@ -74,5 +74,5 @@ jobs:
         uses: actions/download-artifact@v2
       - uses: actions/upload-artifact@v2
         with:
-          name: nix-wheels
+          name: all-wheels
           path: "*-wheel"
