@@ -263,7 +263,7 @@ PyInit_bsonjs(VOID)
 
     if (PyModule_AddObject(module,
                            "__version__",
-                           PyUnicode_FromString("0.3.0.dev0"))) {
+                           PyUnicode_FromString("0.3.0"))) {
         Py_DECREF(module);
         INITERROR;
     }
