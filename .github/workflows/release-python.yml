@@ -11,7 +11,7 @@ jobs:
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: pypa/cibuildwheel@v2.3.1
+      - uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-2019]
-        python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.6, 3.7, 3.8, 3.9, "3.10", "3.11"]
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - name: Setup Python
@@ -54,7 +54,7 @@ jobs:
         os: [ubuntu-latest]
         container: ['manylinux2014_i686', 'manylinux2014_x86_64']
         python-version: ['cp36-cp36m', 'cp37-cp37m', 'cp38-cp38',
-                         'cp39-cp39', 'cp310-cp310']
+                         'cp39-cp39', 'cp310-cp310', 'cp311-cp311']
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.container }}
     steps:
       - name: Download a previously created wheel
