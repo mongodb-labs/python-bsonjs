@@ -2,7 +2,7 @@ name: python-bsonjs
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   pull_request:
   workflow_dispatch:
 
