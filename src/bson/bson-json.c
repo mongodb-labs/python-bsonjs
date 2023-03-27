@@ -370,8 +370,9 @@ _noop (void)
                                  read_state_names[bson->read_state]);          \
       return;                                                                  \
    }
-#define HANDLE_OPTION(_key, _type, _state)                                     \
-   (len == strlen (_key) && strncmp ((const char *) val, (_key), len) == 0)    \
+#define HANDLE_OPTION(_selection_statement, _key, _type, _state)               \
+   _selection_statement (len == strlen (_key) &&                               \
+                         strncmp ((const char *) val, (_key), len) == 0)       \
    {                                                                           \
       if (bson->bson_type && bson->bson_type != (_type)) {                     \
          _bson_json_read_set_error (reader,                                    \
@@ -385,7 +386,6 @@ _noop (void)
       bson->bson_type = (_type);                                               \
       bson->bson_state = (_state);                                             \
    }
-
 
 
 bson_json_opts_t *
@@ -628,7 +628,13 @@ _bson_json_read_integer (bson_json_reader_t *reader, uint64_t val, int64_t sign)
          bson_append_int32 (
             STACK_BSON_CHILD, key, (int) len, (int) (val * sign));
       } else if (sign == -1) {
+#if defined(_WIN32) && !defined(__MINGW32__)
+         // Unary negation of unsigned integer is deliberate.
+#pragma warning(suppress : 4146)
          bson_append_int64 (STACK_BSON_CHILD, key, (int) len, (int64_t) -val);
+#else
+         bson_append_int64 (STACK_BSON_CHILD, key, (int) len, (int64_t) -val);
+#endif // defined(_WIN32) && !defined(__MINGW32__)
       } else {
          bson_append_int64 (STACK_BSON_CHILD, key, (int) len, (int64_t) val);
       }
@@ -735,33 +741,19 @@ _bson_json_parse_double (bson_json_reader_t *reader,
    *d = strtod (val, NULL);
 
 #ifdef _MSC_VER
+   const double pos_inf = INFINITY;
+   const double neg_inf = -pos_inf;
+
    /* Microsoft's strtod parses "NaN", "Infinity", "-Infinity" as 0 */
    if (*d == 0.0) {
       if (!_strnicmp (val, "nan", vlen)) {
-#ifdef NAN
          *d = NAN;
-#else
-         /* Visual Studio 2010 doesn't define NAN or INFINITY
-          * https://msdn.microsoft.com/en-us/library/w22adx1s(v=vs.100).aspx */
-         unsigned long nan[2] = {0xffffffff, 0x7fffffff};
-         *d = *(double *) nan;
-#endif
          return true;
       } else if (!_strnicmp (val, "infinity", vlen)) {
-#ifdef INFINITY
-         *d = INFINITY;
-#else
-         unsigned long inf[2] = {0x00000000, 0x7ff00000};
-         *d = *(double *) inf;
-#endif
+         *d = pos_inf;
          return true;
       } else if (!_strnicmp (val, "-infinity", vlen)) {
-#ifdef INFINITY
-         *d = -INFINITY;
-#else
-         unsigned long inf[2] = {0x00000000, 0xfff00000};
-         *d = *(double *) inf;
-#endif
+         *d = neg_inf;
          return true;
       }
    }
@@ -831,7 +823,7 @@ static bool
 _unhexlify_uuid (const char *uuid, uint8_t *out, size_t max)
 {
    unsigned int byte;
-   int x = 0;
+   size_t x = 0;
    int i = 0;
 
    BSON_ASSERT (strlen (uuid) == 32);
@@ -866,7 +858,7 @@ _bson_json_parse_binary_elem (bson_json_reader_t *reader,
 
    if (bs == BSON_JSON_LF_BINARY) {
       data->binary.has_binary = true;
-      binary_len = COMMON_PREFIX (bson_b64_pton (val_w_null, NULL, 0));
+      binary_len = mcommon_b64_pton (val_w_null, NULL, 0);
       if (binary_len < 0) {
          _bson_json_read_set_error (
             reader,
@@ -875,9 +867,9 @@ _bson_json_parse_binary_elem (bson_json_reader_t *reader,
       }
 
       _bson_json_buf_ensure (&bson->bson_type_buf[0], (size_t) binary_len + 1);
-      if (COMMON_PREFIX (bson_b64_pton (val_w_null,
-                                        bson->bson_type_buf[0].buf,
-                                        (size_t) binary_len + 1) < 0)) {
+      if (mcommon_b64_pton (val_w_null,
+                            bson->bson_type_buf[0].buf,
+                            (size_t) binary_len + 1) < 0) {
          _bson_json_read_set_error (
             reader,
             "Invalid input string \"%s\", looking for base64-encoded binary",
@@ -1174,18 +1166,60 @@ _bson_json_read_start_map (bson_json_reader_t *reader) /* IN */
    BASIC_CB_PREAMBLE;
 
    if (bson->read_state == BSON_JSON_IN_BSON_TYPE) {
-      if (bson->bson_state == BSON_JSON_LF_DATE) {
+      switch (bson->bson_state) {
+      case BSON_JSON_LF_DATE:
          bson->read_state = BSON_JSON_IN_BSON_TYPE_DATE_NUMBERLONG;
-      } else if (bson->bson_state == BSON_JSON_LF_BINARY) {
+         break;
+      case BSON_JSON_LF_BINARY:
          bson->read_state = BSON_JSON_IN_BSON_TYPE_BINARY_VALUES;
-      } else if (bson->bson_state == BSON_JSON_LF_TYPE) {
+         break;
+      case BSON_JSON_LF_TYPE:
          /* special case, we started parsing {$type: {$numberInt: "2"}} and we
           * expected a legacy Binary format. now we see the second "{", so
           * backtrack and parse $type query operator. */
          bson->read_state = BSON_JSON_IN_START_MAP;
+         BSON_ASSERT (bson_in_range_unsigned (int, len));
          STACK_PUSH_DOC (bson_append_document_begin (
-            STACK_BSON_PARENT, key, len, STACK_BSON_CHILD));
+            STACK_BSON_PARENT, key, (int) len, STACK_BSON_CHILD));
          _bson_json_save_map_key (bson, (const uint8_t *) "$type", 5);
+         break;
+      case BSON_JSON_LF_CODE:
+      case BSON_JSON_LF_DECIMAL128:
+      case BSON_JSON_LF_DOUBLE:
+      case BSON_JSON_LF_INT32:
+      case BSON_JSON_LF_INT64:
+      case BSON_JSON_LF_MAXKEY:
+      case BSON_JSON_LF_MINKEY:
+      case BSON_JSON_LF_OID:
+      case BSON_JSON_LF_OPTIONS:
+      case BSON_JSON_LF_REGEX:
+      /**
+       * NOTE: A read_state of BSON_JSON_IN_BSON_TYPE is used when "$regex" is
+       * found, but BSON_JSON_IN_BSON_TYPE_REGEX_STARTMAP is used for
+       * "$regularExpression", which will instead go to a below 'if else' branch
+       * instead of this switch statement. They're both called "regex" in their
+       * respective enumerators, but they behave differently when parsing.
+       */
+      // fallthrough
+      case BSON_JSON_LF_REGULAR_EXPRESSION_OPTIONS:
+      case BSON_JSON_LF_REGULAR_EXPRESSION_PATTERN:
+      case BSON_JSON_LF_SYMBOL:
+      case BSON_JSON_LF_UNDEFINED:
+      case BSON_JSON_LF_UUID:
+         // These special keys do not expect objects as their values. Fail.
+         _bson_json_read_set_error (
+            reader,
+            "Unexpected nested object value for \"%s\" key",
+            reader->bson.unescaped.buf);
+         break;
+      case BSON_JSON_LF_DBPOINTER:
+      case BSON_JSON_LF_SCOPE:
+      case BSON_JSON_LF_TIMESTAMP_I:
+      case BSON_JSON_LF_TIMESTAMP_T:
+      default:
+         // These special LF keys aren't handled with BSON_JSON_IN_BSON_TYPE
+         BSON_UNREACHABLE (
+            "These LF values are handled with a different read_state");
       }
    } else if (bson->read_state == BSON_JSON_IN_BSON_TYPE_TIMESTAMP_STARTMAP) {
       bson->read_state = BSON_JSON_IN_BSON_TYPE_TIMESTAMP_VALUES;
@@ -1329,90 +1363,92 @@ _bson_json_read_map_key (bson_json_reader_t *reader, /* IN */
    }
 
    if (bson->read_state == BSON_JSON_IN_BSON_TYPE) {
-      if
-         HANDLE_OPTION ("$regex", BSON_TYPE_REGEX, BSON_JSON_LF_REGEX)
-      else if
-         HANDLE_OPTION ("$options", BSON_TYPE_REGEX, BSON_JSON_LF_OPTIONS)
-      else if
-         HANDLE_OPTION ("$oid", BSON_TYPE_OID, BSON_JSON_LF_OID)
-      else if
-         HANDLE_OPTION ("$binary", BSON_TYPE_BINARY, BSON_JSON_LF_BINARY)
-      else if
-         HANDLE_OPTION ("$type", BSON_TYPE_BINARY, BSON_JSON_LF_TYPE)
-      else if
-         HANDLE_OPTION ("$uuid", BSON_TYPE_BINARY, BSON_JSON_LF_UUID)
-      else if
-         HANDLE_OPTION ("$date", BSON_TYPE_DATE_TIME, BSON_JSON_LF_DATE)
-      else if
-         HANDLE_OPTION (
-            "$undefined", BSON_TYPE_UNDEFINED, BSON_JSON_LF_UNDEFINED)
-      else if
-         HANDLE_OPTION ("$minKey", BSON_TYPE_MINKEY, BSON_JSON_LF_MINKEY)
-      else if
-         HANDLE_OPTION ("$maxKey", BSON_TYPE_MAXKEY, BSON_JSON_LF_MAXKEY)
-      else if
-         HANDLE_OPTION ("$numberInt", BSON_TYPE_INT32, BSON_JSON_LF_INT32)
-      else if
-         HANDLE_OPTION ("$numberLong", BSON_TYPE_INT64, BSON_JSON_LF_INT64)
-      else if
-         HANDLE_OPTION ("$numberDouble", BSON_TYPE_DOUBLE, BSON_JSON_LF_DOUBLE)
-      else if
-         HANDLE_OPTION ("$symbol", BSON_TYPE_SYMBOL, BSON_JSON_LF_SYMBOL)
-      else if
-         HANDLE_OPTION (
-            "$numberDecimal", BSON_TYPE_DECIMAL128, BSON_JSON_LF_DECIMAL128)
-      else if (!strcmp ("$timestamp", (const char *) val)) {
+      HANDLE_OPTION (if, "$regex", BSON_TYPE_REGEX, BSON_JSON_LF_REGEX)
+      HANDLE_OPTION (else if, "$options", BSON_TYPE_REGEX, BSON_JSON_LF_OPTIONS)
+      HANDLE_OPTION (else if, "$oid", BSON_TYPE_OID, BSON_JSON_LF_OID)
+      HANDLE_OPTION (else if, "$binary", BSON_TYPE_BINARY, BSON_JSON_LF_BINARY)
+      HANDLE_OPTION (else if, "$type", BSON_TYPE_BINARY, BSON_JSON_LF_TYPE)
+      HANDLE_OPTION (else if, "$uuid", BSON_TYPE_BINARY, BSON_JSON_LF_UUID)
+      HANDLE_OPTION (else if, "$date", BSON_TYPE_DATE_TIME, BSON_JSON_LF_DATE)
+      HANDLE_OPTION (
+         else if, "$undefined", BSON_TYPE_UNDEFINED, BSON_JSON_LF_UNDEFINED)
+      HANDLE_OPTION (else if, "$minKey", BSON_TYPE_MINKEY, BSON_JSON_LF_MINKEY)
+      HANDLE_OPTION (else if, "$maxKey", BSON_TYPE_MAXKEY, BSON_JSON_LF_MAXKEY)
+      HANDLE_OPTION (else if, "$numberInt", BSON_TYPE_INT32, BSON_JSON_LF_INT32)
+      HANDLE_OPTION (
+         else if, "$numberLong", BSON_TYPE_INT64, BSON_JSON_LF_INT64)
+      HANDLE_OPTION (
+         else if, "$numberDouble", BSON_TYPE_DOUBLE, BSON_JSON_LF_DOUBLE)
+      HANDLE_OPTION (else if, "$symbol", BSON_TYPE_SYMBOL, BSON_JSON_LF_SYMBOL)
+      HANDLE_OPTION (else if,
+                     "$numberDecimal",
+                     BSON_TYPE_DECIMAL128,
+                     BSON_JSON_LF_DECIMAL128)
+      else if (!strcmp ("$timestamp", (const char *) val))
+      {
          bson->bson_type = BSON_TYPE_TIMESTAMP;
          bson->read_state = BSON_JSON_IN_BSON_TYPE_TIMESTAMP_STARTMAP;
-      } else if (!strcmp ("$regularExpression", (const char *) val)) {
+      }
+      else if (!strcmp ("$regularExpression", (const char *) val))
+      {
          bson->bson_type = BSON_TYPE_REGEX;
          bson->read_state = BSON_JSON_IN_BSON_TYPE_REGEX_STARTMAP;
-      } else if (!strcmp ("$dbPointer", (const char *) val)) {
+      }
+      else if (!strcmp ("$dbPointer", (const char *) val))
+      {
          /* start parsing "key": {"$dbPointer": {...}}, save "key" for later */
          _bson_json_buf_set (
             &bson->dbpointer_key, bson->key_buf.buf, bson->key_buf.len);
 
          bson->bson_type = BSON_TYPE_DBPOINTER;
          bson->read_state = BSON_JSON_IN_BSON_TYPE_DBPOINTER_STARTMAP;
-      } else if (!strcmp ("$code", (const char *) val)) {
+      }
+      else if (!strcmp ("$code", (const char *) val))
+      {
          _bson_json_read_code_or_scope_key (
             bson, false /* is_scope */, val, len);
-      } else if (!strcmp ("$scope", (const char *) val)) {
+      }
+      else if (!strcmp ("$scope", (const char *) val))
+      {
          _bson_json_read_code_or_scope_key (
             bson, true /* is_scope */, val, len);
-      } else {
+      }
+      else
+      {
          _bson_json_bad_key_in_type (reader, val);
       }
    } else if (bson->read_state == BSON_JSON_IN_BSON_TYPE_DATE_NUMBERLONG) {
-      if
-         HANDLE_OPTION ("$numberLong", BSON_TYPE_DATE_TIME, BSON_JSON_LF_INT64)
-      else {
+      HANDLE_OPTION (if, "$numberLong", BSON_TYPE_DATE_TIME, BSON_JSON_LF_INT64)
+      else
+      {
          _bson_json_bad_key_in_type (reader, val);
       }
    } else if (bson->read_state == BSON_JSON_IN_BSON_TYPE_TIMESTAMP_VALUES) {
-      if
-         HANDLE_OPTION ("t", BSON_TYPE_TIMESTAMP, BSON_JSON_LF_TIMESTAMP_T)
-      else if
-         HANDLE_OPTION ("i", BSON_TYPE_TIMESTAMP, BSON_JSON_LF_TIMESTAMP_I)
-      else {
+      HANDLE_OPTION (if, "t", BSON_TYPE_TIMESTAMP, BSON_JSON_LF_TIMESTAMP_T)
+      HANDLE_OPTION (
+         else if, "i", BSON_TYPE_TIMESTAMP, BSON_JSON_LF_TIMESTAMP_I)
+      else
+      {
          _bson_json_bad_key_in_type (reader, val);
       }
    } else if (bson->read_state == BSON_JSON_IN_BSON_TYPE_REGEX_VALUES) {
-      if
-         HANDLE_OPTION (
-            "pattern", BSON_TYPE_REGEX, BSON_JSON_LF_REGULAR_EXPRESSION_PATTERN)
-      else if
-         HANDLE_OPTION (
-            "options", BSON_TYPE_REGEX, BSON_JSON_LF_REGULAR_EXPRESSION_OPTIONS)
-      else {
+      HANDLE_OPTION (if,
+                     "pattern",
+                     BSON_TYPE_REGEX,
+                     BSON_JSON_LF_REGULAR_EXPRESSION_PATTERN)
+      HANDLE_OPTION (else if,
+                     "options",
+                     BSON_TYPE_REGEX,
+                     BSON_JSON_LF_REGULAR_EXPRESSION_OPTIONS)
+      else
+      {
          _bson_json_bad_key_in_type (reader, val);
       }
    } else if (bson->read_state == BSON_JSON_IN_BSON_TYPE_BINARY_VALUES) {
-      if
-         HANDLE_OPTION ("base64", BSON_TYPE_BINARY, BSON_JSON_LF_BINARY)
-      else if
-         HANDLE_OPTION ("subType", BSON_TYPE_BINARY, BSON_JSON_LF_TYPE)
-      else {
+      HANDLE_OPTION (if, "base64", BSON_TYPE_BINARY, BSON_JSON_LF_BINARY)
+      HANDLE_OPTION (else if, "subType", BSON_TYPE_BINARY, BSON_JSON_LF_TYPE)
+      else
+      {
          _bson_json_bad_key_in_type (reader, val);
       }
    } else {
@@ -1971,6 +2007,9 @@ _push_callback (jsonsl_t json,
 {
    bson_json_reader_t *reader = (bson_json_reader_t *) json->data;
 
+   BSON_UNUSED (action);
+   BSON_UNUSED (buf);
+
    switch (state->type) {
    case JSONSL_T_STRING:
    case JSONSL_T_HKEY:
@@ -2001,6 +2040,8 @@ _pop_callback (jsonsl_t json,
    ssize_t len;
    double d;
    const char *obj_text;
+
+   BSON_UNUSED (action);
 
    reader = (bson_json_reader_t *) json->data;
    reader_bson = &reader->bson;
@@ -2068,6 +2109,8 @@ _error_callback (jsonsl_t json,
                  char *errat)
 {
    bson_json_reader_t *reader = (bson_json_reader_t *) json->data;
+
+   BSON_UNUSED (state);
 
    if (err == JSONSL_ERROR_CANT_INSERT && *errat == '{') {
       /* start the next document */
@@ -2183,8 +2226,11 @@ bson_json_reader_read (bson_json_reader_t *reader, /* IN */
 
          /* accumulate a key or string value */
          if (reader->json_text_pos != -1) {
-            if (reader->json_text_pos < reader->json->pos) {
-               accum = BSON_MIN (reader->json->pos - reader->json_text_pos, r);
+            if (bson_cmp_less_su (reader->json_text_pos, reader->json->pos)) {
+               BSON_ASSERT (
+                  bson_in_range_unsigned (ssize_t, reader->json->pos));
+               accum = BSON_MIN (
+                  (ssize_t) reader->json->pos - reader->json_text_pos, r);
                /* if this chunk stopped mid-token, buf_offset is how far into
                 * our current chunk the token begins. */
                buf_offset = AT_LEAST_0 (reader->json_text_pos - start_pos);
@@ -2219,7 +2265,9 @@ bson_json_reader_new (void *data,               /* IN */
    bson_json_reader_t *r;
    bson_json_reader_producer_t *p;
 
-   r = bson_malloc0 (sizeof *r);
+   BSON_UNUSED (allow_multiple);
+
+   r = BSON_ALIGNED_ALLOC0 (bson_json_reader_t);
    r->json = jsonsl_new (STACK_MAX);
    r->json->error_callback = _error_callback;
    r->json->action_callback_PUSH = _push_callback;

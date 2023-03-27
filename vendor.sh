@@ -3,7 +3,7 @@ cd ..
 git clone git@github.com:mongodb/mongo-c-driver.git
 cd mongo-c-driver
 git clean -xdf
-git checkout 1.20.0
+git checkout c41c3a8c
 python build/calc_release_version.py > VERSION_CURRENT
 mkdir cmake-build && cd cmake-build
 cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DENABLE_MONGOC=OFF ..
@@ -19,4 +19,3 @@ rsync -r mongo-c-driver/src/common/*.[hc] python-bsonjs/src/common/
 rsync -r mongo-c-driver/cmake-build/src/common/*.[hc] python-bsonjs/src/common/
 
 rsync -r mongo-c-driver/cmake-build/src/libbson/src/bson/*.[hc] python-bsonjs/src/bson/
-rsync -r mongo-c-driver/cmake-build/src/libbson/src/jsonsl/*.[hc] python-bsonjs/src/jsonsl/

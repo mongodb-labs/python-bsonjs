@@ -32,7 +32,7 @@
  * to hex formatted ASCII. Performing two characters at a time roughly
  * reduces the number of operations by one-half.
  */
-static const uint16_t gHexCharPairs[] = {
+BSON_MAYBE_UNUSED static const uint16_t gHexCharPairs[] = {
 #if BSON_BYTE_ORDER == BSON_BIG_ENDIAN
    12336, 12337, 12338, 12339, 12340, 12341, 12342, 12343, 12344, 12345, 12385,
    12386, 12387, 12388, 12389, 12390, 12592, 12593, 12594, 12595, 12596, 12597,
@@ -98,9 +98,8 @@ bson_oid_init_sequence (bson_oid_t *oid,         /* OUT */
    }
 
    now = BSON_UINT32_TO_BE (now);
-
    memcpy (&oid->bytes[0], &now, sizeof (now));
-   context->oid_set_seq64 (context, oid);
+   _bson_context_set_oid_seq64 (context, oid);
 }
 
 
@@ -118,9 +117,8 @@ bson_oid_init (bson_oid_t *oid,         /* OUT */
 
    now = BSON_UINT32_TO_BE (now);
    memcpy (&oid->bytes[0], &now, sizeof (now));
-
    _bson_context_set_oid_rand (context, oid);
-   context->oid_set_seq32 (context, oid);
+   _bson_context_set_oid_seq32 (context, oid);
 }
 
 
