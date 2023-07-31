@@ -15,16 +15,7 @@
 import glob
 import sys
 
-
 from setuptools import setup, Extension
-
-with open("README.rst") as f:
-    try:
-        description = f.read()
-    except Exception:
-        description = ""
-
-tests_require = ["pymongo>=3.4.0"]
 
 libraries = []
 if sys.platform == "win32":
@@ -34,34 +25,6 @@ elif sys.platform != "darwin":
     libraries.append("rt")
 
 setup(
-    name="python-bsonjs",
-    version="0.3.0",
-    description="A library for converting between BSON and JSON.",
-    long_description=description,
-    author="Shane Harvey",
-    author_email="shane.harvey@mongodb.com",
-    url="https://github.com/mongodb-labs/python-bsonjs",
-    keywords=["BSON", "JSON", "PyMongo"],
-    test_suite="test",
-    tests_require=tests_require,
-    license="Apache License, Version 2.0",
-    python_requires=">=3.6",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: Implementation :: CPython"],
     ext_modules=[
         Extension(
             "bsonjs",
@@ -75,5 +38,6 @@ setup(
                            ("Py_LIMITED_API", "0x03060000")],
             libraries=libraries
         )
-    ]
+    ],
+    options={'bdist_wheel': {'py_limited_api': 'cp37'} }
 )

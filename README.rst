@@ -110,7 +110,7 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.6+.
+python-bsonjs supports CPython 3.7+.
 
 Compiler
 ````````
@@ -119,7 +119,7 @@ You must build python-bsonjs separately for each version of Python. On
 Windows this means you must use the same C compiler your Python version was
 built with.
 
-- Python 3.6 and up requires Microsoft Visual Studio 2015
+- Windows build requires Microsoft Visual Studio 2015
 
 Source
 ``````
@@ -133,12 +133,12 @@ Install
 
 Once you have the source properly downloaded, build and install the package::
 
-    $ python setup.py install
+    $ pip install -v .
 
 Test
 ````
 
 To run the test suite::
 
-    $ python setup.py test
+    $ python -m pytest
 
