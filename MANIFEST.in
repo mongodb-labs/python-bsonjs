@@ -1,6 +1,10 @@
 include README.rst
+include CHANGELOG.rst
 include LICENSE
-include ez_setup.py
-recursive-include libbson *.h
+recursive-include src LICENSE
 recursive-include src *.h
 recursive-include test *.py
+exclude benchmark.py
+exclude build-wheels.sh
+exclude docker-build.sh
+exclude vendor.sh
