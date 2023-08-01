@@ -110,8 +110,13 @@ bson_iter_init_from_data (bson_iter_t *iter,   /* OUT */
       return false;
    }
 
+   if (BSON_UNLIKELY (!bson_in_range_unsigned (uint32_t, length))) {
+      memset (iter, 0, sizeof *iter);
+      return false;
+   }
+
    iter->raw = (uint8_t *) data;
-   iter->len = length;
+   iter->len = (uint32_t) length;
    iter->off = 0;
    iter->type = 0;
    iter->key = 0;
@@ -1894,8 +1899,8 @@ bson_iter_visit_all (bson_iter_t *iter,             /* INOUT */
                      const bson_visitor_t *visitor, /* IN */
                      void *data)                    /* IN */
 {
-   uint32_t bson_type;
-   const char *key;
+   uint32_t bson_type = 0;
+   const char *key = NULL;
    bool unsupported;
 
    BSON_ASSERT (iter);
