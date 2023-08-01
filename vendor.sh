@@ -3,7 +3,7 @@ cd ..
 git clone git@github.com:mongodb/mongo-c-driver.git
 cd mongo-c-driver
 git clean -xdf
-git checkout c41c3a8c
+git checkout 1.24.2
 python build/calc_release_version.py > VERSION_CURRENT
 mkdir cmake-build && cd cmake-build
 cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DENABLE_MONGOC=OFF ..
