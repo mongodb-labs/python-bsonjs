@@ -231,8 +231,8 @@ loads(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef BsonjsClientMethods[] = {
-    {"dump", dump, METH_VARARGS | METH_KEYWORDS, dump__doc__},
-    {"dumps", dumps, METH_VARARGS | METH_KEYWORDS, dumps__doc__},
+    {"dump", (PyCFunction)(void(*)(void))dump, METH_VARARGS | METH_KEYWORDS, dump__doc__},
+    {"dumps", (PyCFunction)(void(*)(void))dumps, METH_VARARGS | METH_KEYWORDS, dumps__doc__},
     {"load", load, METH_VARARGS, load__doc__},
     {"loads", loads, METH_VARARGS, loads__doc__},
     {NULL, NULL, 0, NULL}
