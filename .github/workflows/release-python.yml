@@ -22,13 +22,13 @@ jobs:
         os: [macos-latest, windows-2019, ubuntu-latest]
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
           CIBW_BUILD: "cp37-macosx_x86_64 cp38-macosx_universal2 cp37-win* cp37-manylinux_{x86_64,i686}"
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: python_bsonjs-3.7-${{ matrix.os }}-wheel
           path: ./wheelhouse/*.whl
@@ -81,10 +81,10 @@ jobs:
     name: Make SDist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build SDist
         run: python setup.py sdist --dist-dir=dist --formats=gztar
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: "sdist"
           path: dist/*.tar.gz
