@@ -28,11 +28,11 @@ setup(
     ext_modules=[
         Extension(
             "bsonjs",
-            sources=["src/bsonjs.c"] + glob.glob("src/*/*.c"),
-            include_dirs=["src",
-                          "src/bson",
-                          "src/jsonsl",
-                          "src/common"],
+            sources=["bsonjs/bsonjs.c"] + glob.glob("bsonjs/*/*.c"),
+            include_dirs=["bsonjs",
+                          "bsonjs/bson",
+                          "bsonjs/jsonsl",
+                          "bsonjs/common"],
             py_limited_api=True,
             define_macros=[("BSON_COMPILATION", 1),
                            ("Py_LIMITED_API", "0x03060000")],
