@@ -2,6 +2,9 @@
 requires = ["setuptools>=62.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["bsonjs"]
+
 [project]
 name = "python-bsonjs"
 version = "0.3.0"
