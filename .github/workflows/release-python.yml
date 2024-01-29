@@ -87,7 +87,9 @@ jobs:
         with:
           python-version: 3.7
       - name: Build SDist
-        run: python -m build --sdist
+        run: |
+          python -m pip install build
+          python -m build --sdist
       - uses: actions/upload-artifact@v3
         with:
           name: "sdist"
