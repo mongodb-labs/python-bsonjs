@@ -82,8 +82,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
       - name: Build SDist
-        run: python setup.py sdist --dist-dir=dist --formats=gztar
+        run: python -m build --sdist
       - uses: actions/upload-artifact@v3
         with:
           name: "sdist"
