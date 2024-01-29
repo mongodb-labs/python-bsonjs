@@ -1,5 +1,15 @@
 Changelog
 =========
+
+0.4.0
+`````
+Version 0.4.0 updates python-bsonjs's vendored copy of libbson to 1.24.2.
+For a detailed breakdown of what changed in each version of libbson see its changelog:
+https://github.com/mongodb/mongo-c-driver/blob/1.24.2/src/libbson/NEWS
+http://mongoc.org/libbson/1.24.2/
+
+This release also adds support for Python 3.11 and 3.12.
+
 0.3.0
 `````
 
