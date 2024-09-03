@@ -48,7 +48,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
       - name: Download a previously created wheel
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: python_bsonjs-3.7-${{ matrix.os }}-wheel
       - name: Test wheel
@@ -71,7 +71,7 @@ jobs:
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.container }}
     steps:
       - name: Download a previously created wheel
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: python_bsonjs-3.7-${{ matrix.os }}-wheel
       - name: Test wheel
@@ -100,7 +100,7 @@ jobs:
     name: Download Wheels
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
       - name: Flatten directory
         working-directory: .
         run: |
@@ -120,7 +120,7 @@ jobs:
       id-token: write
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: all-dist-${{ github.head_ref || github.ref_name }}
         path: dist/
