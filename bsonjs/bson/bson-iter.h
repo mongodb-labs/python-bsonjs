@@ -109,15 +109,11 @@ bson_iter_value (bson_iter_t *iter);
 static BSON_INLINE uint32_t
 bson_iter_utf8_len_unsafe (const bson_iter_t *iter)
 {
-   uint32_t raw;
-   memcpy (&raw, iter->raw + iter->d1, sizeof (raw));
+   int32_t val;
 
-   const uint32_t native = BSON_UINT32_FROM_LE (raw);
-
-   int32_t len;
-   memcpy (&len, &native, sizeof (len));
-
-   return len <= 0 ? 0u : (uint32_t) (len - 1);
+   memcpy (&val, iter->raw + iter->d1, sizeof (val));
+   val = BSON_UINT32_FROM_LE (val);
+   return BSON_MAX (0, val - 1);
 }
 
 
@@ -246,14 +242,10 @@ bson_iter_int32 (const bson_iter_t *iter);
 static BSON_INLINE int32_t
 bson_iter_int32_unsafe (const bson_iter_t *iter)
 {
-   uint32_t raw;
-   memcpy (&raw, iter->raw + iter->d1, sizeof (raw));
+   int32_t val;
 
-   const uint32_t native = BSON_UINT32_FROM_LE (raw);
-
-   int32_t res;
-   memcpy (&res, &native, sizeof (res));
-   return res;
+   memcpy (&val, iter->raw + iter->d1, sizeof (val));
+   return BSON_UINT32_FROM_LE (val);
 }
 
 
@@ -276,14 +268,10 @@ bson_iter_as_int64 (const bson_iter_t *iter);
 static BSON_INLINE int64_t
 bson_iter_int64_unsafe (const bson_iter_t *iter)
 {
-   uint64_t raw;
-   memcpy (&raw, iter->raw + iter->d1, sizeof (raw));
+   int64_t val;
 
-   const uint64_t native = BSON_UINT64_FROM_LE (raw);
-
-   int64_t res;
-   memcpy (&res, &native, sizeof (res));
-   return res;
+   memcpy (&val, iter->raw + iter->d1, sizeof (val));
+   return BSON_UINT64_FROM_LE (val);
 }
 
 
@@ -419,7 +407,7 @@ bson_iter_time_t (const bson_iter_t *iter);
 static BSON_INLINE time_t
 bson_iter_time_t_unsafe (const bson_iter_t *iter)
 {
-   return (time_t) (bson_iter_int64_unsafe (iter) / 1000);
+   return (time_t) (bson_iter_int64_unsafe (iter) / 1000UL);
 }
 
 
@@ -523,8 +511,7 @@ bson_iter_overwrite_double (bson_iter_t *iter, double value);
 
 
 BSON_EXPORT (void)
-bson_iter_overwrite_decimal128 (bson_iter_t *iter,
-                                const bson_decimal128_t *value);
+bson_iter_overwrite_decimal128 (bson_iter_t *iter, const bson_decimal128_t *value);
 
 
 BSON_EXPORT (void)

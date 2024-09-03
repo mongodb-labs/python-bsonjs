@@ -2,10 +2,6 @@
 python-bsonjs
 =============
 
-.. image:: https://travis-ci.org/mongodb-labs/python-bsonjs.svg?branch=master
-   :alt: View build status
-   :target: https://travis-ci.org/mongodb-labs/python-bsonjs
-
 :Info: See `github <http://github.com/mongodb-labs/python-bsonjs>`_ for the latest source.
 :Author: Shane Harvey <shane.harvey@mongodb.com>
 
@@ -13,7 +9,7 @@ About
 =====
 
 A fast BSON to MongoDB Extended JSON converter for Python that uses
-`libbson  <http://mongoc.org/libbson/1.20.0/>`_.
+`libbson  <http://mongoc.org/libbson/1.27.2/>`_.
 
 Installation
 ============
@@ -110,7 +106,7 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.7+.
+python-bsonjs supports CPython 3.8+.
 
 Compiler
 ````````
@@ -141,4 +137,3 @@ Test
 To run the test suite::
 
     $ python -m pytest
-
