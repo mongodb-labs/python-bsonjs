@@ -254,7 +254,7 @@ static struct PyModuleDef moduledef = {
 };
 
 PyMODINIT_FUNC
-PyInit_bsonjs(VOID)
+PyInit_bsonjs(void)
 {
     PyObject* module = PyModule_Create(&moduledef);
     if (module == NULL) {

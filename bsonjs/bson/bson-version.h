@@ -29,7 +29,7 @@
  *
  * BSON major version component (e.g. 1 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MAJOR_VERSION ()
+#define BSON_MAJOR_VERSION (1)
 
 
 /**
@@ -37,7 +37,7 @@
  *
  * BSON minor version component (e.g. 2 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MINOR_VERSION ()
+#define BSON_MINOR_VERSION (2)
 
 
 /**
@@ -45,7 +45,7 @@
  *
  * BSON micro version component (e.g. 3 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MICRO_VERSION ()
+#define BSON_MICRO_VERSION (7)
 
 
 /**
