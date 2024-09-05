@@ -15,10 +15,11 @@
  */
 
 
-#if !defined (BSON_INSIDE) && !defined (BSON_COMPILATION)
+#if !defined(BSON_INSIDE) && !defined(BSON_COMPILATION)
 #error "Only <bson/bson.h> can be included directly."
 #endif
 
+// clang-format off
 
 #ifndef BSON_VERSION_H
 #define BSON_VERSION_H
@@ -37,7 +38,7 @@
  *
  * BSON minor version component (e.g. 2 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MINOR_VERSION (2)
+#define BSON_MINOR_VERSION (27)
 
 
 /**
@@ -45,7 +46,7 @@
  *
  * BSON micro version component (e.g. 3 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MICRO_VERSION (7)
+#define BSON_MICRO_VERSION (2)
 
 
 /**
@@ -60,7 +61,7 @@
  *
  * BSON version.
  */
-#define BSON_VERSION ()
+#define BSON_VERSION (1.27.2)
 
 
 /**
@@ -69,7 +70,7 @@
  * BSON version, encoded as a string, useful for printing and
  * concatenation.
  */
-#define BSON_VERSION_S ""
+#define BSON_VERSION_S "1.27.2"
 
 
 /**
@@ -90,7 +91,7 @@
  * @micro: required micro version
  *
  * Compile-time version checking. Evaluates to %TRUE if the version
- * of BSON is greater than the required one.
+ * of BSON is greater than or equal to the required one.
  */
 #define BSON_CHECK_VERSION(major,minor,micro)   \
         (BSON_MAJOR_VERSION > (major) || \

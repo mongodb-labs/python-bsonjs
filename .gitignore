@@ -130,3 +130,6 @@ ENV/
 
 # .idea
 .idea/**
+
+# Local checkout of mongo-c-driver
+mongo-c-driver/

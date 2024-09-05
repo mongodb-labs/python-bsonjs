@@ -3,6 +3,7 @@ Changelog
 
 0.5.0
 `````
+Version 0.5.0 updates python-bsonjs's vendored copy of libbson to 1.27.6.
 For a detailed breakdown of what changed in each version of libbson see its changelog:
 https://github.com/mongodb/mongo-c-driver/blob/1.27.6/src/libbson/NEWS
 http://mongoc.org/libbson/1.27.6/
