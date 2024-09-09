@@ -7,7 +7,7 @@ packages = []
 
 [project]
 name = "python-bsonjs"
-version = "0.5.0.dev0"
+version = "0.5.0"
 description = "A library for converting between BSON and JSON."
 readme = "README.rst"
 license = { file = "LICENSE" }
