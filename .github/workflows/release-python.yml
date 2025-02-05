@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-12, windows-2019, ubuntu-latest]
+        os: [macos-14, windows-2019, ubuntu-latest]
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
       - name: Download a previously created wheel
         uses: actions/download-artifact@v4
         with:
-          name: wheel-${{ github.run_id }}
+          name: ${{ matrix.os }}-wheel
       - name: Test wheel
         shell: bash
         run: |
@@ -73,7 +73,7 @@ jobs:
       - name: Download a previously created wheel
         uses: actions/download-artifact@v4
         with:
-          name: wheel-${{ github.run_id }}
+          name: ${{ matrix.os }}-wheel
       - name: Test wheel
         run: |
           docker run --rm --volume `pwd`:/python quay.io/pypa/${{ matrix.container }} /bin/bash -c "/opt/python/${{ matrix.python-version }}/bin/python -m pip install -U pip && /opt/python/${{ matrix.python-version }}/bin/python -m pip install --find-links=/python/ --no-index python_bsonjs &&  /opt/python/${{ matrix.python-version }}/bin/python -m pip list | grep python-bsonjs && /opt/python/${{ matrix.python-version }}/bin/python -c 'from bsonjs import dumps'"
