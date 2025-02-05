@@ -106,9 +106,9 @@ jobs:
         run: |
           find . -mindepth 2 -type f -exec mv {} . \;
           find . -type d -empty -delete
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: all-dist-${{ github.head_ref || github.ref_name }}
+          name: all-dist-${{ github.run_id }}
           path: "./*"
   publish:
     # https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#publishing-the-distribution-to-pypi
@@ -120,9 +120,9 @@ jobs:
       id-token: write
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: all-dist-${{ github.head_ref || github.ref_name }}
+        name: all-dist--${{ github.run_id }}
         path: dist/
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
