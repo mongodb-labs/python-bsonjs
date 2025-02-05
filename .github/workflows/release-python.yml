@@ -30,7 +30,7 @@ jobs:
           CIBW_BUILD: "cp38-macosx_universal2 cp38-win* cp38-manylinux_{x86_64,i686}"
       - uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ github.run_id }}
+          name: ${{ matrix.os }}-wheel
           path: ./wheelhouse/*.whl
           if-no-files-found: error
   test_non_linux_wheels:
@@ -90,7 +90,7 @@ jobs:
         run: |
           python -m pip install build
           python -m build --sdist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: "sdist"
           path: dist/*.tar.gz
