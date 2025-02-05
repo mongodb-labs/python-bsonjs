@@ -28,9 +28,9 @@ jobs:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
           CIBW_BUILD: "cp38-macosx_universal2 cp38-win* cp38-manylinux_{x86_64,i686}"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
-          name: python_bsonjs-3.8-${{ matrix.os }}-wheel
+          name: wheel-${{ github.run_id }}
           path: ./wheelhouse/*.whl
           if-no-files-found: error
   test_non_linux_wheels:
@@ -48,9 +48,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
       - name: Download a previously created wheel
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
-          name: python_bsonjs-3.8-${{ matrix.os }}-wheel
+          name: wheel-${{ github.run_id }}
       - name: Test wheel
         shell: bash
         run: |
