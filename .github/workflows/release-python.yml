@@ -71,9 +71,9 @@ jobs:
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.container }}
     steps:
       - name: Download a previously created wheel
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
-          name: python_bsonjs-3.8-${{ matrix.os }}-wheel
+          name: wheel-${{ github.run_id }}
       - name: Test wheel
         run: |
           docker run --rm --volume `pwd`:/python quay.io/pypa/${{ matrix.container }} /bin/bash -c "/opt/python/${{ matrix.python-version }}/bin/python -m pip install -U pip && /opt/python/${{ matrix.python-version }}/bin/python -m pip install --find-links=/python/ --no-index python_bsonjs &&  /opt/python/${{ matrix.python-version }}/bin/python -m pip list | grep python-bsonjs && /opt/python/${{ matrix.python-version }}/bin/python -c 'from bsonjs import dumps'"
@@ -100,7 +100,7 @@ jobs:
     name: Download Wheels
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Flatten directory
         working-directory: .
         run: |
