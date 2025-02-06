@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-14, windows-2019, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
         env:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
-          CIBW_BUILD: "cp38-macosx_universal2 cp38-win* cp38-manylinux_{x86_64,i686}"
+          CIBW_BUILD: "cp39-macosx_universal2 cp39-win* cp39-manylinux_{x86_64,i686}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-wheel
@@ -38,8 +38,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-12, windows-2019]
-        python-version: [3.8, 3.9, "3.10", "3.11", "3.12", "3.13"]
+        os: [macos-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - name: Setup Python
@@ -66,8 +66,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         container: ['manylinux2014_i686', 'manylinux2014_x86_64']
-        python-version: ['cp38-cp38',
-                         'cp39-cp39', 'cp310-cp310', 'cp311-cp311', 'cp312-cp312', 'cp313-cp313']
+        python-version: ['cp39-cp39', 'cp310-cp310', 'cp311-cp311', 'cp312-cp312', 'cp313-cp313']
     name: Test CPython ${{ matrix.python-version }}-${{ matrix.container }}
     steps:
       - name: Download a previously created wheel
@@ -85,7 +84,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Build SDist
         run: |
           python -m pip install build
