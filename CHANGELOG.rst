@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.6.0 (unreleased)
+``````````````````
+Drop support for Python 3.8.
+
 0.5.0
 `````
 Version 0.5.0 updates python-bsonjs's vendored copy of libbson to 1.27.6.
