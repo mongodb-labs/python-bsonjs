@@ -3,7 +3,8 @@ Changelog
 
 0.6.0 (unreleased)
 ``````````````````
-Drop support for Python 3.8.
+- Drop support for Python 3.8.
+- Fix memory leak in ``bson_str_to_json``.
 
 0.5.0
 `````
