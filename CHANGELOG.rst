@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.6.0 (unreleased)
-``````````````````
+0.6.0
+`````
 - Drop support for Python 3.8.
 - Fix memory leak in ``dump`` and ``dumps`` when an invalid ``mode`` is provided.
 
