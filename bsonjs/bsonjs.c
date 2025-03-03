@@ -50,6 +50,7 @@ int mode)
         PyErr_SetString(PyExc_ValueError, "The value of mode must be one of: "
                                           "bsonjs.RELAXED, bsonjs.LEGACY, "
                                           "or bsonjs.CANONICAL.");
+        bson_reader_destroy(reader);
         return NULL;
     }
 
