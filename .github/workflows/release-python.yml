@@ -23,7 +23,7 @@ jobs:
     name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pypa/cibuildwheel@v2.23.1
+      - uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_ARCHS_MACOS: x86_64 universal2
           CIBW_TEST_SKIP: '*universal2:arm64'
