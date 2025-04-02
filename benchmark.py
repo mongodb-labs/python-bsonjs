@@ -53,17 +53,17 @@ def main(iterations):
              "    'date': datetime.datetime(2009, 12, 9, 15),\n"
              "    'regex': bson.Regex('.*', 'i'),\n"
              "}\n"
-             "b = bson.BSON.encode(doc)\n"
+             "b = bson.encode(doc)\n"
              "j = bsonjs.dumps(b)\n")
 
     # dumps
     compare("bsonjs.dumps(b)",
-            "json_util.dumps(bson.BSON(b).decode())",
+            "json_util.dumps(bson.decode(b))",
             iterations,
             setup)
     # loads
     compare("bsonjs.loads(j)",
-            "bson.BSON().encode(json_util.loads(j))",
+            "bson.encode(json_util.loads(j))",
             iterations,
             setup)
 

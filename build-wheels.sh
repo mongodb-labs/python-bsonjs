@@ -43,7 +43,7 @@ for PYBIN in /opt/python/*/bin; do
     fi
     "${PYBIN}/pip" install python-bsonjs --no-index -f dist
     # The tests require PyMongo.
-    "${PYBIN}/pip" install 'pymongo>=3.4'
+    "${PYBIN}/pip" install 'pymongo>=4'
     for TEST_FILE in "${BSONJS_SOURCE_DIRECTORY}"/test/test_*.py; do
         "${PYBIN}/python" "$TEST_FILE" -v
     done
