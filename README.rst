@@ -55,21 +55,22 @@ Using bsonjs with pymongo to insert a RawBSONDocument.
 Speed
 =====
 
-bsonjs is roughly 10-15x faster than PyMongo's json_util at decoding BSON to
+bsonjs is roughly 3-4x faster than PyMongo's json_util at decoding BSON to
 JSON and encoding JSON to BSON. See `benchmark.py`::
 
     $ python benchmark.py
     Timing: bsonjs.dumps(b)
-    10000 loops, best of 3: 0.110911846161
-    Timing: json_util.dumps(bson.BSON(b).decode())
-    10000 loops, best of 3: 1.46571397781
-    bsonjs is 13.22x faster than json_util
+    10000 loops, best of 3: 0.04682216700166464
+    Timing: json_util.dumps(bson.decode(b))
+    10000 loops, best of 3: 0.17319270805455744
+    bsonjs is 3.70x faster than json_util
 
     Timing: bsonjs.loads(j)
-    10000 loops, best of 3: 0.0628039836884
-    Timing: bson.BSON().encode(json_util.loads(j))
-    10000 loops, best of 3: 0.683200120926
-    bsonjs is 11.72x faster than json_util
+    10000 loops, best of 3: 0.053156834095716476
+    Timing: bson.encode(json_util.loads(j))
+    10000 loops, best of 3: 0.15982166700996459
+    bsonjs is 3.01x faster than json_util
+
 
 Limitations
 ===========

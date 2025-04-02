@@ -46,14 +46,14 @@ from test import StringIO, unittest
 
 def to_object(bson_bytes):
     """Return deserialized object from BSON bytes"""
-    return bson.BSON(bson_bytes).decode(CodecOptions(document_class=SON,
-                                                     tz_aware=True,
-                                                     uuid_representation=UuidRepresentation.PYTHON_LEGACY))
+    return bson.decode(bson_bytes, CodecOptions(document_class=SON,
+                                                tz_aware=True,
+                                                uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
 def to_bson(obj):
     """Return serialized BSON string from object"""
-    return bson.BSON.encode(obj, codec_options=CodecOptions(
+    return bson.encode(obj, codec_options=CodecOptions(
         uuid_representation=UuidRepresentation.PYTHON_LEGACY))
 
 
