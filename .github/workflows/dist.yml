@@ -1,4 +1,4 @@
-name: Python Wheels
+name: Python Dist
 
 on:
   push:
@@ -7,12 +7,21 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+.post[0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+[a-b][0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
-  pull_request:
   workflow_dispatch:
+  pull_request:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
 
 concurrency:
-  group: wheels-${{ github.ref }}
+  group: dist-${{ github.ref }}
   cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash -eux {0}
 
 jobs:
   build_wheels:
@@ -20,7 +29,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-    name: Build CPython ${{ matrix.python-version }}-${{ matrix.os }}
+    name: Build CPython-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: pypa/cibuildwheel@v2.23.2
@@ -109,19 +118,3 @@ jobs:
         with:
           name: all-dist-${{ github.run_id }}
           path: "./*"
-  publish:
-    # https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/#publishing-the-distribution-to-pypi
-    needs: [collect_dist]
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      id-token: write
-    steps:
-    - name: Download all the dists
-      uses: actions/download-artifact@v4
-      with:
-        name: all-dist-${{ github.run_id }}
-        path: dist/
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
