@@ -57,7 +57,7 @@ jobs:
 
   build-dist:
     needs: [pre-publish]
-    uses: ./.github/workflows/dist-python.yml
+    uses: ./.github/workflows/dist.yml
     with:
       ref: ${{ needs.pre-publish.outputs.version }}
 
