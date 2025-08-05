@@ -45,4 +45,4 @@ test = ["pymongo>=4", "pytest"]
 
 [tool.cibuildwheel]
 test-command = "pytest {package}/test"
-test-requires = "pytest"
+test-extras = ["test"]
