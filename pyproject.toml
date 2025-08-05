@@ -44,4 +44,5 @@ Homepage = "https://github.com/mongodb-labs/python-bsonjs"
 test = ["pymongo>=4", "pytest"]
 
 [tool.cibuildwheel]
-test-command = "python -c 'from bsonjs import dumps'"
+test-command = "pytest {package}/test"
+test-requires = "pytest"
