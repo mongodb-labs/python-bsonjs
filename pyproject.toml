@@ -42,3 +42,7 @@ Homepage = "https://github.com/mongodb-labs/python-bsonjs"
 
 [project.optional-dependencies]
 test = ["pymongo>=4", "pytest"]
+
+[tool.cibuildwheel]
+test-command = "pytest {package}/test"
+test-extras = ["test"]
