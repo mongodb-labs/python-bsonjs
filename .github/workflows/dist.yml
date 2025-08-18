@@ -31,7 +31,7 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-24.04-arm, ubuntu-latest]
     name: Build CPython-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865 # v3.13.3
       - uses: actions/upload-artifact@v4
         with:
@@ -42,7 +42,7 @@ jobs:
     name: Make SDist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -61,7 +61,7 @@ jobs:
     name: Download Wheels
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
       - name: Flatten directory
         working-directory: .
         run: |
