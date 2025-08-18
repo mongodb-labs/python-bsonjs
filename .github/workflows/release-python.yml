@@ -20,7 +20,7 @@ env:
   # to 'false' when the input is set to 'false'.
   DRY_RUN: ${{ ! contains(inputs.dry_run, 'false') }}
   FOLLOWING_VERSION: ${{ inputs.following_version || '' }}
-
+  VERSION: ${{ github.event_name == 'schedule' && '10.10.10.10' || '' }}
 concurrency:
   group: wheels-${{ github.ref }}
   cancel-in-progress: true
@@ -54,6 +54,8 @@ jobs:
         id: pre-publish
         with:
           dry_run: ${{ env.DRY_RUN }}
+          version: ${{ env.VERSION }}
+          version_bump_script: ./.github/scripts/bump-version.sh
 
   build-dist:
     needs: [pre-publish]
@@ -107,6 +109,8 @@ jobs:
           artifactory_username: ${{ vars.ARTIFACTORY_USERNAME }}
       - uses: mongodb-labs/drivers-github-tools/python-labs/post-publish@v2
         with:
+          version: ${{ env.VERSION }}
+          version_bump_script: ./.github/scripts/bump-version.sh
           following_version: ${{ env.FOLLOWING_VERSION }}
           product_name: ${{ env.PRODUCT_NAME }}
           token: ${{ github.token }}
