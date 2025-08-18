@@ -28,15 +28,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, windows-latest, ubuntu-24.04-arm, ubuntu-latest]
     name: Build CPython-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: pypa/cibuildwheel@352e01339f0a173aa2a3eb57f01492e341e83865 # v3.13.3
-        env:
-          CIBW_ARCHS_MACOS: x86_64 universal2
-          CIBW_TEST_SKIP: '*universal2:arm64'
-          CIBW_BUILD: "cp39-macosx_universal2 cp39-win* cp39-manylinux_{x86_64,i686}"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-wheel
