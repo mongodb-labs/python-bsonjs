@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.7.0
+`````
+- Add support for Python 3.14.
+- Add arm64 wheels.
+
 0.6.0
 `````
 - Drop support for Python 3.8.
