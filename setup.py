@@ -35,9 +35,9 @@ setup(
                           "bsonjs/common"],
             py_limited_api=True,
             define_macros=[("BSON_COMPILATION", 1),
-                           ("Py_LIMITED_API", "0x03060000")],
+                           ("Py_LIMITED_API", "0x03090000")],
             libraries=libraries
         )
     ],
-    options={'bdist_wheel': {'py_limited_api': 'cp37'} }
+    options={'bdist_wheel': {'py_limited_api': 'cp39'} }
 )
