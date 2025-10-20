@@ -32,7 +32,7 @@ jobs:
     name: Build CPython-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-      - uses: pypa/cibuildwheel@7c619efba910c04005a835b110b057fc28fd6e93 # v3.13.3
+      - uses: pypa/cibuildwheel@9c00cb4f6b517705a3794b22395aedc36257242c # v3.13.3
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-wheel
