@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: pypa/cibuildwheel@63fd63b352a9a8bdcc24791c9dbee952ee9a8abc # v3.13.3
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.os }}-wheel
           path: ./wheelhouse/*.whl
@@ -51,7 +51,7 @@ jobs:
         run: |
           python -m pip install build
           python -m build --sdist
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: "sdist"
           path: dist/*.tar.gz
@@ -61,13 +61,13 @@ jobs:
     name: Download Wheels
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
       - name: Flatten directory
         working-directory: .
         run: |
           find . -mindepth 2 -type f -exec mv {} . \;
           find . -type d -empty -delete
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: all-dist-${{ github.run_id }}
           path: "./*"
