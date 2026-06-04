@@ -32,7 +32,9 @@ jobs:
     name: Build CPython-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6.0.2
-      - uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084 # v3.13.4.1
+        with:
+          persist-credentials: false
+      - uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084 # v3.4.1
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.os }}-wheel
@@ -43,6 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
