@@ -31,9 +31,9 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-24.04-arm, ubuntu-latest]
     name: Build CPython-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: pypa/cibuildwheel@298ed2fb2c105540f5ed055e8a6ad78d82dd3a7e # v3.13.3
-      - uses: actions/upload-artifact@v6
+      - uses: actions/checkout@v6.0.2
+      - uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084 # v3.13.4.1
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.os }}-wheel
           path: ./wheelhouse/*.whl
@@ -42,7 +42,7 @@ jobs:
     name: Make SDist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
@@ -51,7 +51,7 @@ jobs:
         run: |
           python -m pip install build
           python -m build --sdist
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: "sdist"
           path: dist/*.tar.gz
@@ -67,7 +67,7 @@ jobs:
         run: |
           find . -mindepth 2 -type f -exec mv {} . \;
           find . -type d -empty -delete
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: all-dist-${{ github.run_id }}
           path: "./*"
