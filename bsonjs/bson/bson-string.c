@@ -34,6 +34,69 @@
 /*
  *--------------------------------------------------------------------------
  *
+ * bson_string_new_n --
+ *
+ *       Create a new bson_string_t.
+ *
+ *       bson_string_t is a power-of-2 allocation growing string. Every
+ *       time data is appended the next power of two size is chosen for
+ *       the allocation. Pretty standard stuff.
+ *
+ *       It is UTF-8 aware through the use of bson_string_append_unichar().
+ *       The proper UTF-8 character sequence will be used.
+ *
+ * Parameters:
+ *       @str: a string to copy or NULL.
+ *       @len: number of characters to copy from str.
+ *
+ * Returns:
+ *       A newly allocated bson_string_t that should be freed with
+ *       bson_string_free().
+ *
+ * Side effects:
+ *       None.
+ *
+ *--------------------------------------------------------------------------
+ */
+
+bson_string_t *
+bson_string_new_n (const char *str, uint32_t len) /* IN */
+{
+   bson_string_t *ret;
+   size_t len_sz;
+
+   ret = bson_malloc0 (sizeof *ret);
+   if (str) {
+      BSON_ASSERT (len <= UINT32_MAX);
+      ret->len = len;
+   } else {
+      ret->len = 0;
+   }
+   ret->alloc = ret->len + 1;
+
+   if (!bson_is_power_of_two (ret->alloc)) {
+      len_sz = bson_next_power_of_two ((size_t) ret->alloc);
+      BSON_ASSERT (len_sz <= UINT32_MAX);
+      ret->alloc = (uint32_t) len_sz;
+   }
+
+   BSON_ASSERT (ret->alloc >= ret->len + 1);
+
+   ret->str = bson_malloc (ret->alloc);
+
+   if (str) {
+      memcpy (ret->str, str, ret->len);
+   }
+
+   ret->str[ret->len] = '\0';
+
+   return ret;
+}
+
+
+/*
+ *--------------------------------------------------------------------------
+ *
  * bson_string_new --
  *
  *       Create a new bson_string_t.
@@ -61,36 +124,7 @@
 bson_string_t *
 bson_string_new (const char *str) /* IN */
 {
-   bson_string_t *ret;
-   size_t len_sz;
-
-   ret = bson_malloc0 (sizeof *ret);
-   if (str) {
-      len_sz = strlen (str);
-      BSON_ASSERT (len_sz <= UINT32_MAX);
-      ret->len = (uint32_t) len_sz;
-   } else {
-      ret->len = 0;
-   }
-   ret->alloc = ret->len + 1;
-
-   if (!bson_is_power_of_two (ret->alloc)) {
-      len_sz = bson_next_power_of_two ((size_t) ret->alloc);
-      BSON_ASSERT (len_sz <= UINT32_MAX);
-      ret->alloc = (uint32_t) len_sz;
-   }
-
-   BSON_ASSERT (ret->alloc >= ret->len + 1);
-
-   ret->str = bson_malloc (ret->alloc);
-
-   if (str) {
-      memcpy (ret->str, str, ret->len);
-   }
-
-   ret->str[ret->len] = '\0';
-
-   return ret;
+   return bson_string_new_n(str, str ? strlen(str) : 0);
 }
 
 char *
@@ -120,7 +154,8 @@ bson_string_free (bson_string_t *string, /* IN */
  *
  * bson_string_append --
  *
- *       Append the UTF-8 string @str to @string.
+ *       Append the UTF-8 string @str of length @len to @string.
+ *       The calling function is responsible for ensuring that @len is the actual length (i.e. strlen) of @str.
  *
  * Returns:
  *       None.
@@ -133,17 +168,16 @@ bson_string_free (bson_string_t *string, /* IN */
 
 void
 bson_string_append (bson_string_t *string, /* IN */
-                    const char *str)       /* IN */
+                    const char *str, /* IN */
+                    uint32_t len) /* IN */
 {
-   uint32_t len;
    size_t len_sz;
 
    BSON_ASSERT (string);
    BSON_ASSERT (str);
 
-   len_sz = strlen (str);
-   BSON_ASSERT (bson_in_range_unsigned (uint32_t, len_sz));
-   len = (uint32_t) len_sz;
+   BSON_ASSERT (bson_in_range_unsigned (uint32_t, len));
+
 
    if ((string->alloc - string->len - 1) < len) {
       BSON_ASSERT (string->alloc <= UINT32_MAX - len);
@@ -193,7 +227,7 @@ bson_string_append_c (bson_string_t *string, /* IN */
    if (BSON_UNLIKELY (string->alloc == (string->len + 1))) {
       cc[0] = c;
       cc[1] = '\0';
-      bson_string_append (string, cc);
+      bson_string_append (string, cc, 1);
       return;
    }
 
@@ -232,7 +266,7 @@ bson_string_append_unichar (bson_string_t *string,  /* IN */
 
    if (len <= 6) {
       str[len] = '\0';
-      bson_string_append (string, str);
+      bson_string_append (string, str, len);
    }
 }
 
@@ -258,14 +292,26 @@ bson_string_append_printf (bson_string_t *string, const char *format, ...)
 {
    va_list args;
    char *ret;
+   char buf[256];
+   int n;
 
    BSON_ASSERT (string);
    BSON_ASSERT (format);
 
+   /* Try to format the string on stack which is faster than using malloc for small strings */
    va_start (args, format);
-   ret = bson_strdupv_printf (format, args);
+   n = bson_vsnprintf (buf, sizeof(buf), format, args);
    va_end (args);
-   bson_string_append (string, ret);
+   if (n > -1 && n < (int)sizeof(buf)) {
+      bson_string_append (string, buf, n);
+      return;
+   }
+
+   /* Format the string on heap which is slower but necessary for large strings */
+   va_start (args, format);
+   ret = bson_strdupv_printf (format, (n > -1) ? n + 1 : (int)sizeof(buf) * 2, &n, args);
+   va_end (args);
+   bson_string_append (string, ret, n);
    bson_free (ret);
 }
 
@@ -366,21 +412,24 @@ bson_strdup (const char *str) /* IN */
  *       A newly allocated string that should be freed with bson_free().
  *
  * Side effects:
- *       None.
+ *       @actual_len is set.
  *
  *--------------------------------------------------------------------------
  */
 
 char *
 bson_strdupv_printf (const char *format, /* IN */
+                     int expected_len,   /* IN */
+                     int *actual_len,    /* OUT */
                      va_list args)       /* IN */
 {
    va_list my_args;
    char *buf;
-   int len = 32;
+   int len = expected_len;
    int n;
 
    BSON_ASSERT (format);
+   BSON_ASSERT (actual_len);
 
    buf = bson_malloc0 (len);
 
@@ -390,6 +439,7 @@ bson_strdupv_printf (const char *format, /* IN */
       va_end (my_args);
 
       if (n > -1 && n < len) {
+         *actual_len = n;
          return buf;
       }
 
@@ -427,11 +477,12 @@ bson_strdup_printf (const char *format, /* IN */
 {
    va_list args;
    char *ret;
+   int ret_len;
 
    BSON_ASSERT (format);
 
    va_start (args, format);
-   ret = bson_strdupv_printf (format, args);
+   ret = bson_strdupv_printf (format, 32, &ret_len, args);
    va_end (args);
 
    return ret;

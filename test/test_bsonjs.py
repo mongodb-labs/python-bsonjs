@@ -257,6 +257,11 @@ class TestBsonjs(unittest.TestCase):
         bson_bytes = bsonjs.loads(json_str)
         self.assertEqual(json_str, bsonjs.dumps(bson_bytes + bson_bytes))
 
+    def test_dumps_escaped_and_unicode_characters(self):
+        json_str = '{ "escaped_character_at_the_beginning" : "\\tbeginning", "escaped_character_at_the_end" : "end\\\"", "escaped_character_in_the_middle" : "midd\\\\le", "unicode_character_at_the_beginning" : "\N{CHECK MARK}beginning", "unicode_character_at_the_end" : "end\N{CHECK MARK}", "unicode_character_in_the_middle" : "midd\N{CHECK MARK}le", "no_escaped_or_unicode_characters" : "no escaped or unicode characters" }'
+        bson_bytes = bsonjs.loads(json_str)
+        self.assertEqual(json_str, bsonjs.dumps(bson_bytes))
+
     def test_loads_multiple_json_documents(self):
         json_str = '{ "test" : "me" }'
         self.assertEqual(bsonjs.loads(json_str), bsonjs.loads(json_str + "{}"))
