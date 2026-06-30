@@ -31,10 +31,10 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-24.04-arm, ubuntu-latest]
     name: Build CPython-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
         with:
           persist-credentials: false
-      - uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084 # v3.4.1
+      - uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.os }}-wheel
@@ -44,7 +44,7 @@ jobs:
     name: Make SDist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
         with:
           persist-credentials: false
       - name: Setup Python
