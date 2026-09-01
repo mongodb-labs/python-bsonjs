@@ -128,24 +128,6 @@
 #endif
 
 
-/*
- * Define to 1 if you want extra aligned types in libbson
- */
-#define BSON_EXTRA_ALIGN 1
-#if BSON_EXTRA_ALIGN != 1
-# undef BSON_EXTRA_ALIGN
-#endif
-
-
-/*
- * Define to 1 if you have SYS_gettid syscall
- */
-#define BSON_HAVE_SYSCALL_TID 0
-#if BSON_HAVE_SYSCALL_TID != 1
-# undef BSON_HAVE_SYSCALL_TID
-#endif
-
-
 #ifdef MS_WINDOWS
 # define BSON_HAVE_RAND_R 0
 #else
@@ -159,6 +141,19 @@
 #define BSON_HAVE_STRLCPY 0
 #if BSON_HAVE_STRLCPY != 1
 # undef BSON_HAVE_STRLCPY
+#endif
+
+
+/*
+ * Define to 1 if you have aligned_alloc available on your platform.
+ */
+#ifdef MS_WINDOWS
+# define BSON_HAVE_ALIGNED_ALLOC 0
+#else
+# define BSON_HAVE_ALIGNED_ALLOC 1
+#endif
+#if BSON_HAVE_ALIGNED_ALLOC != 1
+# undef BSON_HAVE_ALIGNED_ALLOC
 #endif
 
 #endif /* BSON_CONFIG_H */

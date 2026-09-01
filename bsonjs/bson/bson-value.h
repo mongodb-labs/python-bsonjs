@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MongoDB, Inc.
+ * Copyright 2009-present MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,17 @@
 #define BSON_VALUE_H
 
 
-#include <bson/bson-macros.h>
 #include <bson/bson-types.h>
+#include <bson/macros.h>
 
 
 BSON_BEGIN_DECLS
 
 
-BSON_EXPORT (void)
-bson_value_copy (const bson_value_t *src, bson_value_t *dst);
-BSON_EXPORT (void)
-bson_value_destroy (bson_value_t *value);
+BSON_EXPORT(void)
+bson_value_copy(const bson_value_t *src, bson_value_t *dst);
+BSON_EXPORT(void)
+bson_value_destroy(bson_value_t *value);
 
 
 BSON_END_DECLS

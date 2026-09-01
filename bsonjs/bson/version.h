@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MongoDB, Inc.
+ * Copyright 2009-present MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-
-#if !defined(BSON_INSIDE) && !defined(BSON_COMPILATION)
-#error "Only <bson/bson.h> can be included directly."
-#endif
-
 // clang-format off
 
 #ifndef BSON_VERSION_H
@@ -30,7 +25,7 @@
  *
  * BSON major version component (e.g. 1 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MAJOR_VERSION (1)
+#define BSON_MAJOR_VERSION (2)
 
 
 /**
@@ -38,7 +33,7 @@
  *
  * BSON minor version component (e.g. 2 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MINOR_VERSION (27)
+#define BSON_MINOR_VERSION (5)
 
 
 /**
@@ -46,7 +41,7 @@
  *
  * BSON micro version component (e.g. 3 if %BSON_VERSION is 1.2.3)
  */
-#define BSON_MICRO_VERSION (2)
+#define BSON_MICRO_VERSION (0)
 
 
 /**
@@ -61,7 +56,7 @@
  *
  * BSON version.
  */
-#define BSON_VERSION (1.27.2)
+#define BSON_VERSION (2.5.0)
 
 
 /**
@@ -70,7 +65,7 @@
  * BSON version, encoded as a string, useful for printing and
  * concatenation.
  */
-#define BSON_VERSION_S "1.27.2"
+#define BSON_VERSION_S "2.5.0"
 
 
 /**

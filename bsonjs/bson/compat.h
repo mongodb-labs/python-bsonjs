@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MongoDB, Inc.
+ * Copyright 2009-present MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <bson/bson-prelude.h>
-
 
 #ifndef BSON_COMPAT_H
 #define BSON_COMPAT_H
@@ -31,59 +28,61 @@
 #endif
 #endif
 
-#include <bson/bson-config.h>
-#include <bson/bson-macros.h>
+#include <bson/config.h> // IWYU pragma: export
+#include <bson/macros.h> // IWYU pragma: export
 
 
 #ifdef BSON_OS_WIN32
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0601)
 #undef _WIN32_WINNT
 #endif
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
+#define _WIN32_WINNT 0x0601
 #endif
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
-#include <winsock2.h>
+#include <winsock2.h> // IWYU pragma: export
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <windows.h> // IWYU pragma: export
 #undef WIN32_LEAN_AND_MEAN
 #else
-#include <windows.h>
+#include <windows.h> // IWYU pragma: export
 #endif
-#include <direct.h>
-#include <io.h>
+#include <direct.h> // IWYU pragma: export
+#include <io.h>     // IWYU pragma: export
 #endif
 
 
 #ifdef BSON_OS_UNIX
-#include <unistd.h>
-#include <sys/time.h>
+#include <sys/time.h>  // IWYU pragma: export
+#include <sys/types.h> // IWYU pragma: export
+#include <unistd.h>    // IWYU pragma: export
 #endif
 
 
-#include <bson/bson-macros.h>
+#include <bson/macros.h>
 
+#include <fcntl.h>    // IWYU pragma: export
+#include <sys/stat.h> // IWYU pragma: export
 
-#include <errno.h>
-#include <ctype.h>
-#include <limits.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <stdint.h>
+#include <ctype.h>   // IWYU pragma: keep: to be removed.
+#include <errno.h>   // IWYU pragma: keep: to be removed.
+#include <limits.h>  // IWYU pragma: export
+#include <stdarg.h>  // IWYU pragma: export
+#include <stdbool.h> // IWYU pragma: export
+#include <stdint.h>  // IWYU pragma: export
+#include <stdio.h>   // IWYU pragma: keep: to be removed.
+#include <stdlib.h>  // IWYU pragma: keep: to be removed.
+#include <string.h>  // IWYU pragma: keep: to be removed.
+#include <time.h>    // IWYU pragma: keep: to be removed.
 
 
 BSON_BEGIN_DECLS
 
 #if !defined(_MSC_VER) || (_MSC_VER >= 1800)
-#include <inttypes.h>
+#include <inttypes.h> // IWYU pragma: export
 #endif
 #ifdef _MSC_VER
 #ifndef __cplusplus
@@ -133,23 +132,23 @@ typedef SSIZE_T ssize_t;
 /* Derive the maximum representable value of signed integer type T using the
  * formula 2^(N - 1) - 1 where N is the number of bits in type T. This assumes
  * T is represented using two's complement. */
-#define BSON_NUMERIC_LIMITS_MAX_SIGNED(T) ((T) ((((size_t) 0x01u) << (sizeof (T) * (size_t) CHAR_BIT - 1u)) - 1u))
+#define BSON_NUMERIC_LIMITS_MAX_SIGNED(T) ((T)((((size_t)0x01u) << (sizeof(T) * (size_t)CHAR_BIT - 1u)) - 1u))
 
 /* Derive the minimum representable value of signed integer type T as one less
  * than the negation of its maximum representable value. This assumes T is
  * represented using two's complement. */
-#define BSON_NUMERIC_LIMITS_MIN_SIGNED(T, max) ((T) ((-(max)) - 1))
+#define BSON_NUMERIC_LIMITS_MIN_SIGNED(T, max) ((T)((-(max)) - 1))
 
 /* Derive the maximum representable value of unsigned integer type T by flipping
  * all its bits to 1. */
-#define BSON_NUMERIC_LIMITS_MAX_UNSIGNED(T) ((T) (~((T) 0)))
+#define BSON_NUMERIC_LIMITS_MAX_UNSIGNED(T) ((T)(~((T)0)))
 
 #ifndef SSIZE_MAX
-#define SSIZE_MAX BSON_NUMERIC_LIMITS_MAX_SIGNED (ssize_t)
+#define SSIZE_MAX BSON_NUMERIC_LIMITS_MAX_SIGNED(ssize_t)
 #endif
 
 #ifndef SSIZE_MIN
-#define SSIZE_MIN BSON_NUMERIC_LIMITS_MIN_SIGNED (ssize_t, SSIZE_MAX)
+#define SSIZE_MIN BSON_NUMERIC_LIMITS_MIN_SIGNED(ssize_t, SSIZE_MAX)
 #endif
 
 #if defined(__MINGW32__) && !defined(INIT_ONCE_STATIC_INIT)
@@ -157,33 +156,9 @@ typedef SSIZE_T ssize_t;
 typedef RTL_RUN_ONCE INIT_ONCE;
 #endif
 
-#ifdef BSON_HAVE_STDBOOL_H
-#include <stdbool.h>
-#elif !defined(__bool_true_false_are_defined)
-#ifndef __cplusplus
-typedef signed char bool;
-#define false 0
-#define true 1
-#endif
-#define __bool_true_false_are_defined 1
-#endif
-
-
-#if defined(__GNUC__)
-#if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
-#define bson_sync_synchronize() __sync_synchronize ()
-#elif defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__)
-#define bson_sync_synchronize() asm volatile ("mfence" ::: "memory")
-#else
-#define bson_sync_synchronize() asm volatile ("sync" ::: "memory")
-#endif
-#elif defined(_MSC_VER)
-#define bson_sync_synchronize() MemoryBarrier ()
-#endif
-
 
 #if !defined(va_copy) && defined(__va_copy)
-#define va_copy(dst, src) __va_copy (dst, src)
+#define va_copy(dst, src) __va_copy(dst, src)
 #endif
 
 
@@ -202,6 +177,10 @@ typedef signed char bool;
 #define BSON_IF_MSVC(...)
 /** Expands the arguments if compiling with GCC or Clang, otherwise empty */
 #define BSON_IF_GNU_LIKE(...) __VA_ARGS__
+#else
+/** Unsupported compiler. **/
+#define BSON_IF_MSVC(...)
+#define BSON_IF_GNU_LIKE(...)
 #endif
 
 #ifdef BSON_OS_WIN32

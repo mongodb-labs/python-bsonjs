@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 MongoDB, Inc.
+ * Copyright 2009-present MongoDB, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #ifndef BSON_JSON_PRIVATE_H
 #define BSON_JSON_PRIVATE_H
 
+#include <bson/bson-json.h> // IWYU pragma: export
 
 struct _bson_json_opts_t {
    bson_json_mode_t mode;
