@@ -9,7 +9,7 @@ About
 =====
 
 A fast BSON to MongoDB Extended JSON converter for Python that uses
-`libbson  <http://mongoc.org/libbson/1.27.2/>`_.
+`libbson  <http://mongoc.org/libbson/2.5.0/>`_.
 
 Installation
 ============
