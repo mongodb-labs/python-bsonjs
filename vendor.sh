@@ -5,9 +5,8 @@ rm -rf mongo-c-driver
 git clone git@github.com:mongodb/mongo-c-driver.git
 pushd mongo-c-driver
 git checkout $VERSION
-python build/calc_release_version.py > VERSION_CURRENT
 mkdir cmake-build && cd cmake-build
-cmake -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF -DENABLE_MONGOC=OFF ..
+cmake -DENABLE_MONGOC=OFF ..
 popd
 rm -r bsonjs/bson
 rm -r bsonjs/jsonsl
@@ -16,8 +15,10 @@ rsync -r mongo-c-driver/src/libbson/src/bson/*.[hc] bsonjs/bson/
 rsync -r mongo-c-driver/src/libbson/src/jsonsl/*.[hc] bsonjs/jsonsl/
 rsync -r mongo-c-driver/src/libbson/src/jsonsl/LICENSE bsonjs/jsonsl/
 
-rsync -r mongo-c-driver/src/common/*.[hc] bsonjs/common/
-rsync -r mongo-c-driver/cmake-build/src/common/*.[hc] bsonjs/common/
+rsync -r mongo-c-driver/src/common/src/*.[hc] bsonjs/common/
+rsync -r mongo-c-driver/cmake-build/src/common/src/*.[hc] bsonjs/common/
+mkdir -p bsonjs/common/mlib
+rsync -r mongo-c-driver/src/common/src/mlib/*.h mongo-c-driver/src/common/src/mlib/*.th bsonjs/common/mlib/
 
 rsync -r mongo-c-driver/cmake-build/src/libbson/src/bson/*.[hc] bsonjs/bson/
 
