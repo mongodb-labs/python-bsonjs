@@ -45,7 +45,9 @@ int mode)
     } else if (mode == 2) {
         json = bson_as_canonical_extended_json(b, json_len);
     } else if (mode == 0) {
-        json = bson_as_json(b, json_len);
+        bson_json_opts_t *opts = bson_json_opts_new(BSON_JSON_MODE_LEGACY, -1);
+        json = bson_as_json_with_opts(b, json_len, opts);
+        bson_json_opts_destroy(opts);
     } else {
         PyErr_SetString(PyExc_ValueError, "The value of mode must be one of: "
                                           "bsonjs.RELAXED, bsonjs.LEGACY, "

@@ -18,11 +18,21 @@ import sys
 from setuptools import setup, Extension
 
 libraries = []
+define_macros = [("BSON_COMPILATION", 1),
+                 ("Py_LIMITED_API", "0x03090000")]
 if sys.platform == "win32":
     libraries.append("ws2_32")
-elif sys.platform != "darwin":
-    # librt may be needed for clock_gettime()
-    libraries.append("rt")
+else:
+    # libbson's mlib/time_point.h needs these feature test macros to see
+    # POSIX clock functions (clock_gettime, etc.).
+    define_macros += [("_XOPEN_SOURCE", "700"),
+                      ("_BSD_SOURCE", 1),
+                      ("_DEFAULT_SOURCE", 1)]
+    if sys.platform == "darwin":
+        define_macros.append(("_DARWIN_C_SOURCE", 1))
+    else:
+        # librt may be needed for clock_gettime()
+        libraries.append("rt")
 
 setup(
     ext_modules=[
@@ -34,8 +44,7 @@ setup(
                           "bsonjs/jsonsl",
                           "bsonjs/common"],
             py_limited_api=True,
-            define_macros=[("BSON_COMPILATION", 1),
-                           ("Py_LIMITED_API", "0x03090000")],
+            define_macros=define_macros,
             libraries=libraries
         )
     ],
