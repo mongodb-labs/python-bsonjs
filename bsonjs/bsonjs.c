@@ -82,7 +82,7 @@ _dumps(PyObject *bson, int mode)
         return NULL;
     }
 
-    rv = Py_BuildValue("s#", json, json_len);
+    rv = Py_BuildValue("s#", json, (Py_ssize_t)json_len);
     bson_free((void *)json);
     return rv;
 }
