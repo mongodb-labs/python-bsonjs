@@ -13,9 +13,26 @@
 # limitations under the License.
 
 import glob
+import re
 import sys
+from pathlib import Path
 
 from setuptools import setup, Extension
+
+
+def _read_version():
+    """Read the package version from pyproject.toml.
+
+    Keeps bsonjs.__version__ from drifting out of sync with the
+    package version, since this extension has no pure-Python __init__.py
+    to derive it from package metadata at import time instead.
+    """
+    text = (Path(__file__).parent / "pyproject.toml").read_text()
+    match = re.search(r'(?m)^version\s*=\s*"([^"]+)"', text)
+    if not match:
+        raise RuntimeError("Could not find version in pyproject.toml")
+    return match.group(1)
+
 
 libraries = []
 if sys.platform == "win32":
@@ -35,7 +52,8 @@ setup(
                           "bsonjs/common"],
             py_limited_api=True,
             define_macros=[("BSON_COMPILATION", 1),
-                           ("Py_LIMITED_API", "0x03090000")],
+                           ("Py_LIMITED_API", "0x03090000"),
+                           ("BSONJS_VERSION", '"%s"' % _read_version())],
             libraries=libraries
         )
     ],
