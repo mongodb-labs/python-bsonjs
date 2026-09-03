@@ -3,6 +3,7 @@ include CHANGELOG.rst
 include LICENSE
 recursive-include bsonjs LICENSE
 recursive-include bsonjs *.h
+recursive-include bsonjs *.th
 recursive-include bsonjs *.py
 exclude benchmark.py
 exclude build-wheels.sh
