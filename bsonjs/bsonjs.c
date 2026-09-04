@@ -82,7 +82,12 @@ _dumps(PyObject *bson, int mode)
         return NULL;
     }
 
-    rv = Py_BuildValue("s#", json, json_len);
+    if (json_len > (size_t)PY_SSIZE_T_MAX) {
+        bson_free((void *)json);
+        PyErr_SetString(PyExc_OverflowError, "Extended JSON output is too large");
+        return NULL;
+    }
+    rv = Py_BuildValue("s#", json, (Py_ssize_t)json_len);
     bson_free((void *)json);
     return rv;
 }
@@ -264,7 +269,7 @@ PyInit_bsonjs(void)
 
     if (PyModule_AddObject(module,
                            "__version__",
-                           PyUnicode_FromString("0.3.0"))) {
+                           PyUnicode_FromString(BSONJS_VERSION))) {
         Py_DECREF(module);
         INITERROR;
     }
