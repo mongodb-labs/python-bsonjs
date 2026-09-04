@@ -13,9 +13,19 @@
 # limitations under the License.
 
 import glob
+import os
 import sys
 
 from setuptools import setup, Extension
+
+# Vendored libbson sources for features bsonjs doesn't use (BCON, MD5,
+# the thread helpers) and that nothing else in the vendored tree calls
+# into, confirmed via nm against the rest of the built extension.
+_UNUSED_VENDORED_SOURCES = frozenset((
+    "bson-bcon.c",
+    "common-md5.c",
+    "common-thread.c",
+))
 
 libraries = []
 define_macros = [("BSON_COMPILATION", 1),
@@ -38,7 +48,10 @@ setup(
     ext_modules=[
         Extension(
             "bsonjs",
-            sources=["bsonjs/bsonjs.c"] + glob.glob("bsonjs/*/*.c"),
+            sources=["bsonjs/bsonjs.c"] + [
+                src for src in glob.glob("bsonjs/*/*.c")
+                if os.path.basename(src) not in _UNUSED_VENDORED_SOURCES
+            ],
             include_dirs=["bsonjs",
                           "bsonjs/bson",
                           "bsonjs/jsonsl",
