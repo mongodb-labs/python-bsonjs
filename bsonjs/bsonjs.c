@@ -82,6 +82,11 @@ _dumps(PyObject *bson, int mode)
         return NULL;
     }
 
+    if (json_len > (size_t)PY_SSIZE_T_MAX) {
+        bson_free((void *)json);
+        PyErr_SetString(PyExc_OverflowError, "Extended JSON output is too large");
+        return NULL;
+    }
     rv = Py_BuildValue("s#", json, (Py_ssize_t)json_len);
     bson_free((void *)json);
     return rv;
