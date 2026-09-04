@@ -1,0 +1,6 @@
+# Vendored libbson/jsonsl sources, mechanically synced by vendor.sh —
+# not ours to fix CodeQL findings in.
+bsonjs/bson/
+bsonjs/jsonsl/
+bsonjs/common/
+test/
