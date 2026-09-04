@@ -15,11 +15,10 @@ jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
-    timeout-minutes: 360
     permissions:
       security-events: write
-
-    strategy:
+      contents: read
+      actions: read
       fail-fast: false
       matrix:
         include:
