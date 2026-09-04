@@ -25,7 +25,19 @@ jobs:
         include:
         - language: c-cpp
           build-mode: manual
-          manual-build-command: pip install -e .
+          # Compile only our own bsonjs.c, not the vendored libbson/jsonsl
+          # sources under bsonjs/{bson,jsonsl,common}. CodeQL's tracer
+          # only extracts files the compiler is actually invoked on, and
+          # for build-mode: manual, paths-ignore below does not filter
+          # results (that only works for interpreted languages or
+          # build-mode: none) — so keeping vendored code out of scope
+          # means never compiling it here.
+          manual-build-command: |
+            PYINC=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])")
+            gcc -c bsonjs/bsonjs.c -o /tmp/bsonjs.o \
+              -Ibsonjs -Ibsonjs/bson -Ibsonjs/jsonsl -Ibsonjs/common -I"$PYINC" \
+              -DBSON_COMPILATION=1 -DPy_LIMITED_API=0x03090000 \
+              -D_XOPEN_SOURCE=700 -D_BSD_SOURCE=1 -D_DEFAULT_SOURCE=1
         - language: python
           build-mode: none
         - language: actions
