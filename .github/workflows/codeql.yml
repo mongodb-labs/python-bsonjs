@@ -1,0 +1,46 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  schedule:
+    - cron: '17 10 * * 2'
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: c-cpp
+          build-mode: manual
+          manual-build-command: pip install -e .
+        - language: python
+          build-mode: none
+        - language: actions
+          build-mode: none
+    steps:
+    - uses: mongodb-labs/drivers-github-tools/codeql@d518d2c7d04fdec10266c4218c36791a4fcf98d8 # v3
+      with:
+        language: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        manual-build-command: ${{ matrix.manual-build-command }}
+        config: |
+          paths-ignore:
+            # Vendored libbson/jsonsl sources, mechanically synced by
+            # vendor.sh — not ours to fix findings in.
+            - 'bsonjs/bson/**'
+            - 'bsonjs/jsonsl/**'
+            - 'bsonjs/common/**'
+            - 'test/**'
