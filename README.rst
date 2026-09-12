@@ -18,6 +18,8 @@ python-bsonjs can be installed with `pip <http://pypi.python.org/pypi/pip>`_::
 
   $ python -m pip install python-bsonjs
 
+Building from source requires CMake 3.17+ and git (to fetch libbson).
+
 Examples
 ========
 
