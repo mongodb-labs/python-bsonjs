@@ -1,9 +1,6 @@
 [build-system]
-requires = ["setuptools>=65"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-packages = []
+requires = ["scikit-build-core>=0.10", "cmake>=3.17", "ninja"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "python-bsonjs"
@@ -44,10 +41,18 @@ Homepage = "https://github.com/mongodb-labs/python-bsonjs"
 [project.optional-dependencies]
 test = ["pymongo>=4", "pytest"]
 
+[tool.scikit-build]
+wheel.packages = []
+wheel.py-api = "cp39"
+
 [tool.cibuildwheel]
 test-command = "pytest {package}/test"
 test-extras = ["test"]
 skip = ["cp314t-*"]
+before-build = "bash ./cibw_before_build.sh"
+
+[tool.cibuildwheel.environment]
+LIBBSON_INSTALL_DIR = "./libbson"
 
 # Use abi3audit to catch issues with Limited API wheels
 [tool.cibuildwheel.linux]
