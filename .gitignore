@@ -133,3 +133,7 @@ ENV/
 
 # Local checkout of mongo-c-driver
 mongo-c-driver/
+
+# libbson build artifacts
+libbson/
+mongo-c-driver-*/

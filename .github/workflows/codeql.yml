@@ -1,0 +1,53 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+  schedule:
+    - cron: '17 10 * * 2'
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: c-cpp
+          build-mode: manual
+          # Build libbson from source, then compile only our own bsonjs.c
+          # against the installed headers. CodeQL's tracer only extracts
+          # files the compiler is actually invoked on, so keeping libbson
+          # itself out of scope means never compiling it here.
+          manual-build-command: |
+            bash build-libbson.sh
+            PYINC=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])")
+            BSONJS_VERSION=$(python3 -c "import re; print(re.search(r'(?m)^version\s*=\s*\"([^\"]+)\"', open('pyproject.toml').read()).group(1))")
+            LIBBSON_INCLUDE=$(ls -d libbson/include/bson-*/bson)
+            gcc -c bsonjs/bsonjs.c -o /tmp/bsonjs.o \
+              -Ibsonjs -I"$LIBBSON_INCLUDE" -I"$PYINC" \
+              -DBSON_STATIC -DPy_LIMITED_API=0x03090000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\""
+        - language: python
+          build-mode: none
+        - language: actions
+          build-mode: none
+    steps:
+    - uses: mongodb-labs/drivers-github-tools/codeql@d518d2c7d04fdec10266c4218c36791a4fcf98d8 # v3
+      with:
+        language: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        manual-build-command: ${{ matrix.manual-build-command }}
+        config: |
+          paths-ignore:
+            - 'test/**'

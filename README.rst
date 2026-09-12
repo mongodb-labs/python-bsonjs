@@ -9,7 +9,7 @@ About
 =====
 
 A fast BSON to MongoDB Extended JSON converter for Python that uses
-`libbson  <http://mongoc.org/libbson/1.27.2/>`_.
+`libbson  <http://mongoc.org/libbson/2.5.0/>`_.
 
 Installation
 ============
@@ -17,6 +17,8 @@ Installation
 python-bsonjs can be installed with `pip <http://pypi.python.org/pypi/pip>`_::
 
   $ python -m pip install python-bsonjs
+
+Building from source requires CMake 3.17+ and git (to fetch libbson).
 
 Examples
 ========
@@ -55,21 +57,21 @@ Using bsonjs with pymongo to insert a RawBSONDocument.
 Speed
 =====
 
-bsonjs is roughly 3-4x faster than PyMongo's json_util at decoding BSON to
+bsonjs is roughly 5-17x faster than PyMongo's json_util at decoding BSON to
 JSON and encoding JSON to BSON. See `benchmark.py`::
 
     $ python benchmark.py
     Timing: bsonjs.dumps(b)
-    10000 loops, best of 3: 0.04682216700166464
+    10000 loops, best of 3: 0.028451045000110753
     Timing: json_util.dumps(bson.decode(b))
-    10000 loops, best of 3: 0.17319270805455744
-    bsonjs is 3.70x faster than json_util
+    10000 loops, best of 3: 0.47029594800005725
+    bsonjs is 16.53x faster than json_util
 
     Timing: bsonjs.loads(j)
-    10000 loops, best of 3: 0.053156834095716476
+    10000 loops, best of 3: 0.08982307400015088
     Timing: bson.encode(json_util.loads(j))
-    10000 loops, best of 3: 0.15982166700996459
-    bsonjs is 3.01x faster than json_util
+    10000 loops, best of 3: 0.4777698939999482
+    bsonjs is 5.32x faster than json_util
 
 
 Limitations

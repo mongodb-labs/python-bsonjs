@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.8.0
+`````
+Version 0.8.0 builds libbson 2.5.0 from source at install time instead of
+vendoring C sources. Building from source requires CMake 3.17+ and git.
+For a detailed breakdown of what changed in each version of libbson see its changelog:
+https://github.com/mongodb/mongo-c-driver/blob/2.5.0/NEWS
+http://mongoc.org/libbson/2.5.0/
+
 0.7.0
 `````
 - Add support for Python 3.14.
