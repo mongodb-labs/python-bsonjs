@@ -26,20 +26,18 @@ jobs:
         include:
         - language: c-cpp
           build-mode: manual
-          # Compile only our own bsonjs.c, not the vendored libbson/jsonsl
-          # sources under bsonjs/{bson,jsonsl,common}. CodeQL's tracer
-          # only extracts files the compiler is actually invoked on, and
-          # for build-mode: manual, paths-ignore below does not filter
-          # results (that only works for interpreted languages or
-          # build-mode: none) — so keeping vendored code out of scope
-          # means never compiling it here.
+          # Build libbson from source, then compile only our own bsonjs.c
+          # against the installed headers. CodeQL's tracer only extracts
+          # files the compiler is actually invoked on, so keeping libbson
+          # itself out of scope means never compiling it here.
           manual-build-command: |
+            bash build-libbson.sh
             PYINC=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])")
             BSONJS_VERSION=$(python3 -c "import re; print(re.search(r'(?m)^version\s*=\s*\"([^\"]+)\"', open('pyproject.toml').read()).group(1))")
+            LIBBSON_INCLUDE=$(ls -d libbson/include/bson-*/bson)
             gcc -c bsonjs/bsonjs.c -o /tmp/bsonjs.o \
-              -Ibsonjs -Ibsonjs/bson -Ibsonjs/jsonsl -Ibsonjs/common -I"$PYINC" \
-              -DBSON_COMPILATION=1 -DPy_LIMITED_API=0x03090000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\"" \
-              -D_XOPEN_SOURCE=700 -D_BSD_SOURCE=1 -D_DEFAULT_SOURCE=1
+              -Ibsonjs -I"$LIBBSON_INCLUDE" -I"$PYINC" \
+              -DBSON_STATIC -DPy_LIMITED_API=0x03090000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\""
         - language: python
           build-mode: none
         - language: actions
@@ -52,9 +50,4 @@ jobs:
         manual-build-command: ${{ matrix.manual-build-command }}
         config: |
           paths-ignore:
-            # Vendored libbson/jsonsl sources, mechanically synced by
-            # vendor.sh — not ours to fix findings in.
-            - 'bsonjs/bson/**'
-            - 'bsonjs/jsonsl/**'
-            - 'bsonjs/common/**'
             - 'test/**'
