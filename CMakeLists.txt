@@ -34,6 +34,7 @@ if(NOT _bson_include_dirs)
   message(FATAL_ERROR "Could not find bson headers under ${LIBBSON_INSTALL_DIR}/include")
 endif()
 list(GET _bson_include_dirs 0 LIBBSON_INCLUDE_DIR)
+get_filename_component(LIBBSON_VERSION_DIR "${LIBBSON_INCLUDE_DIR}" DIRECTORY)
 
 # Find static library
 if(WIN32)
@@ -60,6 +61,7 @@ Python_add_library(bsonjs MODULE WITH_SOABI "${CMAKE_CURRENT_SOURCE_DIR}/bsonjs/
 target_include_directories(bsonjs PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/bsonjs"
   "${LIBBSON_INCLUDE_DIR}"
+  "${LIBBSON_VERSION_DIR}"
 )
 
 target_compile_definitions(bsonjs PRIVATE
