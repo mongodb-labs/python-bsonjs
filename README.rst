@@ -9,7 +9,7 @@ About
 =====
 
 A fast BSON to MongoDB Extended JSON converter for Python that uses
-`libbson  <http://mongoc.org/libbson/2.5.0/>`_.
+`libbson  <http://mongoc.org/libbson/2.5.3/>`_.
 
 Installation
 ============
@@ -17,8 +17,6 @@ Installation
 python-bsonjs can be installed with `pip <http://pypi.python.org/pypi/pip>`_::
 
   $ python -m pip install python-bsonjs
-
-Building from source requires CMake 3.17+ (to download and build libbson).
 
 Examples
 ========
@@ -59,20 +57,20 @@ Speed
 
 bsonjs is roughly 3-9x faster than PyMongo 4.18.1's
 json_util at decoding BSON to JSON and encoding JSON to BSON. Benchmarked
-against libbson 2.5.0. See `benchmark.py`::
+against libbson 2.5.3. See `benchmark.py`::
 
     $ python benchmark.py
     Timing: bsonjs.dumps(b)
-    10000 loops, best of 3: 0.02494637500785757
+    10000 loops, best of 3: 0.024820834005367942
     Timing: json_util.dumps(bson.decode(b))
-    10000 loops, best of 3: 0.23053841599903535
-    bsonjs is 9.24x faster than json_util
+    10000 loops, best of 3: 0.2280815420090221
+    bsonjs is 9.19x faster than json_util
 
     Timing: bsonjs.loads(j)
-    10000 loops, best of 3: 0.06266883299394976
+    10000 loops, best of 3: 0.0629402500053402
     Timing: bson.encode(json_util.loads(j))
-    10000 loops, best of 3: 0.2060290410008747
-    bsonjs is 3.29x faster than json_util
+    10000 loops, best of 3: 0.20582279199152254
+    bsonjs is 3.27x faster than json_util
 
 Limitations
 ===========
@@ -109,7 +107,9 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.9+.
+python-bsonjs supports CPython 3.9+. Building from source downloads and
+builds libbson with CMake, so you need CMake 3.17+ and an internet
+connection at install time.
 
 Compiler
 ````````
@@ -140,3 +140,18 @@ Test
 To run the test suite::
 
     $ python -m pytest
+
+Updating libbson
+````````````````
+
+The package pulls libbson from the mongo-c-driver release pinned in
+`CMakeLists.txt`. To bump the version, rebuild, and refresh the benchmark
+numbers in the Speed section, run::
+
+    $ bash bump-libbson.sh
+
+With no argument the script uses the latest mongo-c-driver release and
+exits without making changes when the pinned version is already current.
+Pass a version to target a specific release::
+
+    $ bash bump-libbson.sh 2.5.0

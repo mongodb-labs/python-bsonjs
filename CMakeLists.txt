@@ -13,7 +13,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   mongo-c-driver
-  URL https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.0.tar.gz
+  URL https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
