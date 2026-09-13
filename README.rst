@@ -57,20 +57,20 @@ Speed
 
 bsonjs is roughly 3-9x faster than PyMongo 4.18.1's
 json_util at decoding BSON to JSON and encoding JSON to BSON. Benchmarked
-against libbson 2.5.3. See `benchmark.py`::
+against libbson 2.5.3. See `scripts/benchmark.py`::
 
-    $ python benchmark.py
+    $ python scripts/benchmark.py
     Timing: bsonjs.dumps(b)
-    10000 loops, best of 3: 0.024820834005367942
+    10000 loops, best of 3: 0.024979124995297752
     Timing: json_util.dumps(bson.decode(b))
-    10000 loops, best of 3: 0.2280815420090221
-    bsonjs is 9.19x faster than json_util
+    10000 loops, best of 3: 0.22723987500648946
+    bsonjs is 9.10x faster than json_util
 
     Timing: bsonjs.loads(j)
-    10000 loops, best of 3: 0.0629402500053402
+    10000 loops, best of 3: 0.06294979200174566
     Timing: bson.encode(json_util.loads(j))
-    10000 loops, best of 3: 0.20582279199152254
-    bsonjs is 3.27x faster than json_util
+    10000 loops, best of 3: 0.2087057090102462
+    bsonjs is 3.32x faster than json_util
 
 Limitations
 ===========
@@ -148,10 +148,10 @@ The package pulls libbson from the mongo-c-driver release pinned in
 `CMakeLists.txt`. To bump the version, rebuild, and refresh the benchmark
 numbers in the Speed section, run::
 
-    $ bash bump-libbson.sh
+    $ bash scripts/bump-libbson.sh
 
 With no argument the script uses the latest mongo-c-driver release and
 exits without making changes when the pinned version is already current.
 Pass a version to target a specific release::
 
-    $ bash bump-libbson.sh 2.5.0
+    $ bash scripts/bump-libbson.sh 2.5.0
