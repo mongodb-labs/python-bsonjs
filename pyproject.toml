@@ -49,10 +49,6 @@ wheel.py-api = "cp39"
 test-command = "pytest {package}/test"
 test-extras = ["test"]
 skip = ["cp314t-*"]
-before-build = "bash ./cibw_before_build.sh"
-
-[tool.cibuildwheel.environment]
-LIBBSON_INSTALL_DIR = "./libbson"
 
 # Use abi3audit to catch issues with Limited API wheels
 [tool.cibuildwheel.linux]

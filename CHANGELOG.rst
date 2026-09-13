@@ -4,7 +4,7 @@ Changelog
 0.8.0
 `````
 Version 0.8.0 builds libbson 2.5.0 from source at install time instead of
-vendoring C sources. Building from source requires CMake 3.17+ and git.
+vendoring C sources. Building from source requires CMake 3.17+.
 For a detailed breakdown of what changed in each version of libbson see its changelog:
 https://github.com/mongodb/mongo-c-driver/blob/2.5.0/NEWS
 http://mongoc.org/libbson/2.5.0/

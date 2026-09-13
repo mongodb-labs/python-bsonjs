@@ -26,17 +26,27 @@ jobs:
         include:
         - language: c-cpp
           build-mode: manual
-          # Build libbson from source, then compile only our own bsonjs.c
-          # against the installed headers. CodeQL's tracer only extracts
-          # files the compiler is actually invoked on, so keeping libbson
-          # itself out of scope means never compiling it here.
+          # Configure the project so CMake fetches mongo-c-driver and
+          # generates libbson's config.h/version.h. Then compile only our own
+          # bsonjs.c against that tree. CodeQL's tracer only extracts files the
+          # compiler is actually invoked on, so keeping libbson itself out of
+          # scope means never compiling it here.
           manual-build-command: |
-            bash build-libbson.sh
+            if ! command -v cmake >/dev/null 2>&1; then pip install "cmake>=3.17,<4"; fi
+            cmake -S . -B /tmp/codeql-build \
+              -DENABLE_MONGOC=OFF -DENABLE_SHARED=OFF -DENABLE_STATIC=ON \
+              -DENABLE_TESTS=OFF -DBUILD_TESTING=OFF \
+              -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
+              -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+              -DCMAKE_BUILD_TYPE=Release
             PYINC=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])")
             BSONJS_VERSION=$(python3 -c "import re; print(re.search(r'(?m)^version\s*=\s*\"([^\"]+)\"', open('pyproject.toml').read()).group(1))")
-            LIBBSON_INCLUDE=$(ls -d libbson/include/bson-*/bson)
+            SRC=/tmp/codeql-build/_deps/mongo-c-driver-src
+            BIN=/tmp/codeql-build/_deps/mongo-c-driver-build
             gcc -c bsonjs/bsonjs.c -o /tmp/bsonjs.o \
-              -Ibsonjs -I"$LIBBSON_INCLUDE" -I"$PYINC" \
+              -Ibsonjs -I"$SRC/src/libbson/src" -I"$SRC/src/libbson/src/bson" \
+              -I"$BIN/src/libbson/src" -I"$SRC/src/common/src" -I"$BIN/src/common/src" \
+              -I"$PYINC" \
               -DBSON_STATIC -DPy_LIMITED_API=0x03090000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\""
         - language: python
           build-mode: none
