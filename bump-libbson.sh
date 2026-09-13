@@ -2,8 +2,47 @@
 set -eu
 
 # Usage: bump-libbson.sh [LIBBSON_VERSION]
-# Defaults to the latest released mongo-c-driver tag (libbson version).
-LIBBSON_VERSION=${1:-"2.5.0"}
+# With no argument, fetches the latest released mongo-c-driver tag. If the
+# repo already pins that version, prints that it is up to date and exits
+# without installing or benchmarking.
+
+# --- Determine the libbson version to bump to ---
+CURRENT_VERSION=$(python3 - <<'PY'
+import re
+with open("CMakeLists.txt") as f:
+    text = f.read()
+m = re.search(r"refs/tags/([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz", text)
+if not m:
+    raise SystemExit("Could not read the libbson version from CMakeLists.txt")
+print(m.group(1))
+PY
+)
+
+LATEST_VERSION=$(python3 - <<'PY'
+import json
+import sys
+import urllib.request
+
+url = "https://api.github.com/repos/mongodb/mongo-c-driver/releases/latest"
+try:
+    with urllib.request.urlopen(url, timeout=30) as resp:
+        data = json.load(resp)
+except Exception as exc:
+    raise SystemExit("Could not fetch the latest mongo-c-driver release: {}".format(exc))
+print(data["tag_name"].lstrip("v"))
+PY
+)
+
+if [ -z "${1:-}" ]; then
+    LIBBSON_VERSION="$LATEST_VERSION"
+    if [ "$LIBBSON_VERSION" == "$CURRENT_VERSION" ]; then
+        echo "libbson is already up to date (${CURRENT_VERSION})."
+        exit 0
+    fi
+    echo "Found latest libbson ${LATEST_VERSION}; current is ${CURRENT_VERSION}."
+else
+    LIBBSON_VERSION="$1"
+fi
 
 # 1. Update the libbson version in CMakeLists.txt (the FetchContent URL),
 #    the README About line, and the CHANGELOG 0.8.0 entry.
