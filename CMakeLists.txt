@@ -51,7 +51,7 @@ target_include_directories(bsonjs PRIVATE
 )
 
 target_compile_definitions(bsonjs PRIVATE
-  Py_LIMITED_API=0x03090000
+  Py_LIMITED_API=0x030b0000
   BSONJS_VERSION="${_package_version}"
   BSON_STATIC
 )

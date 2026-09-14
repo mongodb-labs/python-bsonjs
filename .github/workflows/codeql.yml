@@ -47,7 +47,7 @@ jobs:
               -Ibsonjs -I"$SRC/src/libbson/src" -I"$SRC/src/libbson/src/bson" \
               -I"$BIN/src/libbson/src" -I"$SRC/src/common/src" -I"$BIN/src/common/src" \
               -I"$PYINC" \
-              -DBSON_STATIC -DPy_LIMITED_API=0x03090000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\""
+              -DBSON_STATIC -DPy_LIMITED_API=0x030b0000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\""
         - language: python
           build-mode: none
         - language: actions

@@ -107,7 +107,7 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.9+. Building from source downloads and
+python-bsonjs supports CPython 3.11+. Building from source downloads and
 builds libbson with CMake, so you need CMake 3.17+ and an internet
 connection at install time.
 
