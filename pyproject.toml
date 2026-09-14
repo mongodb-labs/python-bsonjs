@@ -42,6 +42,10 @@ test = ["pymongo>=4", "pytest"]
 [tool.scikit-build]
 wheel.packages = []
 wheel.py-api = "cp311"
+# Deterministic build dir: pip wheel's default build isolation uses a fresh
+# temp dir each run, which changes the fetched mongo-c-driver paths and defeats
+# ccache (no cross-run hits). Building here keeps the paths stable.
+build-dir = "build"
 
 [tool.cibuildwheel]
 test-command = "pytest {package}/test"
