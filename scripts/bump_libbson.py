@@ -18,6 +18,16 @@ LATEST_RELEASE_URL = (
 )
 
 
+def package_version():
+    """Return the package release version (X.Y.Z) from pyproject.toml."""
+    text = (REPO_ROOT / "pyproject.toml").read_text()
+    m = re.search(r'version\s*=\s*"([^"]+)"', text)
+    if not m:
+        raise SystemExit("Could not read the version from pyproject.toml")
+    # Strip any dev/alpha/beta/rc suffix so we match the CHANGELOG header.
+    return re.match(r"(\d+\.\d+(?:\.\d+)?)", m.group(1)).group(1)
+
+
 def current_version():
     """Return the libbson version pinned in CMakeLists.txt."""
     text = CMAKE_LISTS.read_text()
@@ -62,12 +72,19 @@ def update_versions(version):
         r"\g<1>{}/".format(version),
         "README About link",
     )
-    # CHANGELOG 0.8.0 entry. Scope the edits to that section only so historic
-    # entries are left alone.
+    # CHANGELOG section for the current package release. Scope the edits to
+    # that section only so historic entries are left alone; the lower bound is
+    # the next section header (any version), so future bumps stay correct.
     changelog = CHANGELOG.read_text()
-    sec = re.search(r"(?ms)^0\.8\.0\s*\n\s*```+\s*\n.*?(?=\n0\.7\.0)", changelog)
+    ver = re.escape(package_version())
+    sec = re.search(
+        r"(?ms)^{ver}\s*\n\s*```+\s*\n.*?(?=^\d+\.\d+\.\d+\s*\n\s*```+)".format(
+            ver=ver
+        ),
+        changelog,
+    )
     if not sec:
-        raise SystemExit("Could not find the CHANGELOG 0.8.0 section")
+        raise SystemExit("Could not find the CHANGELOG {} section".format(ver))
     block = sec.group(0)
     patterns = (
         (r"libbson [0-9]+\.[0-9]+\.[0-9]+ from source",
@@ -78,7 +95,7 @@ def update_versions(version):
          "mongoc.org/libbson/{}/".format(version)),
     )
     if not any(re.search(p, block) for p, _ in patterns):
-        raise SystemExit("Could not update the CHANGELOG 0.8.0 entry")
+        raise SystemExit("Could not update the CHANGELOG {} entry".format(ver))
     for pattern, repl in patterns:
         block = re.sub(pattern, repl, block)
     CHANGELOG.write_text(changelog[:sec.start()] + block + changelog[sec.end():])

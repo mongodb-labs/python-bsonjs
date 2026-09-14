@@ -118,7 +118,7 @@ You must build python-bsonjs separately for each version of Python. On
 Windows this means you must use the same C compiler your Python version was
 built with.
 
-- Windows build requires Microsoft Visual Studio 2015
+- Windows build requires Microsoft Visual Studio 2019 or newer
 
 Source
 ``````

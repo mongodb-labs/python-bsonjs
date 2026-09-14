@@ -38,6 +38,7 @@ python3 -m pip install --upgrade "pymongo>=4"
 
 # 3. Run the benchmark, capturing raw output.
 BENCHMARK_OUT=$(mktemp)
+trap 'rm -f "$BENCHMARK_OUT"' EXIT
 python3 "${BENCHMARK}" > "$BENCHMARK_OUT" 2>&1
 echo "Benchmark:"
 sed 's/^/  /' "$BENCHMARK_OUT"

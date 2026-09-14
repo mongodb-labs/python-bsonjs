@@ -17,6 +17,12 @@ FetchContent_Declare(
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
+# We only need libbson, not libmongoc, which requires a TLS/crypto library.
+# Turning mongoc off also keeps the build C-only and the driver's dependencies
+# out of the picture. Build libbson as a static library.
+set(ENABLE_MONGOC OFF)
+set(ENABLE_SHARED OFF)
+set(ENABLE_STATIC ON)
 # The driver builds a C++ test gated on BUILD_TESTING; keep the build C-only.
 set(BUILD_TESTING OFF)
 set(ENABLE_TESTS OFF)
