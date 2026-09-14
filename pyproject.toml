@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core>=0.10", "cmake>=3.17", "ninja"]
+requires = ["scikit-build-core>=0.10", "cmake>=3.26", "ninja"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -46,7 +46,7 @@ wheel.py-api = "cp311"
 [tool.cibuildwheel]
 test-command = "pytest {package}/test"
 test-extras = ["test"]
-skip = ["cp314t-*"]
+skip = ["cp314t-*", "cp315t-*"]
 
 # Use abi3audit to catch issues with Limited API wheels
 [tool.cibuildwheel.linux]

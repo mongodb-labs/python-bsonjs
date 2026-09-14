@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.26)
 project(bsonjs LANGUAGES C)
 
-find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
+find_package(Python COMPONENTS Interpreter Development.Module Development.SABIModule REQUIRED)
 
 # Read the package version from pyproject.toml for BSONJS_VERSION.
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml" _pyproject)
@@ -39,7 +39,12 @@ set(_common_src "${mongo-c-driver_SOURCE_DIR}/src/common")
 set(_common_bin "${mongo-c-driver_BINARY_DIR}/src/common")
 
 # --- Build the extension module ---
-Python_add_library(bsonjs MODULE WITH_SOABI "${CMAKE_CURRENT_SOURCE_DIR}/bsonjs/bsonjs.c")
+# USE_SABI links Python::SABIModule and sets Py_LIMITED_API from the version,
+# producing a module suffix that stays importable across every CPython >= 3.11,
+# so a single cp311-abi3 wheel is reused for all of them. (WITH_SOABI would bake
+# the build interpreter's SOABI into the name, which newer interpreters can't
+# discover.)
+Python_add_library(bsonjs MODULE USE_SABI 3.11 "${CMAKE_CURRENT_SOURCE_DIR}/bsonjs/bsonjs.c")
 
 target_include_directories(bsonjs PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/bsonjs"
@@ -51,7 +56,6 @@ target_include_directories(bsonjs PRIVATE
 )
 
 target_compile_definitions(bsonjs PRIVATE
-  Py_LIMITED_API=0x030b0000
   BSONJS_VERSION="${_package_version}"
   BSON_STATIC
 )

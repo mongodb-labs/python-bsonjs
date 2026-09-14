@@ -4,7 +4,7 @@ Changelog
 0.8.0
 `````
 Version 0.8.0 builds libbson 2.5.3 from source at install time instead of
-vendoring C sources. Building from source requires CMake 3.17+ and Python
+vendoring C sources. Building from source requires CMake 3.26+ and Python
 3.11+ (up from 3.9), so the extension is built against the CPython 3.11
 Limited API.
 For a detailed breakdown of what changed in each version of libbson see its changelog:
