@@ -36,12 +36,12 @@ runs:
     - name: Install ccache
       shell: bash
       run: |
+        # Only used as a compiler launcher on GNU/Clang; ccache's MSVC launcher
+        # hangs CMake's compiler detection on Windows, so skip it there.
         if [ "$RUNNER_OS" = "Linux" ]; then
           sudo apt-get install -y ccache
         elif [ "$RUNNER_OS" = "macOS" ]; then
           brew install ccache
-        elif [ "$RUNNER_OS" = "Windows" ]; then
-          choco install ccache --no-progress -y
         fi
 
     - name: Restore/save ccache
