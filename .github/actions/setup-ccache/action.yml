@@ -38,11 +38,8 @@ runs:
       run: |
         if [ "$RUNNER_OS" = "Linux" ]; then
           sudo apt-get install -y ccache
-          sudo /usr/sbin/update-ccache-symlinks
-          echo "/usr/lib/ccache" >> "$GITHUB_PATH"
         elif [ "$RUNNER_OS" = "macOS" ]; then
           brew install ccache
-          echo "$(brew --prefix ccache)/libexec" >> "$GITHUB_PATH"
         elif [ "$RUNNER_OS" = "Windows" ]; then
           choco install ccache --no-progress -y
         fi
