@@ -24,10 +24,10 @@ set(_package_version "${CMAKE_MATCH_1}")
 # --- libbson static library via FetchContent ---
 include(FetchContent)
 
-# A git clone of mongo-c-driver hangs on the Windows CI runners, and a bare
-# tarball URL can hang/stall (transient 504s) with no default download timeout.
-# Prefer a cached archive when CI provides one (BSONJS_MCD_TARBALL); otherwise
-# download with retries and hard timeouts so a stalled connection fails fast
+# The mongo-c-driver release tarball is pre-fetched by CI
+# (.github/actions/setup-mongo-c-driver) and passed in via BSONJS_MCD_TARBALL,
+# so the CI build phase is download-free. Otherwise (dist.yml wheels, sdist,
+# local builds) download with hard timeouts so a stalled connection fails fast
 # instead of hanging the build for tens of minutes.
 set(_mcd_url "https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz")
 set(_mcd_archive "${CMAKE_CURRENT_BINARY_DIR}/mongo-c-driver-2.5.3.tar.gz")

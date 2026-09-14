@@ -13,13 +13,16 @@ runs:
     - name: Ensure mongo-c-driver tarball is present
       shell: bash
       run: |
+        set -euo pipefail
         mkdir -p "$GITHUB_WORKSPACE/.mongo-c-driver"
         if [ ! -f "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" ]; then
           curl -fsSL \
                --retry 3 \
                --connect-timeout 30 \
-               --max-time 300 \
+               --max-time 180 \
                -o "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" \
                https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz
         fi
+        test -s "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" \
+          || { echo "::error::mongo-c-driver tarball is missing; cannot build" >&2; exit 1; }
         echo "BSONJS_MCD_TARBALL=$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" >> "$GITHUB_ENV"
