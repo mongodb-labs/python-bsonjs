@@ -1,0 +1,25 @@
+name: Setup mongo-c-driver
+description: "Cache and fetch the mongo-c-driver release tarball used by FetchContent"
+runs:
+  using: "composite"
+  steps:
+    - name: Restore/save mongo-c-driver tarball
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/.mongo-c-driver
+        key: mcd-2.5.3-${{ runner.os }}-${{ github.sha }}
+        restore-keys: mcd-2.5.3-${{ runner.os }}-
+
+    - name: Ensure mongo-c-driver tarball is present
+      shell: bash
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/.mongo-c-driver"
+        if [ ! -f "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" ]; then
+          curl -fsSL \
+               --retry 3 \
+               --connect-timeout 30 \
+               --max-time 300 \
+               -o "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" \
+               https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz
+        fi
+        echo "BSONJS_MCD_TARBALL=$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" >> "$GITHUB_ENV"

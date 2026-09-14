@@ -35,6 +35,8 @@ jobs:
         with:
           key: ccache-${{ runner.os }}-wheel-${{ github.sha }}
           restore-keys: ccache-${{ runner.os }}-wheel-
+      - name: Set up mongo-c-driver
+        uses: ./.github/actions/setup-mongo-c-driver
       - name: Build wheel
         run: python -m pip wheel --no-deps -w dist .
       - name: Show ccache stats
@@ -59,6 +61,8 @@ jobs:
         with:
           key: ccache-${{ runner.os }}-wheel-${{ github.sha }}
           restore-keys: ccache-${{ runner.os }}-wheel-
+      - name: Set up mongo-c-driver
+        uses: ./.github/actions/setup-mongo-c-driver
       - name: Build wheel
         run: python -m pip wheel --no-deps -w dist .
       - name: Show ccache stats
@@ -83,6 +87,8 @@ jobs:
         with:
           key: ccache-${{ runner.os }}-wheel-${{ github.sha }}
           restore-keys: ccache-${{ runner.os }}-wheel-
+      - name: Set up mongo-c-driver
+        uses: ./.github/actions/setup-mongo-c-driver
       - name: Build wheel
         run: python -m pip wheel --no-deps -w dist .
       - name: Show ccache stats

@@ -24,23 +24,30 @@ set(_package_version "${CMAKE_MATCH_1}")
 # --- libbson static library via FetchContent ---
 include(FetchContent)
 
-# A git clone of mongo-c-driver hangs on the Windows CI runners (no output for
-# hours), and a bare tarball URL can hit transient HTTP 504s. Download the
-# release tarball once with retries and feed the local archive to FetchContent,
-# which is deterministic on every platform.
+# A git clone of mongo-c-driver hangs on the Windows CI runners, and a bare
+# tarball URL can hang/stall (transient 504s) with no default download timeout.
+# Prefer a cached archive when CI provides one (BSONJS_MCD_TARBALL); otherwise
+# download with retries and hard timeouts so a stalled connection fails fast
+# instead of hanging the build for tens of minutes.
 set(_mcd_url "https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz")
 set(_mcd_archive "${CMAKE_CURRENT_BINARY_DIR}/mongo-c-driver-2.5.3.tar.gz")
-file(DOWNLOAD
-  "${_mcd_url}"
-  "${_mcd_archive}"
-  TLS_VERIFY ON
-  RETRY_COUNT 3
-  RETRY_DELAY 5
-  STATUS _mcd_status
-)
-list(GET _mcd_status 0 _mcd_code)
-if(NOT _mcd_code EQUAL 0)
-  message(FATAL_ERROR "Failed to download mongo-c-driver: ${_mcd_status}")
+if(DEFINED ENV{BSONJS_MCD_TARBALL} AND EXISTS "$ENV{BSONJS_MCD_TARBALL}")
+  set(_mcd_archive "$ENV{BSONJS_MCD_TARBALL}")
+else()
+  file(DOWNLOAD
+    "${_mcd_url}"
+    "${_mcd_archive}"
+    TLS_VERIFY ON
+    TIMEOUT 300
+    INACTIVITY_TIMEOUT 120
+    RETRY_COUNT 3
+    RETRY_DELAY 5
+    STATUS _mcd_status
+  )
+  list(GET _mcd_status 0 _mcd_code)
+  if(NOT _mcd_code EQUAL 0)
+    message(FATAL_ERROR "Failed to download mongo-c-driver: ${_mcd_status}")
+  endif()
 endif()
 
 FetchContent_Declare(
