@@ -50,6 +50,9 @@ skip = ["cp314t-*", "cp315t-*"]
 
 # Use abi3audit to catch issues with Limited API wheels
 [tool.cibuildwheel.linux]
+# Best-effort: make ccache available in the manylinux container so the
+# compiler launcher picks it up. CCACHE_DIR is passed through by cibuildwheel.
+before-all = "yum install -y ccache || true"
 repair-wheel-command = [
   "auditwheel repair -w {dest_dir} {wheel}",
   "pipx run abi3audit --strict --report {wheel}",

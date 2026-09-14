@@ -1,4 +1,13 @@
 cmake_minimum_required(VERSION 3.26)
+
+# Wrap the compiler in ccache when it's available so the repeated libbson
+# build in CI is served from the cache. Must be set before project() so the
+# launcher applies to the C compiler (and the FetchContent sub-build).
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
 project(bsonjs LANGUAGES C)
 
 find_package(Python COMPONENTS Interpreter Development.Module Development.SABIModule REQUIRED)

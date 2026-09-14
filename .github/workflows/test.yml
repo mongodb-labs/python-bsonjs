@@ -28,6 +28,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+      - name: Set up ccache
+        uses: ./.github/actions/setup-ccache
+        with:
+          key: ccache-${{ runner.os }}-py${{ matrix.python-version }}-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-py${{ matrix.python-version }}-
       - name: Test with python
         run: |
           python -m pip install -v -e ".[test]"
