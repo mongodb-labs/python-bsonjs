@@ -20,11 +20,29 @@ set(_package_version "${CMAKE_MATCH_1}")
 # --- libbson static library via FetchContent ---
 include(FetchContent)
 
+# A git clone of mongo-c-driver hangs on the Windows CI runners (no output for
+# hours), and a bare tarball URL can hit transient HTTP 504s. Download the
+# release tarball once with retries and feed the local archive to FetchContent,
+# which is deterministic on every platform.
+set(_mcd_url "https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz")
+set(_mcd_archive "${CMAKE_CURRENT_BINARY_DIR}/mongo-c-driver-2.5.3.tar.gz")
+file(DOWNLOAD
+  "${_mcd_url}"
+  "${_mcd_archive}"
+  TLS_VERIFY ON
+  RETRY_COUNT 3
+  RETRY_DELAY 5
+  STATUS _mcd_status
+)
+list(GET _mcd_status 0 _mcd_code)
+if(NOT _mcd_code EQUAL 0)
+  message(FATAL_ERROR "Failed to download mongo-c-driver: ${_mcd_status}")
+endif()
+
 FetchContent_Declare(
   mongo-c-driver
-  GIT_REPOSITORY https://github.com/mongodb/mongo-c-driver.git
-  GIT_TAG 2.5.3
-  GIT_SHALLOW TRUE
+  URL "${_mcd_archive}"
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
 # We only need libbson, not libmongoc, which requires a TLS/crypto library.
