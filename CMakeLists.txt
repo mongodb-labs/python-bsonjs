@@ -13,8 +13,9 @@ include(FetchContent)
 
 FetchContent_Declare(
   mongo-c-driver
-  URL https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz
-  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+  GIT_REPOSITORY https://github.com/mongodb/mongo-c-driver.git
+  GIT_TAG 2.5.3
+  GIT_SHALLOW TRUE
 )
 
 # We only need libbson, not libmongoc, which requires a TLS/crypto library.
