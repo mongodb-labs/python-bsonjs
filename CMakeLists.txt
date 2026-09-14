@@ -31,9 +31,15 @@ include(FetchContent)
 # instead of hanging the build for tens of minutes.
 set(_mcd_url "https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz")
 set(_mcd_archive "${CMAKE_CURRENT_BINARY_DIR}/mongo-c-driver-2.5.3.tar.gz")
-if(DEFINED ENV{BSONJS_MCD_TARBALL} AND EXISTS "$ENV{BSONJS_MCD_TARBALL}")
-  set(_mcd_archive "$ENV{BSONJS_MCD_TARBALL}")
-else()
+if(DEFINED ENV{BSONJS_MCD_TARBALL})
+  # Normalize Windows backslash paths, which would otherwise break the
+  # FetchContent subbuild's generated CMakeLists.txt.
+  file(TO_CMAKE_PATH "$ENV{BSONJS_MCD_TARBALL}" _mcd_cached)
+  if(EXISTS "${_mcd_cached}")
+    set(_mcd_archive "${_mcd_cached}")
+  endif()
+endif()
+if(NOT EXISTS "${_mcd_archive}")
   file(DOWNLOAD
     "${_mcd_url}"
     "${_mcd_archive}"
