@@ -10,30 +10,61 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  build:
+defaults:
+  run:
+    shell: bash
 
+jobs:
+  # Build the cp311-abi3 wheel once per platform. The test job reuses it across
+  # every supported Python version, so libbson is only compiled once per OS
+  # instead of once per Python version.
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Set up ccache
+        uses: ./.github/actions/setup-ccache
+        with:
+          key: ccache-${{ runner.os }}-wheel-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-wheel-
+      - name: Build wheel
+        run: python -m pip wheel --no-deps -w dist .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wheel-${{ matrix.os }}
+          path: ./dist/*.whl
+
+  test:
+    needs: build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Download wheel
+        uses: actions/download-artifact@v8
+        with:
+          name: wheel-${{ matrix.os }}
+          path: dist
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
-      - name: Set up ccache
-        uses: ./.github/actions/setup-ccache
-        with:
-          key: ccache-${{ runner.os }}-py${{ matrix.python-version }}-${{ github.sha }}
-          restore-keys: ccache-${{ runner.os }}-py${{ matrix.python-version }}-
-      - name: Test with python
+      - name: Test against wheel
         run: |
-          python -m pip install -v -e ".[test]"
+          python -m pip install "pymongo>=4" pytest dist/*.whl
           pytest
