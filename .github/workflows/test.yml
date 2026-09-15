@@ -39,15 +39,6 @@ jobs:
         uses: ./.github/actions/setup-mongo-c-driver
       - name: Install build dependencies
         run: python -m pip install "scikit-build-core>=0.10" "cmake>=3.26" ninja
-      - name: Detect toolchain
-        shell: bash
-        run: |
-          echo "--- which cl ---"; command -v cl 2>/dev/null || echo "cl NOT on PATH"
-          echo "--- which gcc ---"; command -v gcc 2>/dev/null || echo "gcc NOT on PATH"
-          echo "--- CMAKE_GENERATOR=${CMAKE_GENERATOR:-unset} ---"
-          rm -rf ccdiag && mkdir -p ccdiag
-          printf 'cmake_minimum_required(VERSION 3.26)\nproject(diag C)\n' > ccdiag/CMakeLists.txt
-          cmake -S ccdiag -B ccdiag/build 2>&1 | grep -iE "generator|C compiler identification|cl\\.exe|gcc|Visual Studio|MinGW" || true
       - name: Build wheel
         run: python -m pip wheel --no-build-isolation --no-deps -w dist .
       - name: Show ccache stats
@@ -77,15 +68,6 @@ jobs:
         uses: ./.github/actions/setup-mongo-c-driver
       - name: Install build dependencies
         run: python -m pip install "scikit-build-core>=0.10" "cmake>=3.26" ninja
-      - name: Detect toolchain
-        shell: bash
-        run: |
-          echo "--- which cl ---"; command -v cl 2>/dev/null || echo "cl NOT on PATH"
-          echo "--- which gcc ---"; command -v gcc 2>/dev/null || echo "gcc NOT on PATH"
-          echo "--- CMAKE_GENERATOR=${CMAKE_GENERATOR:-unset} ---"
-          rm -rf ccdiag && mkdir -p ccdiag
-          printf 'cmake_minimum_required(VERSION 3.26)\nproject(diag C)\n' > ccdiag/CMakeLists.txt
-          cmake -S ccdiag -B ccdiag/build 2>&1 | grep -iE "generator|C compiler identification|cl\\.exe|gcc|Visual Studio|MinGW" || true
       - name: Build wheel
         run: python -m pip wheel --no-build-isolation --no-deps -w dist .
       - name: Show ccache stats
@@ -115,17 +97,16 @@ jobs:
         uses: ./.github/actions/setup-mongo-c-driver
       - name: Install build dependencies
         run: python -m pip install "scikit-build-core>=0.10" "cmake>=3.26" ninja
-      - name: Detect toolchain
-        shell: bash
-        run: |
-          echo "--- which cl ---"; command -v cl 2>/dev/null || echo "cl NOT on PATH"
-          echo "--- which gcc ---"; command -v gcc 2>/dev/null || echo "gcc NOT on PATH"
-          echo "--- CMAKE_GENERATOR=${CMAKE_GENERATOR:-unset} ---"
-          rm -rf ccdiag && mkdir -p ccdiag
-          printf 'cmake_minimum_required(VERSION 3.26)\nproject(diag C)\n' > ccdiag/CMakeLists.txt
-          cmake -S ccdiag -B ccdiag/build 2>&1 | grep -iE "generator|C compiler identification|cl\\.exe|gcc|Visual Studio|MinGW" || true
       - name: Build wheel
-        run: python -m pip wheel --no-build-isolation --no-deps -w dist .
+        shell: pwsh
+        run: |
+          # Force MSVC: with cl off the default Ninja toolchain, scikit-build-core
+          # falls back to MinGW gcc, producing a GNU-built wheel. Use vswhere to
+          # locate vcvars64.bat and set up the MSVC environment so cl is on PATH.
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vcvars = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find VC\Auxiliary\Build\vcvars64.bat | Select-Object -First 1
+          Write-Host "vcvars64.bat: $vcvars"
+          cmd /c "call `"$vcvars`" x64 >nul && python -m pip wheel --no-build-isolation --no-deps -w dist ."
       - name: Show ccache stats
         if: runner.os != 'Windows'
         run: ccache -s
