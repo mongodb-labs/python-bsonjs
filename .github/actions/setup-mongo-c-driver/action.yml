@@ -1,5 +1,5 @@
 name: Setup mongo-c-driver
-description: "Cache and fetch the mongo-c-driver release tarball used by FetchContent"
+description: "Cache and fetch the mongo-c-driver release pinned in meson.build"
 runs:
   using: "composite"
   steps:
@@ -12,40 +12,21 @@ runs:
         Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE" -ErrorAction SilentlyContinue
         Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE\build" -ErrorAction SilentlyContinue
 
+    - name: Read the pinned mongo-c-driver version
+      id: pinned
+      shell: bash
+      run: |
+        set -euo pipefail
+        VERSION=$(python -c "import re,pathlib; print(re.search(r'mongo-c-driver-([0-9.]+)', pathlib.Path('meson.build').read_text()).group(1))")
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
     - name: Restore/save mongo-c-driver tarball
       uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.mongo-c-driver
-        key: mcd-2.5.3-${{ runner.os }}-${{ github.sha }}
-        restore-keys: mcd-2.5.3-${{ runner.os }}-
+        key: mcd-${{ steps.pinned.outputs.version }}-${{ runner.os }}-${{ github.sha }}
+        restore-keys: mcd-${{ steps.pinned.outputs.version }}-${{ runner.os }}-
 
-    - name: Ensure mongo-c-driver tarball is present and extracted
+    - name: Fetch and extract mongo-c-driver
       shell: bash
-      run: |
-        set -euo pipefail
-        mkdir -p "$GITHUB_WORKSPACE/.mongo-c-driver"
-        TARBALL="$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz"
-        SRCDIR="$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3"
-        if [ -s "$TARBALL" ]; then
-          echo "[bsonjs] mongo-c-driver tarball restored from cache ($(stat -c%s "$TARBALL" 2>/dev/null || stat -f%z "$TARBALL") bytes)"
-        else
-          echo "[bsonjs] mongo-c-driver tarball not cached; downloading from codeload..."
-          curl -fsSL \
-               --retry 3 \
-               --connect-timeout 30 \
-               --max-time 180 \
-               -o "$TARBALL" \
-               https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz
-          echo "[bsonjs] mongo-c-driver tarball downloaded ($(stat -c%s "$TARBALL" 2>/dev/null || stat -f%z "$TARBALL") bytes)"
-        fi
-        test -s "$TARBALL" \
-          || { echo "::error::mongo-c-driver tarball is missing; cannot build" >&2; exit 1; }
-        # Meson needs the extracted tree; extract if not already present (the
-        # extracted dir is also cached, so later runs skip this). Use Python
-        # tarfile: shell tar misreads the colon in Windows drive-letter paths
-        # (Git bash) as a remote host, and Python handles all three OSes.
-        if [ ! -d "$SRCDIR" ]; then
-          python -c "import tarfile,sys;tarfile.open(sys.argv[1]).extractall(sys.argv[2])" "$TARBALL" "$GITHUB_WORKSPACE/.mongo-c-driver"
-        fi
-        test -f "$SRCDIR/src/libbson/src/bson/config.h.in" \
-          || { echo "::error::mongo-c-driver extraction failed" >&2; exit 1; }
+      run: python scripts/fetch_mongo_c_driver.py

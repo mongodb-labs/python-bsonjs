@@ -2,6 +2,7 @@
 """Version bump helper used by bump-libbson.sh."""
 
 import argparse
+import hashlib
 import json
 import re
 import urllib.request
@@ -14,6 +15,10 @@ MESON_BUILD = REPO_ROOT / "meson.build"
 
 LATEST_RELEASE_URL = (
     "https://api.github.com/repos/mongodb/mongo-c-driver/releases/latest"
+)
+RELEASE_URL = (
+    "https://github.com/mongodb/mongo-c-driver/releases/download/"
+    "{version}/mongo-c-driver-{version}.tar.gz"
 )
 
 
@@ -48,6 +53,23 @@ def latest_version():
     return data["tag_name"].lstrip("v")
 
 
+def release_sha256(version):
+    """Return the SHA256 of the mongo-c-driver release tarball."""
+    url = RELEASE_URL.format(version=version)
+    digest = hashlib.sha256()
+    request = urllib.request.Request(url, headers={"User-Agent": "python-bsonjs"})
+    try:
+        with urllib.request.urlopen(request, timeout=180) as resp:
+            while True:
+                chunk = resp.read(1024 * 1024)
+                if not chunk:
+                    break
+                digest.update(chunk)
+    except Exception as exc:
+        raise SystemExit("Could not download {}: {}".format(url, exc))
+    return digest.hexdigest()
+
+
 def sub_file(path, pattern, repl, label):
     """Replace the first match of pattern in path with repl.format(version)."""
     text = path.read_text()
@@ -76,6 +98,13 @@ def update_versions(version):
     text = re.sub(r"libbson_major = [0-9]+", "libbson_major = {}".format(major), text)
     text = re.sub(r"libbson_minor = [0-9]+", "libbson_minor = {}".format(minor), text)
     text = re.sub(r"libbson_patch = [0-9]+", "libbson_patch = {}".format(patch), text)
+    if not re.search(r"mcd_sha256\s*=\s*'[0-9a-f]{64}'", text):
+        raise SystemExit("Could not find mcd_sha256 in meson.build")
+    text = re.sub(
+        r"mcd_sha256\s*=\s*'[0-9a-f]{64}'",
+        "mcd_sha256 = '{}'".format(release_sha256(version)),
+        text,
+    )
     MESON_BUILD.write_text(text)
     # README About link: http://mongoc.org/libbson/<ver>/
     sub_file(

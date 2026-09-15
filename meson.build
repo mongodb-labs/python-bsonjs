@@ -1,7 +1,8 @@
 project(
   'bsonjs',
   'c',
-  version: '0.8.0',
+  version: '0.8.0.dev0',
+  meson_version: '>=1.3',
   default_options: ['c_std=c99', 'warning_level=1'],
 )
 
@@ -22,13 +23,31 @@ elif host_machine.system() != 'windows'
 endif
 
 # --- libbson from source ------------------------------------------------
-# Meson has no FetchContent, so the workflow extracts the mongo-c-driver
-# release tarball to .mongo-c-driver/ and we compile only libbson (static)
-# here, never libmongoc, by listing its sources explicitly.
+# Meson has no FetchContent, so the mongo-c-driver release tarball is
+# extracted to .mongo-c-driver/: the CI action pre-fetches it, and meson
+# fetches it here when absent. We compile only libbson (static), never
+# libmongoc, by listing its sources explicitly.
+#
+# SHA256 of that tarball, read by scripts/fetch_mongo_c_driver.py and updated
+# by scripts/bump_libbson.py alongside the version.
+mcd_sha256 = '5eb6f2297f5fbfcf0bf79942623b84f883e9223f008f24497ae60937802a6315'
+
 mcd_src = get_option('mongo-c-driver-dir')
 if mcd_src == ''
-  # Fallback: the workflow pre-fetches and extracts the release tarball here.
+  # Fallback: the CI action pre-fetches and extracts the release tarball here.
   fallback = meson.project_source_root() / '.mongo-c-driver' / 'mongo-c-driver-2.5.3'
+  if not fs.is_dir(fallback)
+    # Nothing pre-fetched, so fetch the pinned release now. This lets an
+    # sdist install build itself without a separate setup step.
+    fetch = run_command(
+      py,
+      meson.project_source_root() / 'scripts' / 'fetch_mongo_c_driver.py',
+      check: false,
+    )
+    if fetch.returncode() != 0
+      error('Failed to fetch mongo-c-driver:\n' + fetch.stdout() + fetch.stderr())
+    endif
+  endif
   if fs.is_dir(fallback)
     mcd_src = fallback
   endif
@@ -146,7 +165,7 @@ ws2_32 = cc.find_library('ws2_32', required: false)
 # version (meson.project_version() does not see meson-python's override).
 bsonjs_version = run_command(py, '-c',
   'import re,pathlib;print(re.search(r\'version\\s*=\\s*"([^"]+)"\',pathlib.Path("pyproject.toml").read_text()).group(1))',
-  check: false).stdout().strip()
+  check: true).stdout().strip()
 
 py.extension_module(
   'bsonjs',

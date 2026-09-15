@@ -107,9 +107,12 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.11+. Building from source downloads and
-builds libbson with CMake, so you need CMake 3.26+ and an internet
-connection at install time.
+python-bsonjs supports CPython 3.11+ and builds with Meson through
+meson-python. The build compiles libbson from the mongo-c-driver release
+pinned in ``meson.build``. It downloads that release on first build, so
+the first build needs an internet connection. To build offline, extract
+the release under ``.mongo-c-driver/`` or pass
+``-Dmongo-c-driver-dir=/path/to/mongo-c-driver-<version>`` to meson.
 
 Compiler
 ````````

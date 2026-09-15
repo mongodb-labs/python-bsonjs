@@ -26,26 +26,19 @@ jobs:
         include:
         - language: c-cpp
           build-mode: manual
-          # Configure the project so CMake fetches mongo-c-driver and
-          # generates libbson's config.h/version.h. Then compile only our own
-          # bsonjs.c against that tree. CodeQL's tracer only extracts files the
-          # compiler is actually invoked on, so keeping libbson itself out of
-          # scope means never compiling it here.
+          # Configure with Meson so libbson's config.h/version.h are generated.
+          # Then compile only our own bsonjs.c against that tree. CodeQL's
+          # tracer only extracts files the compiler is actually invoked on, so
+          # keeping libbson itself out of scope means never compiling it here.
           manual-build-command: |
-            if ! command -v cmake >/dev/null 2>&1; then pip install "cmake>=3.17,<4"; fi
-            cmake -S . -B /tmp/codeql-build \
-              -DENABLE_MONGOC=OFF -DENABLE_SHARED=OFF -DENABLE_STATIC=ON \
-              -DENABLE_TESTS=OFF -DBUILD_TESTING=OFF \
-              -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
-              -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-              -DCMAKE_BUILD_TYPE=Release
+            pip install "meson>=1.3" ninja
+            MCD=$(python3 scripts/fetch_mongo_c_driver.py --print-srcdir)
+            meson setup /tmp/codeql-build
             PYINC=$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])")
             BSONJS_VERSION=$(python3 -c "import re; print(re.search(r'(?m)^version\s*=\s*\"([^\"]+)\"', open('pyproject.toml').read()).group(1))")
-            SRC=/tmp/codeql-build/_deps/mongo-c-driver-src
-            BIN=/tmp/codeql-build/_deps/mongo-c-driver-build
             gcc -c bsonjs/bsonjs.c -o /tmp/bsonjs.o \
-              -Ibsonjs -I"$SRC/src/libbson/src" -I"$SRC/src/libbson/src/bson" \
-              -I"$BIN/src/libbson/src" -I"$SRC/src/common/src" -I"$BIN/src/common/src" \
+              -Ibsonjs -I"$MCD/src/libbson/src" -I"$MCD/src/libbson/src/bson" \
+              -I/tmp/codeql-build -I"$MCD/src/common/src" \
               -I"$PYINC" \
               -DBSON_STATIC -DPy_LIMITED_API=0x030b0000 "-DBSONJS_VERSION=\"$BSONJS_VERSION\""
         - language: python

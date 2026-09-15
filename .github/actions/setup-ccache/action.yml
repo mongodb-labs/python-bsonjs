@@ -37,7 +37,7 @@ runs:
       shell: bash
       run: |
         # Only used as a compiler launcher on GNU/Clang; ccache's MSVC launcher
-        # hangs CMake's compiler detection on Windows, so skip it there.
+        # hangs compiler detection on Windows, so skip it there.
         if [ "$RUNNER_OS" = "Linux" ]; then
           sudo apt-get install -y ccache
         elif [ "$RUNNER_OS" = "macOS" ]; then
