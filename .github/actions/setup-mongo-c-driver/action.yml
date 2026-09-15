@@ -3,6 +3,15 @@ description: "Cache and fetch the mongo-c-driver release tarball used by FetchCo
 runs:
   using: "composite"
   steps:
+    - name: Exclude the workspace from Windows Defender
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        # Real-time MSVC compilation on GitHub-hosted Windows is throttled by
+        # Defender; excluding the workspace is the standard, big win.
+        Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE" -ErrorAction SilentlyContinue
+        Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE\build" -ErrorAction SilentlyContinue
+
     - name: Restore/save mongo-c-driver tarball
       uses: actions/cache@v4
       with:
