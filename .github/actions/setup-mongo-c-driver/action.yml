@@ -41,9 +41,22 @@ runs:
         test -s "$TARBALL" \
           || { echo "::error::mongo-c-driver tarball is missing; cannot build" >&2; exit 1; }
         # Meson needs the extracted tree; extract if not already present (the
-        # extracted dir is also cached, so later runs skip this).
+        # extracted dir is also cached, so later runs skip this). Use Python
+        # tarfile: shell tar misreads the colon in Windows drive-letter paths
+        # (Git bash) as a remote host, and Python handles all three OSes.
         if [ ! -d "$SRCDIR" ]; then
-          tar -xzf "$TARBALL" -C "$GITHUB_WORKSPACE/.mongo-c-driver"
+          python - "$TARBALL" "$GITHUB_WORKSPACE/.mongo-c-driver" <<'PY'
+import sys, tarfile
+with tarfile.open(sys.argv[1]) as t:
+    for member in t.getmembers():
+        try:
+            t.extract(member, sys.argv[2])
+        except OSError:
+            # Windows needs elevated privileges to create symlinks; the build
+            # compiles explicit source files, so symlinks can be skipped.
+            if not (member.islnk() or member.issym()):
+                raise
+PY
         fi
         test -f "$SRCDIR/src/libbson/src/bson/config.h.in" \
           || { echo "::error::mongo-c-driver extraction failed" >&2; exit 1; }
