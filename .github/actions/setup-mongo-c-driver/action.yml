@@ -19,12 +19,13 @@ runs:
         key: mcd-2.5.3-${{ runner.os }}-${{ github.sha }}
         restore-keys: mcd-2.5.3-${{ runner.os }}-
 
-    - name: Ensure mongo-c-driver tarball is present
+    - name: Ensure mongo-c-driver tarball is present and extracted
       shell: bash
       run: |
         set -euo pipefail
         mkdir -p "$GITHUB_WORKSPACE/.mongo-c-driver"
         TARBALL="$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz"
+        SRCDIR="$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3"
         if [ -s "$TARBALL" ]; then
           echo "[bsonjs] mongo-c-driver tarball restored from cache ($(stat -c%s "$TARBALL" 2>/dev/null || stat -f%z "$TARBALL") bytes)"
         else
@@ -39,4 +40,11 @@ runs:
         fi
         test -s "$TARBALL" \
           || { echo "::error::mongo-c-driver tarball is missing; cannot build" >&2; exit 1; }
+        # Meson needs the extracted tree; extract if not already present (the
+        # extracted dir is also cached, so later runs skip this).
+        if [ ! -d "$SRCDIR" ]; then
+          tar -xzf "$TARBALL" -C "$GITHUB_WORKSPACE/.mongo-c-driver"
+        fi
+        test -f "$SRCDIR/src/libbson/src/bson/config.h.in" \
+          || { echo "::error::mongo-c-driver extraction failed" >&2; exit 1; }
         echo "BSONJS_MCD_TARBALL=$TARBALL" >> "$GITHUB_ENV"
