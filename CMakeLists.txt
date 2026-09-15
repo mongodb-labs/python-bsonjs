@@ -80,20 +80,20 @@ FetchContent_Declare(
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 
-bsonjs_mark("FetchContent_MakeAvailable begin")
-FetchContent_MakeAvailable(mongo-c-driver)
-bsonjs_mark("FetchContent_MakeAvailable done")
-
 # We only need libbson, not libmongoc, which requires a TLS/crypto library.
-# Turning mongoc off also keeps the build C-only and the driver's dependencies
-# out of the picture. Build libbson as a static library.
+# These must be set BEFORE FetchContent_MakeAvailable so they are honored when
+# the subproject configures; otherwise libmongoc (and its zlib/utf8proc/SASL/
+# shared-variant dependencies) get built, which is slow and fails without TLS.
 set(ENABLE_MONGOC OFF)
 set(ENABLE_SHARED OFF)
 set(ENABLE_STATIC ON)
 # The driver builds a C++ test gated on BUILD_TESTING; keep the build C-only.
 set(BUILD_TESTING OFF)
 set(ENABLE_TESTS OFF)
+
+bsonjs_mark("FetchContent_MakeAvailable begin")
 FetchContent_MakeAvailable(mongo-c-driver)
+bsonjs_mark("FetchContent_MakeAvailable done")
 
 # bson:static (alias bson_static) propagates BSON_STATIC already, but the
 # driver does not export its include dirs on the target, so add them here so

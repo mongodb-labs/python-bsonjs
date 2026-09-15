@@ -47,6 +47,19 @@ wheel.py-api = "cp311"
 # ccache (no cross-run hits). Building here keeps the paths stable.
 build-dir = "build"
 
+[tool.scikit-build.cmake.define]
+# Build only libbson (static), never libmongoc. Unset, mongo-c-driver defaults
+# mongoc/shared ON, pulling in TLS/SASL/zlib/utf8proc and the shared variants,
+# which is slow and fails without a crypto library. These are set here as CMake
+# cache vars so every build path (cibuildwheel + pip wheel) configures the same
+# minimal, libbson-only build.
+ENABLE_MONGOC = "OFF"
+ENABLE_SHARED = "OFF"
+ENABLE_STATIC = "ON"
+BUILD_TESTING = "OFF"
+ENABLE_TESTS = "OFF"
+ENABLE_EXAMPLES = "OFF"
+
 [tool.cibuildwheel]
 test-command = "pytest {package}/test"
 test-extras = ["test"]
