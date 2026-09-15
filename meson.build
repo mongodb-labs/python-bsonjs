@@ -138,6 +138,10 @@ libbson = static_library('bson',
 )
 
 # --- Python extension module (Limited API / abi3) ------------------------
+# libbson's bson-context.c calls gethostname, which lives in ws2_32.lib on
+# Windows; find_library resolves it to the import library (a bare 'ws2_32'
+# link arg would be treated as an .obj and fail with LNK1181).
+ws2_32 = cc.find_library('ws2_32', required: false)
 # bsonjs.__version__ comes from this macro; keep it in sync with the pyproject
 # version (meson.project_version() does not see meson-python's override).
 bsonjs_version = run_command(py, '-c',
@@ -149,7 +153,7 @@ py.extension_module(
   'bsonjs/bsonjs.c',
   c_args: ['-DBSON_STATIC', '-DBSONJS_VERSION="@0@"'.format(bsonjs_version)] + inc_flags,
   link_with: libbson,
-  link_args: host_machine.system() == 'windows' ? ['ws2_32'] : [],
+  dependencies: ws2_32.found() ? [ws2_32] : [],
   install: true,
   limited_api: '3.11',
 )
