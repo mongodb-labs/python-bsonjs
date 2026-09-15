@@ -10,9 +10,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 README = REPO_ROOT / "README.rst"
 CHANGELOG = REPO_ROOT / "CHANGELOG.rst"
-CMAKE_LISTS = REPO_ROOT / "CMakeLists.txt"
+MESON_BUILD = REPO_ROOT / "meson.build"
 
-TAG_URL = r"refs/tags/[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz"
 LATEST_RELEASE_URL = (
     "https://api.github.com/repos/mongodb/mongo-c-driver/releases/latest"
 )
@@ -29,12 +28,12 @@ def package_version():
 
 
 def current_version():
-    """Return the libbson version pinned in CMakeLists.txt."""
-    text = CMAKE_LISTS.read_text()
-    m = re.search(TAG_URL, text)
+    """Return the libbson version pinned in meson.build."""
+    text = MESON_BUILD.read_text()
+    m = re.search(r"mongo-c-driver-([0-9]+\.[0-9]+\.[0-9]+)", text)
     if not m:
-        raise SystemExit("Could not read the libbson version from CMakeLists.txt")
-    return re.search(r"([0-9]+\.[0-9]+\.[0-9]+)", m.group(0)).group(1)
+        raise SystemExit("Could not read the libbson version from meson.build")
+    return m.group(1)
 
 
 def latest_version():
@@ -59,12 +58,25 @@ def sub_file(path, pattern, repl, label):
 
 def update_versions(version):
     """Update the pinned libbson version in the build files and docs."""
-    sub_file(
-        CMAKE_LISTS,
-        TAG_URL,
-        "refs/tags/{}.tar.gz".format(version),
-        "FetchContent URL",
+    # Pin the libbson version in meson.build: the source-dir paths (fallback
+    # and error message), the generated version header, and the three
+    # libbson_major/minor/patch macros.
+    major, minor, patch = version.split(".")
+    text = MESON_BUILD.read_text()
+    text = re.sub(
+        r"mongo-c-driver-[0-9]+\.[0-9]+\.[0-9]+",
+        "mongo-c-driver-{}".format(version),
+        text,
     )
+    text = re.sub(
+        r"libbson_VERSION_FULL',\s*'[0-9]+\.[0-9]+\.[0-9]+'",
+        "libbson_VERSION_FULL', '{}'".format(version),
+        text,
+    )
+    text = re.sub(r"libbson_major = [0-9]+", "libbson_major = {}".format(major), text)
+    text = re.sub(r"libbson_minor = [0-9]+", "libbson_minor = {}".format(minor), text)
+    text = re.sub(r"libbson_patch = [0-9]+", "libbson_patch = {}".format(patch), text)
+    MESON_BUILD.write_text(text)
     # README About link: http://mongoc.org/libbson/<ver>/
     sub_file(
         README,

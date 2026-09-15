@@ -22,12 +22,12 @@ elif host_machine.system() != 'windows'
 endif
 
 # --- libbson from source ------------------------------------------------
-# Meson has no FetchContent, so the workflow pre-fetches and extracts the
-# mongo-c-driver release tarball and points BSONJS_MCD_SRC at it. We compile
-# only libbson (static) — never libmongoc — by listing its sources here.
+# Meson has no FetchContent, so the workflow extracts the mongo-c-driver
+# release tarball to .mongo-c-driver/ and we compile only libbson (static)
+# here, never libmongoc, by listing its sources explicitly.
 mcd_src = get_option('mongo-c-driver-dir')
 if mcd_src == ''
-  # Fallback: the workflow pre-fetches + extracts the release tarball here.
+  # Fallback: the workflow pre-fetches and extracts the release tarball here.
   fallback = meson.project_source_root() / '.mongo-c-driver' / 'mongo-c-driver-2.5.3'
   if fs.is_dir(fallback)
     mcd_src = fallback

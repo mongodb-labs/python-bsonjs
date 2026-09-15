@@ -49,4 +49,3 @@ runs:
         fi
         test -f "$SRCDIR/src/libbson/src/bson/config.h.in" \
           || { echo "::error::mongo-c-driver extraction failed" >&2; exit 1; }
-        echo "BSONJS_MCD_TARBALL=$TARBALL" >> "$GITHUB_ENV"

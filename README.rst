@@ -145,7 +145,7 @@ Updating libbson
 ````````````````
 
 The package pulls libbson from the mongo-c-driver release pinned in
-`CMakeLists.txt`. To bump the version, rebuild, and refresh the benchmark
+`meson.build`. To bump the version, rebuild, and refresh the benchmark
 numbers in the Speed section, run::
 
     $ bash scripts/bump-libbson.sh

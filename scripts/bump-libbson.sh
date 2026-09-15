@@ -26,7 +26,7 @@ else
     LIBBSON_VERSION="$1"
 fi
 
-# 1. Update the libbson version in CMakeLists.txt, the README About line,
+# 1. Update the libbson version in meson.build, the README About line,
 #    and the CHANGELOG 0.8.0 entry.
 python3 "${BUMP_PY}" update-versions "$LIBBSON_VERSION"
 echo "Updated libbson version to: ${LIBBSON_VERSION}"
