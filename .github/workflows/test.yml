@@ -89,6 +89,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Set up ccache
+        if: runner.os != 'Windows'
         uses: ./.github/actions/setup-ccache
         with:
           key: ccache-${{ runner.os }}-wheel-${{ github.sha }}
