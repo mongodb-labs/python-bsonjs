@@ -35,6 +35,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Set up ccache
+        if: runner.os != 'Windows'
         uses: ./.github/actions/setup-ccache
         with:
           key: ccache-${{ runner.os }}-${{ github.sha }}
