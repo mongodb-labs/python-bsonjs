@@ -45,7 +45,7 @@ runs:
         # tarfile: shell tar misreads the colon in Windows drive-letter paths
         # (Git bash) as a remote host, and Python handles all three OSes.
         if [ ! -d "$SRCDIR" ]; then
-          python -c "import tarfile,sys;tarfile.open(sys.argv[1]).extractall(sys.argv[2])" -- "$TARBALL" "$GITHUB_WORKSPACE/.mongo-c-driver"
+          python -c "import tarfile,sys;tarfile.open(sys.argv[1]).extractall(sys.argv[2])" "$TARBALL" "$GITHUB_WORKSPACE/.mongo-c-driver"
         fi
         test -f "$SRCDIR/src/libbson/src/bson/config.h.in" \
           || { echo "::error::mongo-c-driver extraction failed" >&2; exit 1; }
