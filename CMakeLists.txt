@@ -24,6 +24,17 @@ set(_package_version "${CMAKE_MATCH_1}")
 # --- libbson static library via FetchContent ---
 include(FetchContent)
 
+# Small timing helper: logs a phase marker with an elapsed counter so a
+# completed or cancelled CI log shows where the build time is going.
+string(TIMESTAMP _bsonjs_last "%s")
+function(bsonjs_mark msg)
+  string(TIMESTAMP _now "%s")
+  math(EXPR _elapsed "${_now} - ${_bsonjs_last}")
+  message(STATUS "[bsonjs] ${msg} (+${_elapsed}s)")
+  set(_bsonjs_last "${_now}" PARENT_SCOPE)
+endfunction()
+bsonjs_mark("configure begin")
+
 # The mongo-c-driver release tarball is pre-fetched by CI
 # (.github/actions/setup-mongo-c-driver) and passed in via BSONJS_MCD_TARBALL,
 # so the CI build phase is download-free. Otherwise (dist.yml wheels, sdist,
@@ -39,7 +50,10 @@ if(DEFINED ENV{BSONJS_MCD_TARBALL})
     set(_mcd_archive "${_mcd_cached}")
   endif()
 endif()
+message(STATUS "[bsonjs] mongo-c-driver BSONJS_MCD_TARBALL=$ENV{BSONJS_MCD_TARBALL}")
+message(STATUS "[bsonjs] mongo-c-driver archive=${_mcd_archive}")
 if(NOT EXISTS "${_mcd_archive}")
+  bsonjs_mark("archive missing -> downloading")
   file(DOWNLOAD
     "${_mcd_url}"
     "${_mcd_archive}"
@@ -54,6 +68,10 @@ if(NOT EXISTS "${_mcd_archive}")
   if(NOT _mcd_code EQUAL 0)
     message(FATAL_ERROR "Failed to download mongo-c-driver: ${_mcd_status}")
   endif()
+  bsonjs_mark("archive downloaded")
+else()
+  file(SIZE "${_mcd_archive}" _mcd_size)
+  message(STATUS "[bsonjs] mongo-c-driver archive size=${_mcd_size} bytes (cached)")
 endif()
 
 FetchContent_Declare(
@@ -61,6 +79,10 @@ FetchContent_Declare(
   URL "${_mcd_archive}"
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
+
+bsonjs_mark("FetchContent_MakeAvailable begin")
+FetchContent_MakeAvailable(mongo-c-driver)
+bsonjs_mark("FetchContent_MakeAvailable done")
 
 # We only need libbson, not libmongoc, which requires a TLS/crypto library.
 # Turning mongoc off also keeps the build C-only and the driver's dependencies

@@ -15,14 +15,19 @@ runs:
       run: |
         set -euo pipefail
         mkdir -p "$GITHUB_WORKSPACE/.mongo-c-driver"
-        if [ ! -f "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" ]; then
+        TARBALL="$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz"
+        if [ -s "$TARBALL" ]; then
+          echo "[bsonjs] mongo-c-driver tarball restored from cache ($(stat -c%s "$TARBALL" 2>/dev/null || stat -f%z "$TARBALL") bytes)"
+        else
+          echo "[bsonjs] mongo-c-driver tarball not cached; downloading from codeload..."
           curl -fsSL \
                --retry 3 \
                --connect-timeout 30 \
                --max-time 180 \
-               -o "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" \
+               -o "$TARBALL" \
                https://github.com/mongodb/mongo-c-driver/archive/refs/tags/2.5.3.tar.gz
+          echo "[bsonjs] mongo-c-driver tarball downloaded ($(stat -c%s "$TARBALL" 2>/dev/null || stat -f%z "$TARBALL") bytes)"
         fi
-        test -s "$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" \
+        test -s "$TARBALL" \
           || { echo "::error::mongo-c-driver tarball is missing; cannot build" >&2; exit 1; }
-        echo "BSONJS_MCD_TARBALL=$GITHUB_WORKSPACE/.mongo-c-driver/mongo-c-driver-2.5.3.tar.gz" >> "$GITHUB_ENV"
+        echo "BSONJS_MCD_TARBALL=$TARBALL" >> "$GITHUB_ENV"
