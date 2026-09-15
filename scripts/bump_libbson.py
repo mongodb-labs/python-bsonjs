@@ -23,11 +23,11 @@ RELEASE_URL = (
 
 
 def package_version():
-    """Return the package release version (X.Y.Z) from pyproject.toml."""
-    text = (REPO_ROOT / "pyproject.toml").read_text()
-    m = re.search(r'version\s*=\s*"([^"]+)"', text)
+    """Return the package release version (X.Y.Z) from meson.build."""
+    text = (REPO_ROOT / "meson.build").read_text()
+    m = re.search(r"(?<![\w])version:\s*'([^']+)'", text)
     if not m:
-        raise SystemExit("Could not read the version from pyproject.toml")
+        raise SystemExit("Could not read the version from meson.build")
     # Strip any dev/alpha/beta/rc suffix so we match the CHANGELOG header.
     return re.match(r"(\d+\.\d+(?:\.\d+)?)", m.group(1)).group(1)
 
@@ -35,7 +35,7 @@ def package_version():
 def current_version():
     """Return the libbson version pinned in meson.build."""
     text = MESON_BUILD.read_text()
-    m = re.search(r"mongo-c-driver-([0-9]+\.[0-9]+\.[0-9]+)", text)
+    m = re.search(r"mcd_version\s*=\s*'([0-9]+\.[0-9]+\.[0-9]+)'", text)
     if not m:
         raise SystemExit("Could not read the libbson version from meson.build")
     return m.group(1)
@@ -80,24 +80,14 @@ def sub_file(path, pattern, repl, label):
 
 def update_versions(version):
     """Update the pinned libbson version in the build files and docs."""
-    # Pin the libbson version in meson.build: the source-dir paths (fallback
-    # and error message), the generated version header, and the three
-    # libbson_major/minor/patch macros.
-    major, minor, patch = version.split(".")
+    # Pin the libbson version in meson.build: mcd_version drives the fallback
+    # source-dir path, the error message, and the generated version header.
     text = MESON_BUILD.read_text()
     text = re.sub(
-        r"mongo-c-driver-[0-9]+\.[0-9]+\.[0-9]+",
-        "mongo-c-driver-{}".format(version),
+        r"mcd_version\s*=\s*'[0-9]+\.[0-9]+\.[0-9]+'",
+        "mcd_version = '{}'".format(version),
         text,
     )
-    text = re.sub(
-        r"libbson_VERSION_FULL',\s*'[0-9]+\.[0-9]+\.[0-9]+'",
-        "libbson_VERSION_FULL', '{}'".format(version),
-        text,
-    )
-    text = re.sub(r"libbson_major = [0-9]+", "libbson_major = {}".format(major), text)
-    text = re.sub(r"libbson_minor = [0-9]+", "libbson_minor = {}".format(minor), text)
-    text = re.sub(r"libbson_patch = [0-9]+", "libbson_patch = {}".format(patch), text)
     if not re.search(r"mcd_sha256\s*=\s*'[0-9a-f]{64}'", text):
         raise SystemExit("Could not find mcd_sha256 in meson.build")
     text = re.sub(

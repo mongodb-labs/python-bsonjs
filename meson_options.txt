@@ -1,2 +1,2 @@
 option('mongo-c-driver-dir', type: 'string', value: '',
-       description: 'Path to the extracted mongo-c-driver 2.5.3 source tree')
+       description: 'Path to the extracted mongo-c-driver source tree')

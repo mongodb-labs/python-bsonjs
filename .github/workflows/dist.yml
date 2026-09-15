@@ -43,8 +43,38 @@ jobs:
           restore-keys: ccache-${{ runner.os }}-
       - name: Set up mongo-c-driver
         uses: ./.github/actions/setup-mongo-c-driver
-      - uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
-      - uses: actions/upload-artifact@v7
+      - name: Build wheels (macOS/Linux)
+        if: runner.os != 'Windows'
+        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
+      - name: Build wheels (Windows AMD64)
+        if: runner.os == 'Windows'
+        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
+        env:
+          CIBW_ARCHS: AMD64
+      # Meson's --vsenv activates only the x64 toolset, and its Python
+      # dependency check rejects a 32-bit Python against an x64 compiler
+      # ("Need python for x86_64, but found x86"). Exporting the x86 toolset
+      # environment here makes Meson skip its own activation (VSINSTALLDIR is
+      # set) and detect the x86 compiler instead, so the host machine reads
+      # as x86 and matches the 32-bit Python.
+      - name: Export the x86 MSVC environment
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vcvarsall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find "VC\Auxiliary\Build\vcvarsall.bat" | Select-Object -First 1
+          if (-not $vcvarsall) { throw "vcvarsall.bat not found" }
+          cmd /s /c "`"$vcvarsall`" x86 && set" | ForEach-Object {
+            if ($_ -match '^([^=]+)=(.*)$') {
+              Add-Content -Path $env:GITHUB_ENV -Value "$($Matches[1])=$($Matches[2])"
+            }
+          }
+      - name: Build wheels (Windows x86)
+        if: runner.os == 'Windows'
+        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
+        env:
+          CIBW_ARCHS: x86
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.0
         with:
           name: ${{ matrix.os }}-wheel
           path: ./wheelhouse/*.whl
@@ -64,7 +94,7 @@ jobs:
         run: |
           python -m pip install build
           python -m build --sdist
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.0
         with:
           name: "sdist"
           path: dist/*.tar.gz
@@ -74,13 +104,13 @@ jobs:
     name: Download Wheels
     steps:
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.0
       - name: Flatten directory
         working-directory: .
         run: |
           find . -mindepth 2 -type f -exec mv {} . \;
           find . -type d -empty -delete
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.0
         with:
           name: all-dist-${{ github.run_id }}
           path: "./*"

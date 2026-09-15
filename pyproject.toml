@@ -4,7 +4,9 @@ build-backend = "mesonpy"
 
 [project]
 name = "python-bsonjs"
-version = "0.8.0.dev0"
+# The version lives in meson.build (project()); meson-python feeds it here so
+# the wheel metadata and the bsonjs.__version__ macro cannot drift apart.
+dynamic = ["version"]
 description = "A library for converting between BSON and JSON."
 readme = "README.rst"
 license = { file = "LICENSE" }
@@ -67,9 +69,11 @@ repair-wheel-command = [
 # Meson picks MinGW gcc by default on GitHub Actions Windows; --vsenv makes it
 # set up the Visual Studio (MSVC) environment instead.
 config-settings = { "setup-args" = "--vsenv" }
-# Build 64-bit wheels only: meson-python cannot find the 32-bit Python headers
-# in the 32-bit cibuildwheel environment.
-archs = ["AMD64"]
+# Build both 64-bit and 32-bit wheels. The 32-bit build must run with the x86
+# MSVC toolset in the environment: meson's --vsenv only ever activates the
+# x64 toolset, and it rejects a 32-bit Python against an x64 compiler. The
+# dist.yml workflow activates vcvarsall x86 for the x86 cibuildwheel run.
+archs = ["AMD64", "x86"]
 repair-wheel-command = [
   "copy {wheel} {dest_dir}",
   "pipx run abi3audit --strict --report {wheel}",

@@ -17,11 +17,11 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        VERSION=$(python -c "import re,pathlib; print(re.search(r'mongo-c-driver-([0-9.]+)', pathlib.Path('meson.build').read_text()).group(1))")
+        VERSION=$(python -c "import re,pathlib; print(re.search(r\"mcd_version\s*=\s*'([0-9.]+)'\", pathlib.Path('meson.build').read_text()).group(1))")
         echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
     - name: Restore/save mongo-c-driver tarball
-      uses: actions/cache@v4
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ${{ github.workspace }}/.mongo-c-driver
         key: mcd-${{ steps.pinned.outputs.version }}-${{ runner.os }}-${{ github.sha }}

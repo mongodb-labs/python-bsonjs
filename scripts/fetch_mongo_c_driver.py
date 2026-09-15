@@ -33,7 +33,7 @@ def _meson_value(pattern, description):
 def pinned_version():
     """Return the mongo-c-driver version pinned in meson.build."""
     return _meson_value(
-        r"mongo-c-driver-([0-9]+\.[0-9]+\.[0-9]+)", "the mongo-c-driver version"
+        r"mcd_version\s*=\s*'([0-9]+\.[0-9]+\.[0-9]+)'", "the mongo-c-driver version"
     )
 
 

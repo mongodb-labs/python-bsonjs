@@ -157,4 +157,4 @@ With no argument the script uses the latest mongo-c-driver release and
 exits without making changes when the pinned version is already current.
 Pass a version to target a specific release::
 
-    $ bash scripts/bump-libbson.sh 2.5.0
+    $ bash scripts/bump-libbson.sh 2.5.3
