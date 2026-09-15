@@ -11,15 +11,20 @@ fs = import('fs')
 cc = meson.get_compiler('c')
 threads = dependency('threads')
 
-# libbson's bundled mlib selects its POSIX clock primitives from _POSIX_C_SOURCE
-# or _DEFAULT_SOURCE, and error.c needs _XOPEN_SOURCE >= 700 or _GNU_SOURCE for
-# strerror_l/strerror_r. glibc aliases _GNU_SOURCE to _DEFAULT_SOURCE but musl
-# does not, so define both. Windows has its own code path (guarded on _WIN32),
-# so leave it out entirely there.
+# libbson's mlib selects its POSIX clock primitives from _POSIX_C_SOURCE or
+# _DEFAULT_SOURCE, and error.c uses strerror_l only when _XOPEN_SOURCE >= 700.
+# glibc derives both from _GNU_SOURCE; musl derives neither, so define them
+# explicitly. Windows has its own code path (guarded on _WIN32), so leave it out
+# entirely there.
 if host_machine.system() == 'darwin'
   add_project_arguments('-D_POSIX_C_SOURCE=200809L', language: 'c')
 elif host_machine.system() != 'windows'
-  add_project_arguments('-D_GNU_SOURCE', '-D_DEFAULT_SOURCE', language: 'c')
+  add_project_arguments(
+    '-D_GNU_SOURCE',
+    '-D_DEFAULT_SOURCE',
+    '-D_XOPEN_SOURCE=700',
+    language: 'c',
+  )
 endif
 
 # --- libbson from source ------------------------------------------------
