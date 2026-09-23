@@ -1,0 +1,32 @@
+name: Setup mongo-c-driver
+description: "Cache and fetch the mongo-c-driver release pinned in meson.build"
+runs:
+  using: "composite"
+  steps:
+    - name: Exclude the workspace from Windows Defender
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        # Real-time MSVC compilation on GitHub-hosted Windows is throttled by
+        # Defender; excluding the workspace is the standard, big win.
+        Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE" -ErrorAction SilentlyContinue
+        Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE\build" -ErrorAction SilentlyContinue
+
+    - name: Read the pinned mongo-c-driver version
+      id: pinned
+      shell: bash
+      run: |
+        set -euo pipefail
+        VERSION=$(python -c "import re,pathlib; print(re.search(r\"mcd_version\s*=\s*'([0-9.]+)'\", pathlib.Path('meson.build').read_text()).group(1))")
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Restore/save mongo-c-driver tarball
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ${{ github.workspace }}/.mongo-c-driver
+        key: mcd-${{ steps.pinned.outputs.version }}-${{ runner.os }}-${{ github.sha }}
+        restore-keys: mcd-${{ steps.pinned.outputs.version }}-${{ runner.os }}-
+
+    - name: Fetch and extract mongo-c-driver
+      shell: bash
+      run: python scripts/fetch_mongo_c_driver.py

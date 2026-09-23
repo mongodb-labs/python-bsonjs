@@ -9,7 +9,7 @@ About
 =====
 
 A fast BSON to MongoDB Extended JSON converter for Python that uses
-`libbson  <http://mongoc.org/libbson/1.27.2/>`_.
+`libbson  <http://mongoc.org/libbson/2.5.3/>`_.
 
 Installation
 ============
@@ -55,22 +55,22 @@ Using bsonjs with pymongo to insert a RawBSONDocument.
 Speed
 =====
 
-bsonjs is roughly 3-4x faster than PyMongo's json_util at decoding BSON to
-JSON and encoding JSON to BSON. See `benchmark.py`::
+bsonjs is roughly 3-9x faster than PyMongo 4.18.1's
+json_util at decoding BSON to JSON and encoding JSON to BSON. Benchmarked
+against libbson 2.5.3. See `scripts/benchmark.py`::
 
-    $ python benchmark.py
+    $ python scripts/benchmark.py
     Timing: bsonjs.dumps(b)
-    10000 loops, best of 3: 0.04682216700166464
+    10000 loops, best of 3: 0.024979124995297752
     Timing: json_util.dumps(bson.decode(b))
-    10000 loops, best of 3: 0.17319270805455744
-    bsonjs is 3.70x faster than json_util
+    10000 loops, best of 3: 0.22723987500648946
+    bsonjs is 9.10x faster than json_util
 
     Timing: bsonjs.loads(j)
-    10000 loops, best of 3: 0.053156834095716476
+    10000 loops, best of 3: 0.06294979200174566
     Timing: bson.encode(json_util.loads(j))
-    10000 loops, best of 3: 0.15982166700996459
-    bsonjs is 3.01x faster than json_util
-
+    10000 loops, best of 3: 0.2087057090102462
+    bsonjs is 3.32x faster than json_util
 
 Limitations
 ===========
@@ -107,7 +107,12 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.9+.
+python-bsonjs supports CPython 3.11+ and builds with Meson through
+meson-python. The build compiles libbson from the mongo-c-driver release
+pinned in ``meson.build``. It downloads that release on first build, so
+the first build needs an internet connection. To build offline, extract
+the release under ``.mongo-c-driver/`` or pass
+``-Dmongo-c-driver-dir=/path/to/mongo-c-driver-<version>`` to meson.
 
 Compiler
 ````````
@@ -116,7 +121,7 @@ You must build python-bsonjs separately for each version of Python. On
 Windows this means you must use the same C compiler your Python version was
 built with.
 
-- Windows build requires Microsoft Visual Studio 2015
+- Windows build requires Microsoft Visual Studio 2019 or newer
 
 Source
 ``````
@@ -138,3 +143,18 @@ Test
 To run the test suite::
 
     $ python -m pytest
+
+Updating libbson
+````````````````
+
+The package pulls libbson from the mongo-c-driver release pinned in
+`meson.build`. To bump the version, rebuild, and refresh the benchmark
+numbers in the Speed section, run::
+
+    $ bash scripts/bump-libbson.sh
+
+With no argument the script uses the latest mongo-c-driver release and
+exits without making changes when the pinned version is already current.
+Pass a version to target a specific release::
+
+    $ bash scripts/bump-libbson.sh 2.5.3

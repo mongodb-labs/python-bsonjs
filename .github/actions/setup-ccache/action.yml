@@ -1,0 +1,56 @@
+name: Setup ccache
+description: "Install ccache, configure it, and restore/save the cache"
+inputs:
+  key:
+    description: "Cache key for actions/cache"
+    required: true
+  restore-keys:
+    description: "Restore-key prefix for actions/cache"
+    required: true
+  maxsize:
+    description: "CCACHE_MAXSIZE"
+    required: false
+    default: "400M"
+  sloppiness:
+    description: "CCACHE_SLOPPINESS"
+    required: false
+    default: "pch_defines,time_macros"
+runs:
+  using: "composite"
+  steps:
+    - name: Configure ccache
+      shell: bash
+      env:
+        CCACHE_MAXSIZE: ${{ inputs.maxsize }}
+        CCACHE_SLOPPINESS: ${{ inputs.sloppiness }}
+      run: |
+        {
+          echo "CCACHE_BASEDIR=$GITHUB_WORKSPACE"
+          echo "CCACHE_DIR=$GITHUB_WORKSPACE/.ccache"
+          echo "CCACHE_COMPRESS=true"
+          echo "CCACHE_COMPRESSLEVEL=6"
+          echo "CCACHE_MAXSIZE=$CCACHE_MAXSIZE"
+          echo "CCACHE_SLOPPINESS=$CCACHE_SLOPPINESS"
+        } >> "$GITHUB_ENV"
+
+    - name: Install ccache
+      shell: bash
+      run: |
+        # Only used as a compiler launcher on GNU/Clang; ccache's MSVC launcher
+        # hangs compiler detection on Windows, so skip it there.
+        if [ "$RUNNER_OS" = "Linux" ]; then
+          sudo apt-get install -y ccache
+        elif [ "$RUNNER_OS" = "macOS" ]; then
+          brew install ccache
+        fi
+
+    - name: Restore/save ccache
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ${{ github.workspace }}/.ccache
+        key: ${{ inputs.key }}
+        restore-keys: ${{ inputs.restore-keys }}
+
+    - name: Zero ccache stats
+      shell: bash
+      run: ccache --zero-stats

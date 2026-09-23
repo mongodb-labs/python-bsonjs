@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.8.0
+`````
+Version 0.8.0 updates the bundled libbson to 2.5.3 and compiles it from the
+pinned mongo-c-driver release instead of vendoring C sources. The build now
+uses Meson and requires Python 3.11+ (up from 3.9), so the extension is
+built against the CPython 3.11 Limited API. Building from source downloads
+the mongo-c-driver release tarball on first build.
+For a detailed breakdown of what changed in each version of libbson see its changelog:
+https://github.com/mongodb/mongo-c-driver/blob/2.5.3/NEWS
+http://mongoc.org/libbson/2.5.3/
+
 0.7.0
 `````
 - Add support for Python 3.14.

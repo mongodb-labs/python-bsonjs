@@ -1,17 +1,16 @@
 [build-system]
-requires = ["setuptools>=65"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-packages = []
+requires = ["meson-python>=0.17", "meson>=1.3", "ninja"]
+build-backend = "mesonpy"
 
 [project]
 name = "python-bsonjs"
-version = "0.8.0.dev0"
+# The version lives in meson.build (project()); meson-python feeds it here so
+# the wheel metadata and the bsonjs.__version__ macro cannot drift apart.
+dynamic = ["version"]
 description = "A library for converting between BSON and JSON."
 readme = "README.rst"
 license = { file = "LICENSE" }
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     { name = "Shane Harvey", email = "shane.harvey@mongodb.com" },
 ]
@@ -29,9 +28,7 @@ classifiers = [
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -44,13 +41,21 @@ Homepage = "https://github.com/mongodb-labs/python-bsonjs"
 [project.optional-dependencies]
 test = ["pymongo>=4", "pytest"]
 
+[tool.meson-python]
+# Build a single stable-ABI (abi3) wheel: meson-python tags it cp311-abi3 and
+# Meson auto-detects MSVC on Windows (no MinGW fallback).
+limited-api = true
+
 [tool.cibuildwheel]
 test-command = "pytest {package}/test"
 test-extras = ["test"]
-skip = ["cp314t-*"]
+skip = ["cp314t-*", "cp315t-*"]
 
 # Use abi3audit to catch issues with Limited API wheels
 [tool.cibuildwheel.linux]
+# Best-effort: make ccache available in the manylinux container so the
+# compiler launcher picks it up. CCACHE_DIR is passed through by cibuildwheel.
+before-all = "yum install -y ccache || true"
 repair-wheel-command = [
   "auditwheel repair -w {dest_dir} {wheel}",
   "pipx run abi3audit --strict --report {wheel}",
@@ -61,6 +66,14 @@ repair-wheel-command = [
   "pipx run abi3audit --strict --report {wheel}",
 ]
 [tool.cibuildwheel.windows]
+# Meson picks MinGW gcc by default on GitHub Actions Windows; --vsenv makes it
+# set up the Visual Studio (MSVC) environment instead.
+config-settings = { "setup-args" = "--vsenv" }
+# Build both 64-bit and 32-bit wheels. The 32-bit build must run with the x86
+# MSVC toolset in the environment: meson's --vsenv only ever activates the
+# x64 toolset, and it rejects a 32-bit Python against an x64 compiler. The
+# dist.yml workflow activates vcvarsall x86 for the x86 cibuildwheel run.
+archs = ["AMD64", "x86"]
 repair-wheel-command = [
   "copy {wheel} {dest_dir}",
   "pipx run abi3audit --strict --report {wheel}",

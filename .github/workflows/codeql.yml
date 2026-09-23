@@ -1,0 +1,54 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+  schedule:
+    - cron: '17 10 * * 2'
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - language: c-cpp
+          build-mode: manual
+          # Configure with Meson so libbson's config.h/version.h are generated
+          # and the extension's compile flags are computed in one place, then
+          # compile bsonjs.c with the exact command recorded in
+          # compile_commands.json so the flags cannot drift from meson.build.
+          # CodeQL's tracer only extracts files the compiler is actually
+          # invoked on, so filtering to bsonjs.c keeps libbson out of scope.
+          manual-build-command: |
+            pip install "meson>=1.3" ninja
+            python3 scripts/fetch_mongo_c_driver.py
+            meson setup /tmp/codeql-build
+            cmd=$(jq -r '.[] | select(.file | endswith("bsonjs.c")) | .command' /tmp/codeql-build/compile_commands.json)
+            o=$(printf '%s' "$cmd" | grep -o '\-o [^ ]*' | cut -d' ' -f2)
+            (cd /tmp/codeql-build && mkdir -p "$(dirname "$o")" && bash -c "$cmd")
+        - language: python
+          build-mode: none
+        - language: actions
+          build-mode: none
+    steps:
+    - uses: mongodb-labs/drivers-github-tools/codeql@f137fdd28483af14ebf466ebc5aa789fbf867218 # v3
+      with:
+        language: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        manual-build-command: ${{ matrix.manual-build-command }}
+        config: |
+          paths-ignore:
+            - 'test/**'

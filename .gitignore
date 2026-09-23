@@ -133,3 +133,6 @@ ENV/
 
 # Local checkout of mongo-c-driver
 mongo-c-driver/
+
+# CI cache of the mongo-c-driver release tarball
+.mongo-c-driver/
