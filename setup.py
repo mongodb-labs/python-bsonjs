@@ -15,6 +15,7 @@
 import glob
 import re
 import sys
+import sysconfig
 from pathlib import Path
 
 from setuptools import setup, Extension
@@ -41,6 +42,17 @@ elif sys.platform != "darwin":
     # librt may be needed for clock_gettime()
     libraries.append("rt")
 
+# The limited API is not supported on free-threaded builds (PEP 703), so
+# py_limited_api is only applied when the building interpreter supports it.
+py_limited_api = not sysconfig.get_config_var("Py_GIL_DISABLED")
+
+define_macros = [("BSON_COMPILATION", 1),
+                 ("BSONJS_VERSION", '"%s"' % _read_version())]
+options = {}
+if py_limited_api:
+    define_macros.append(("Py_LIMITED_API", "0x03090000"))
+    options['bdist_wheel'] = {'py_limited_api': 'cp39'}
+
 setup(
     ext_modules=[
         Extension(
@@ -50,12 +62,10 @@ setup(
                           "bsonjs/bson",
                           "bsonjs/jsonsl",
                           "bsonjs/common"],
-            py_limited_api=True,
-            define_macros=[("BSON_COMPILATION", 1),
-                           ("Py_LIMITED_API", "0x03090000"),
-                           ("BSONJS_VERSION", '"%s"' % _read_version())],
+            py_limited_api=py_limited_api,
+            define_macros=define_macros,
             libraries=libraries
         )
     ],
-    options={'bdist_wheel': {'py_limited_api': 'cp39'} }
+    options=options
 )
