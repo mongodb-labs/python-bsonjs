@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.8.0
+`````
+- Add support for Python 3.15.
+- Add free-threaded wheels for Python 3.14 and 3.15.
+
 0.7.0
 `````
 - Add support for Python 3.14.
