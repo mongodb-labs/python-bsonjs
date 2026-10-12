@@ -107,7 +107,7 @@ like so
 Installing From Source
 ======================
 
-python-bsonjs supports CPython 3.9+.
+python-bsonjs supports CPython 3.11+.
 
 Compiler
 ````````

@@ -50,8 +50,8 @@ define_macros = [("BSON_COMPILATION", 1),
                  ("BSONJS_VERSION", '"%s"' % _read_version())]
 options = {}
 if py_limited_api:
-    define_macros.append(("Py_LIMITED_API", "0x03090000"))
-    options['bdist_wheel'] = {'py_limited_api': 'cp39'}
+    define_macros.append(("Py_LIMITED_API", "0x030B0000"))
+    options['bdist_wheel'] = {'py_limited_api': 'cp311'}
 
 setup(
     ext_modules=[
