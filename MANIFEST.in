@@ -5,6 +5,4 @@ recursive-include bsonjs LICENSE
 recursive-include bsonjs *.h
 recursive-include bsonjs *.py
 exclude benchmark.py
-exclude build-wheels.sh
-exclude docker-build.sh
 exclude vendor.sh
